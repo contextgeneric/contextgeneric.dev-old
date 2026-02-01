@@ -10,9 +10,9 @@ sort_by = "weight"
 
 # Announcement
 
-I am excited to announce the release of [**cgp-serde**](/blog/cgp-serde-release/), a modular serialization library for Serde that leverages the power of **Context-Generic Programming**.
+We're excited to announce the release of [`cgp` v0.6.1](/blog/v0-6-1-release/), which brings several quality-of-life improvements to Context-Generic Programming in Rust. This release focuses on making CGP more accessible to developers new to the paradigm while also providing better debugging and verification tools for complex provider setups.
 
-[Read the announcement blog post](/blog/cgp-serde-release/) to find out more.
+[Read the announcement blog post](/blog/v0-6-1-release/) to find out more.
 
 ---
 
