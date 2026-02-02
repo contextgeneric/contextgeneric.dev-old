@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CGP v0.6.1 Release: Improving Ergonomics and Debugging | Context-Generic Programming</title>
+    <meta property="og:title" content="CGP v0.6.1 Release: Improving Ergonomics and Debugging | Context-Generic Programming" />
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="CGP v0.6.1 Release: Improving Ergonomics and Debugging | Context-Generic Programming">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#ai-disclaimer">AI Disclaimer</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#overview">Overview</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#making-context-generic-code-more-accessible">Making Context-Generic Code More Accessible</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#the-challenge-of-generic-parameters-in-cgp"><small>- The Challenge of Generic Parameters in CGP</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#implicit-context-types-with-cgp-impl"><small>- Implicit Context Types with #[cgp_impl]</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#enhanced-debugging-and-verification">Enhanced Debugging and Verification</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#the-challenge-of-verifying-complex-provider-wiring"><small>- The Challenge of Verifying Complex Provider Wiring</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#direct-provider-checks-with-check-providers"><small>- Direct Provider Checks with #[check_providers]</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#advanced-debugging-patterns"><small>- Advanced Debugging Patterns</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#more-expressive-getter-traits">More Expressive Getter Traits</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#the-limitations-of-getter-traits"><small>- The Limitations of Getter Traits</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#associated-types-in-getter-traits"><small>- Associated Types in Getter Traits</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#flexibility-with-cgp-getter"><small>- Flexibility with #[cgp_getter]</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#putting-it-all-together">Putting It All Together</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-1-release/#conclusion">Conclusion</a>
+                </div>
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">CGP v0.6.1 Release: Improving Ergonomics and Debugging</div>
+<div style="text-align: right;"><i>Posted on 2026-02-01</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><h2 id="ai-disclaimer"><a class="zola-anchor" href="#ai-disclaimer" aria-label="Anchor link for: ai-disclaimer">AI Disclaimer</a></h2>
+<p><em>This blog post is co-authored by Claude Haiku based on a human draft. All content has been reviewed by the human author.</em></p>
+<h2 id="overview"><a class="zola-anchor" href="#overview" aria-label="Anchor link for: overview">Overview</a></h2>
+<p>We're excited to announce the release of <a href="https://crates.io/crates/cgp/0.6.1"><code>cgp</code> v0.6.1</a>, which brings several quality-of-life improvements to Context-Generic Programming in Rust. This release focuses on making CGP more accessible to developers new to the paradigm while also providing better debugging and verification tools for complex provider setups.</p>
+<p>The changes in this release reflect our commitment to lowering the barrier to entry for CGP, while maintaining the power and flexibility that make it such a compelling approach to modular Rust code. Whether you're an experienced CGP user or just getting started, we believe you'll find these improvements meaningful.</p>
+<h2 id="making-context-generic-code-more-accessible"><a class="zola-anchor" href="#making-context-generic-code-more-accessible" aria-label="Anchor link for: making-context-generic-code-more-accessible">Making Context-Generic Code More Accessible</a></h2>
+<h3 id="the-challenge-of-generic-parameters-in-cgp"><a class="zola-anchor" href="#the-challenge-of-generic-parameters-in-cgp" aria-label="Anchor link for: the-challenge-of-generic-parameters-in-cgp">The Challenge of Generic Parameters in CGP</a></h3>
+<p>One of the biggest hurdles when learning CGP is understanding how generic <code>Context</code> parameters work in provider implementations. While generics are fundamental to Rust, they can be intimidating to developers coming from object-oriented backgrounds, or even to experienced Rust developers who haven't deeply explored the generic type system.</p>
+<p>When writing a <code>#[cgp_impl]</code> provider, you previously had to explicitly declare the <code>Context</code> as a generic parameter and ensure it appeared correctly throughout your implementation. This added cognitive overhead that wasn't directly related to the business logic you were implementing. For beginners, this meant wrestling with generic syntax before they could even focus on understanding the core CGP concepts like delegation and trait constraints.</p>
+<h3 id="implicit-context-types-with-cgp-impl"><a class="zola-anchor" href="#implicit-context-types-with-cgp-impl" aria-label="Anchor link for: implicit-context-types-with-cgp-impl">Implicit Context Types with <code>#[cgp_impl]</code></a></h3>
+<p>CGP v0.6.1 introduces support for implicit <code>Context</code> types in the <code>#[cgp_impl]</code> macro. You can now omit the explicit generic parameter and use familiar Rust patterns like <code>Self</code> to refer to the context type.</p>
+<p>Let's look at a concrete example. Suppose we're building a greeting system where different types can greet people:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">use </span><span>cgp::prelude::*;
+</span><span>
+</span><span>#[cgp_component(Greeter)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanGreet {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>greet(</span><span style="color:#569cd6;">&amp;</span><span>self);
+</span><span>}
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    Person {
+</span><span>        NameGetterComponent: UseField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;name&quot;</span><span>)&gt;,
+</span><span>        GreeterComponent: GreetHello,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p><strong>Before v0.6.1</strong>, the provider implementation would look like:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(GreetHello)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; Greeter </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasName,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>greet(</span><span style="color:#569cd6;">&amp;</span><span>self) {
+</span><span>        println!(</span><span style="color:#d69d85;">&quot;Hello, </span><span style="color:#b4cea8;">{}</span><span style="color:#d69d85;">!&quot;</span><span>, self.name());
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p><strong>With v0.6.1</strong>, you can simplify this to:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(GreetHello)]
+</span><span style="color:#569cd6;">impl </span><span>Greeter
+</span><span style="color:#569cd6;">where
+</span><span>    </span><span style="color:#569cd6;">Self</span><span>: HasName,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>greet(</span><span style="color:#569cd6;">&amp;</span><span>self) {
+</span><span>        println!(</span><span style="color:#d69d85;">&quot;Hello, </span><span style="color:#b4cea8;">{}</span><span style="color:#d69d85;">!&quot;</span><span>, self.name());
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The difference might seem small at first glance, but it has a profound impact on readability and accessibility. The new syntax eliminates the generic parameter syntax entirely, making the provider implementation look much more like a standard Rust trait implementation. For someone new to CGP coming from an OOP background, this is far less intimidating—it reads like implementing a method on a class, which is a familiar pattern.</p>
+<p>This improvement particularly shines when you have multiple providers in a codebase. Each provider definition becomes clearer and more focused on the actual logic, rather than the generic plumbing.</p>
+<h2 id="enhanced-debugging-and-verification"><a class="zola-anchor" href="#enhanced-debugging-and-verification" aria-label="Anchor link for: enhanced-debugging-and-verification">Enhanced Debugging and Verification</a></h2>
+<h3 id="the-challenge-of-verifying-complex-provider-wiring"><a class="zola-anchor" href="#the-challenge-of-verifying-complex-provider-wiring" aria-label="Anchor link for: the-challenge-of-verifying-complex-provider-wiring">The Challenge of Verifying Complex Provider Wiring</a></h3>
+<p>As your CGP applications grow in complexity, so does the challenge of verifying that all your provider wiring is correct. This is particularly true when using <strong>higher-order providers</strong>—providers that accept other providers as generic parameters.</p>
+<p>When you compose multiple providers together and something goes wrong, the compiler error messages can be cryptic. The error might point to a deep dependency in the chain, but it won't clearly tell you which individual provider in the composition is actually failing. This forces developers to compile and test repeatedly, changing providers and wiring patterns to narrow down the issue.</p>
+<h3 id="direct-provider-checks-with-check-providers"><a class="zola-anchor" href="#direct-provider-checks-with-check-providers" aria-label="Anchor link for: direct-provider-checks-with-check-providers">Direct Provider Checks with <code>#[check_providers]</code></a></h3>
+<p>CGP v0.6.1 introduces the <code>#[check_providers]</code> attribute for the <code>check_components!</code> macro, which lets you verify that specific providers work correctly with a given context. This is a powerful debugging tool that allows you to isolate and test individual providers before wiring them into your context.</p>
+<p>Here's a simple example. Suppose we have a shape area calculation system:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">use </span><span>cgp::prelude::*;
+</span><span>
+</span><span>#[cgp_component(AreaCalculator)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanCalculateArea {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>calculate_area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasRectangleFields {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>width(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>height(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[cgp_impl(new RectangleArea)]
+</span><span style="color:#569cd6;">impl </span><span>AreaCalculator
+</span><span style="color:#569cd6;">where
+</span><span>    </span><span style="color:#569cd6;">Self</span><span>: HasRectangleFields,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>calculate_area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        self.width() * self.height()
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Rectangle {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>width: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>height: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    Rectangle {
+</span><span>        AreaCalculatorComponent: RectangleArea,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>You can verify that <code>RectangleArea</code> works with <code>Rectangle</code> using:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>check_components! {
+</span><span>    CanUseRectangle </span><span style="color:#569cd6;">for</span><span> Rectangle {
+</span><span>        AreaCalculatorComponent,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With the new <code>#[check_providers]</code> attribute, you can also verify the provider directly:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>check_components! {
+</span><span>    #[check_providers(RectangleArea)]
+</span><span>    CanUseRectangleArea </span><span style="color:#569cd6;">for</span><span> Rectangle {
+</span><span>        AreaCalculatorComponent,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>What's the benefit? The <code>#[check_providers]</code> version checks whether <code>RectangleArea</code> itself can be used as a provider for the component, regardless of what's currently wired in your <code>Rectangle</code> context. This is useful if you're developing multiple providers and want to test them independently before integrating them into your system.</p>
+<h3 id="advanced-debugging-patterns"><a class="zola-anchor" href="#advanced-debugging-patterns" aria-label="Anchor link for: advanced-debugging-patterns">Advanced Debugging Patterns</a></h3>
+<p>The real power of <code>#[check_providers]</code> becomes apparent when you're working with composed higher-order providers. Let's look at a more realistic example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasScaleFactor {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>scale_factor(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[cgp_impl(new ScaledArea&lt;InnerCalculator&gt;)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;InnerCalculator&gt; AreaCalculator
+</span><span style="color:#569cd6;">where
+</span><span>    </span><span style="color:#569cd6;">Self</span><span>: HasScaleFactor,
+</span><span>    InnerCalculator: AreaCalculator&lt;</span><span style="color:#569cd6;">Self</span><span>&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>calculate_area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        self.scale_factor() * InnerCalculator::calculate_area(self)
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>ScaledRectangle {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>width: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>height: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>scale_factor: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    ScaledRectangle {
+</span><span>        AreaCalculatorComponent:
+</span><span>            ScaledArea&lt;RectangleArea&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Now, when we verify this setup, we want to ensure not only that the composed provider works, but also that each individual component in the composition is correct. We can do this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>check_components! {
+</span><span>    CanUseScaledRectangle </span><span style="color:#569cd6;">for</span><span> ScaledRectangle {
+</span><span>        AreaCalculatorComponent,
+</span><span>    }
+</span><span>
+</span><span>    #[check_providers(
+</span><span>        RectangleArea,
+</span><span>        ScaledArea&lt;RectangleArea&gt;,
+</span><span>    )]
+</span><span>    CanUseAreaCalculator </span><span style="color:#569cd6;">for</span><span> ScaledRectangle {
+</span><span>        AreaCalculatorComponent,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The first check verifies that the wired provider works with the context. The second check verifies each individual provider (or provider combination) that makes up your composition. If something is broken, such as the <code>width</code> field is missing, the error messages from these targeted checks will clearly point you to the problematic provider, rather than the entire composition.</p>
+<p>This is a game-changer for debugging complex CGP setups. Instead of staring at a wall of compiler errors and trying to trace through the dependency chain, you can surgically test each part of your provider composition.</p>
+<h2 id="more-expressive-getter-traits"><a class="zola-anchor" href="#more-expressive-getter-traits" aria-label="Anchor link for: more-expressive-getter-traits">More Expressive Getter Traits</a></h2>
+<h3 id="the-limitations-of-getter-traits"><a class="zola-anchor" href="#the-limitations-of-getter-traits" aria-label="Anchor link for: the-limitations-of-getter-traits">The Limitations of Getter Traits</a></h3>
+<p>One common pattern in CGP is using getter traits to extract values from your context. The <code>#[cgp_auto_getter]</code> macro makes this convenient by automatically implementing a getter that reads a field from your context using the <code>HasField</code> trait.</p>
+<p>However, there was one limitation that made more sophisticated getter traits tedious to work with: you couldn't define an abstract type for the return value of your getter. If you wanted a getter trait where the return type was customizable per context, you had to define a separate abstract type trait, then link it to your getter trait.</p>
+<p>This meant the old pattern looked like:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_type]
+</span><span style="color:#569cd6;">pub trait </span><span>HasNameType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Name</span><span>: Display;
+</span><span>}
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Name;
+</span><span>}
+</span></code></pre>
+<p>This works, but it requires defining two separate traits when conceptually you just want one getter trait with a flexible return type. For simple cases, this felt like boilerplate.</p>
+<h3 id="associated-types-in-getter-traits"><a class="zola-anchor" href="#associated-types-in-getter-traits" aria-label="Anchor link for: associated-types-in-getter-traits">Associated Types in Getter Traits</a></h3>
+<p>CGP v0.6.1 allows you to define associated types directly in getter traits, eliminating the need for the separate type trait. You can now write:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">use </span><span>cgp::prelude::*;
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Name</span><span>: Display;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Name;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>}
+</span></code></pre>
+<p>The <code>HasName</code> trait now has an abstract <code>Name</code> type, and when the auto-getter is derived for <code>Person</code>, it automatically implements <code>HasName</code> with <code>String</code> as the concrete <code>Name</code> type. This is much more concise and reads more naturally.</p>
+<p>The benefits are particularly clear when you have multiple getters with abstract types. Instead of maintaining a parallel set of type traits, you can keep everything in one place, making your code easier to understand and maintain.</p>
+<h3 id="flexibility-with-cgp-getter"><a class="zola-anchor" href="#flexibility-with-cgp-getter" aria-label="Anchor link for: flexibility-with-cgp-getter">Flexibility with <code>#[cgp_getter]</code></a></h3>
+<p>If you're using the more powerful <code>#[cgp_getter]</code> macro (which allows customization of the implementation through providers), the same support for associated types works seamlessly:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">use </span><span>cgp::prelude::*;
+</span><span>
+</span><span>#[cgp_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Name</span><span>: Display;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Name;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: String,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    Person {
+</span><span>        NameGetterComponent:
+</span><span>            UseField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;first_name&quot;</span><span>)&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Even though our struct has a <code>first_name</code> field, we can still use the <code>HasName</code> getter by wiring it with <code>UseField</code>. The <code>#[cgp_getter]</code> macro combined with associated types gives you both power and convenience.</p>
+<h2 id="putting-it-all-together"><a class="zola-anchor" href="#putting-it-all-together" aria-label="Anchor link for: putting-it-all-together">Putting It All Together</a></h2>
+<p>These three changes—implicit <code>Context</code> types, enhanced provider checking, and associated types in getters—work together to achieve our goal: making CGP more accessible and maintainable without sacrificing its power.</p>
+<p>The improvements lower the learning curve for new CGP users by reducing generic syntax overhead. They provide better tooling for verifying and debugging complex provider compositions. And they reduce boilerplate when defining sophisticated traits, freeing you to focus on business logic.</p>
+<p>As your CGP codebase grows, you'll find yourself reaching for these new features frequently. The <code>#[cgp_impl]</code> simplification makes your code more readable. The <code>#[check_providers]</code> attribute helps you debug faster. And associated types in getters let you express your intent more directly.</p>
+<h2 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">Conclusion</a></h2>
+<p>We believe CGP v0.6.1 represents a meaningful step forward in making Context-Generic Programming more approachable and productive. These changes emerged directly from feedback and real-world usage patterns in the CGP community, and we're confident they'll improve the development experience for everyone.</p>
+<p>We encourage you to upgrade to v0.6.1 and explore these new features. Try simplifying your provider implementations with implicit <code>Context</code> types. Use <code>#[check_providers]</code> to debug your next complex provider composition. Define getter traits with abstract types and feel the difference in conciseness and clarity.</p>
+<p>As always, we welcome feedback, bug reports, and contributions. The CGP journey continues, and we're excited to see what you build with these new tools.</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

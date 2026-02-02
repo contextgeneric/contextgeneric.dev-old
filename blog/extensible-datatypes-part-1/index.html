@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Programming Extensible Data Types in Rust with CGP - Part 1: Modular App Construction and Extensible Builders | Context-Generic Programming</title>
+    <meta property="og:title" content="Programming Extensible Data Types in Rust with CGP - Part 1: Modular App Construction and Extensible Builders | Context-Generic Programming" />
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="Programming Extensible Data Types in Rust with CGP - Part 1: Modular App Construction and Extensible Builders | Context-Generic Programming">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#overview">Overview</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#series-overview">Series Overview</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#feature-highlighs">Feature Highlighs</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#safe-enum-upcasting"><small>- Safe Enum Upcasting</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#safe-enum-downcasting"><small>- Safe Enum Downcasting</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#safe-struct-building"><small>- Safe Struct Building</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#motivation-for-extensible-builders">Motivation for Extensible Builders</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#adding-ai-capabilities-to-app"><small>- Adding AI Capabilities to App</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#from-simple-to-complex"><small>- From Simple to Complex</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#why-modular-constructor-matters"><small>- Why Modular Constructor Matters</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#challenges-for-modular-builders"><small>- Challenges for Modular Builders</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#modular-builders-with-cgp"><small>- Modular Builders with CGP</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#extensible-builders">Extensible Builders</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#modular-sqlite-builder"><small>- Modular SQLite Builder</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#http-client-builder"><small>- HTTP Client Builder</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#combined-sqlite-and-http-client-builder"><small>- Combined SQLite and HTTP Client Builder</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#chatgpt-client-builder"><small>- ChatGPT Client Builder</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#builder-context"><small>- Builder Context</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#builder-dispatcher"><small>- Builder Dispatcher</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#building-the-app"><small>- Building the App</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#more-builder-examples">More Builder Examples</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#default-builder"><small>- Default Builder</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#postgres-app"><small>- Postgres App</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#anthropic-app"><small>- Anthropic App</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#anthropic-and-chatgpt-builder"><small>- Anthropic and ChatGPT Builder</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#multi-context-builder"><small>- Multi-Context Builder</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#conclusion">Conclusion</a>
+                </div>
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">Programming Extensible Data Types in Rust with CGP - Part 1: Modular App Construction and Extensible Builders</div>
+<div style="text-align: right;"><i>Posted on 2025-07-07</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><p>Discuss on <a href="https://www.reddit.com/r/rust/comments/1ltu9nl/programming_extensible_data_types_in_rust_with/">Reddit</a>, <a href="https://lobste.rs/s/piugxk/programming_extensible_data_types_rust">Lobsters</a>, <a href="https://news.ycombinator.com/item?id=44497815">Hacker News</a>, <a href="https://github.com/orgs/contextgeneric/discussions/12">GitHub</a>, or <a href="https://discord.gg/Hgk3rCw6pQ">Discord</a>.</p>
+<h1 id="overview"><a class="zola-anchor" href="#overview" aria-label="Anchor link for: overview">Overview</a></h1>
+<p>I’m excited to announce the release of <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.4.2"><strong>CGP v0.4.2</strong></a>, a major milestone that significantly expands the expressive power of generic programming in Rust. With this release, CGP introduces full support for <strong>extensible records and variants</strong>, unlocking a range of new capabilities for developers working with highly modular and reusable code.</p>
+<p>Extensible records and variants allow developers to write code that operates on <em>any struct containing specific fields</em> or <em>any enum containing specific variants</em>, without needing their concrete definition. This makes it possible to write truly generic and flexible logic that is decoupled from rigid type definitions.</p>
+<p>In earlier versions, CGP already offered a foundational feature through the <code>HasField</code> trait, which made it possible to <em>read</em> a field from any struct that included it. With version 0.4.2, this functionality is dramatically extended. Not only can you now read fields, but you can also <em>construct</em> values onto these fields in a type-safe manner. More importantly, the same level of extensibility is now available for enums, enabling operations over variants in a similarly generic fashion.</p>
+<p>This advancement introduces two powerful programming patterns that are now possible with CGP:</p>
+<ol>
+<li>
+<p><strong>Extensible Builder Pattern</strong>: This pattern allows for modular construction of structs from independent sub-structs, each contributing specific fields. It enables highly composable and decoupled design in data construction.</p>
+</li>
+<li>
+<p><strong>Extensible Visitor Pattern</strong>: This pattern enables the modular deconstruction of enums, allowing independent components to handle different variants without requiring full knowledge of the entire enum definition. This effectively enables a modularized version of the <em>visitor pattern</em>, by allowing new variants to be handled by extensible visitors.</p>
+</li>
+</ol>
+<p>For readers coming from more advanced programming languages, this development effectively brings the power of <a href="https://wiki.haskell.org/index.php?title=Generics"><strong>datatype-generic programming</strong></a>, <a href="https://en.wikipedia.org/wiki/Structural_type_system"><strong>structural typing</strong></a>, <a href="https://book.purescript.org/chapter4.html"><strong>row polymorphism</strong></a> and <a href="https://ocaml.org/manual/5.1/polyvariant.html"><strong>polymorphic variants</strong></a> to Rust. These are advanced type system features commonly found in languages like Haskell, PureScript and OCaml, and their availability in CGP represents a major leap in what is possible with the type system in Rust.</p>
+<p>In addition, CGP v0.4.2 introduces support for safe <strong>upcasting and downcasting between enums</strong> that share a common subset of variants. This provides a foundation for writing extensible and evolvable APIs that remain compatible across different layers of abstraction or across independently maintained modules.</p>
+<p>Here is a revised version of your “Content Organization” section, rewritten for clarity, flow, and consistency in tone and style. It maintains full sentences and should read naturally for Rust developers new to CGP:</p>
+<h1 id="series-overview"><a class="zola-anchor" href="#series-overview" aria-label="Anchor link for: series-overview">Series Overview</a></h1>
+<p>This article is the first in a five-part series exploring the examples and implementation of extensible data types in CGP. Below is an overview of what each part covers:</p>
+<p><strong>Part 1: Modular App Construction and Extensible Builders</strong> (this post) – In this introductory part, we present a high-level overview of the key features enabled by extensible data types. We then dive into a hands-on demonstration showing how extensible records can be used to build and compose modular builders for real-world applications.</p>
+<p><a href="/blog/extensible-datatypes-part-2"><strong>Part 2: Modular Interpreters and Extensible Visitors</strong></a> – This part continues the demonstration by introducing extensible variants. We use them to address the <a href="https://en.wikipedia.org/wiki/Expression_problem"><strong>expression problem</strong></a>, implementing a set of reusable interpreter components for a small toy language.</p>
+<p><a href="/blog/extensible-datatypes-part-3"><strong>Part 3: Implementing Extensible Records</strong></a> – Here, we walk through the internal mechanics behind extensible records. We show how CGP supports the modular builder pattern demonstrated in Part 1 through its underlying type and trait machinery.</p>
+<p><a href="/blog/extensible-datatypes-part-4"><strong>Part 4: Implementing Extensible Variants</strong></a> – This part mirrors Part 3, but for extensible variants. We examine how extensible variants are implemented, and compare the differences and similarities between extensible records and variants.</p>
+<h1 id="feature-highlighs"><a class="zola-anchor" href="#feature-highlighs" aria-label="Anchor link for: feature-highlighs">Feature Highlighs</a></h1>
+<h2 id="safe-enum-upcasting"><a class="zola-anchor" href="#safe-enum-upcasting" aria-label="Anchor link for: safe-enum-upcasting">Safe Enum Upcasting</a></h2>
+<p>Let’s begin by looking at how CGP enables safe upcasting between enums. Imagine you have the following enum definition called <code>Shape</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasFields, FromVariant, ExtractField)]
+</span><span style="color:#569cd6;">pub enum </span><span>Shape {
+</span><span>    Circle(Circle),
+</span><span>    Rectangle(Rectangle),
+</span><span>}
+</span></code></pre>
+<p>You may also have a different <code>ShapePlus</code> enum, defined elsewhere, that represents a <em>superset</em> of the variants in <code>Shape</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasFields, FromVariant, ExtractField)]
+</span><span style="color:#569cd6;">pub enum </span><span>ShapePlus {
+</span><span>    Triangle(Triangle),
+</span><span>    Rectangle(Rectangle),
+</span><span>    Circle(Circle),
+</span><span>}
+</span></code></pre>
+<p>With CGP v0.4.2, it is now possible to <em>upcast</em> a <code>Shape</code> value into a <code>ShapePlus</code> value in fully safe Rust:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> shape = Shape::Circle(Circle { radius: </span><span style="color:#b5cea8;">5.0 </span><span>});
+</span><span style="color:#569cd6;">let</span><span> shape_plus = shape.upcast(PhantomData::&lt;ShapePlus&gt;);
+</span><span>assert_eq!(shape_plus, ShapePlus::Circle(Circle { radius: </span><span style="color:#b5cea8;">5.0 </span><span>}));
+</span></code></pre>
+<p>This operation works by leveraging the derived CGP traits <code>HasFields</code>, <code>ExtractField</code>, and <code>FromVariant</code>. As long as the source enum’s variants are a subset of the target enum’s, CGP can automatically generate the logic required to lift the smaller enum into the larger one.</p>
+<p>A particularly powerful aspect of this design is that the two enums do not need to know about each other. They can be defined in entirely separate crates, and the trait derivations are completely general. You don’t need to define any enum-specific conversion traits. This makes it possible to build libraries of reusable variant groups and compose them freely in application code.</p>
+<h2 id="safe-enum-downcasting"><a class="zola-anchor" href="#safe-enum-downcasting" aria-label="Anchor link for: safe-enum-downcasting">Safe Enum Downcasting</a></h2>
+<p>In the reverse direction, CGP also supports <em>safe downcasting</em> from a larger enum to a smaller one that contains only a subset of its variants. Using the same <code>Shape</code> and <code>ShapePlus</code> enums, the following example demonstrates how this works:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> shape = ShapePlus::Circle(Circle { radius: </span><span style="color:#b5cea8;">5.0 </span><span>});
+</span><span>
+</span><span>assert_eq!(
+</span><span>    shape.downcast(PhantomData::&lt;Shape&gt;).ok(),
+</span><span>    Some(Shape::Circle(Circle { radius: </span><span style="color:#b5cea8;">5.0 </span><span>}))
+</span><span>);
+</span></code></pre>
+<p>Like <code>upcast</code>, this <code>downcast</code> method relies on the same set of derived CGP traits and works for any pair of compatible enums. The operation returns a <code>Result</code>, where the <code>Ok</code> variant contains the downcasted value, and the <code>Err</code> variant carries the unhandled remainder of the original enum.</p>
+<p>In the example above, we use <code>.ok()</code> to simplify the comparison, but in practice, the <code>Err</code> case contains useful remainder value that can be further examined or downcasted again.</p>
+<h3 id="safe-exhaustive-downcasting"><a class="zola-anchor" href="#safe-exhaustive-downcasting" aria-label="Anchor link for: safe-exhaustive-downcasting">Safe Exhaustive Downcasting</a></h3>
+<p>One of the unique capabilities CGP provides is the ability to <em>exhaustively downcast</em> an enum, step by step, until all possible variants are handled. This pattern becomes especially useful when working with generic enums in extensible APIs, where the concrete enum definition is unknown or evolving.</p>
+<p>To demonstrate this, suppose we define another enum to represent the remaining <code>Triangle</code> variant:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasFields, ExtractField, FromVariant)]
+</span><span style="color:#569cd6;">pub enum </span><span>TriangleOnly {
+</span><span>    Triangle(Triangle),
+</span><span>}
+</span></code></pre>
+<p>Now, the combination of <code>Shape</code> and <code>TriangleOnly</code> covers the entire set of variants from <code>ShapePlus</code>. We can use this setup to exhaustively handle all possible cases, while staying entirely within the bounds of safe Rust:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> shape_plus = ShapePlus::Triangle(Triangle {
+</span><span>    base: </span><span style="color:#b5cea8;">3.0</span><span>,
+</span><span>    height: </span><span style="color:#b5cea8;">4.0</span><span>,
+</span><span>});
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> area = </span><span style="color:#569cd6;">match</span><span> shape_plus.downcast(PhantomData::&lt;Shape&gt;) {
+</span><span>    Ok(shape) </span><span style="color:#569cd6;">=&gt; match</span><span> shape {
+</span><span>        Shape::Circle(circle) </span><span style="color:#569cd6;">=&gt; </span><span style="color:#b4cea8;">PI </span><span>* circle.radius * circle.radius,
+</span><span>        Shape::Rectangle(rectangle) </span><span style="color:#569cd6;">=&gt;</span><span> rectangle.width * rectangle.height,
+</span><span>    },
+</span><span>    Err(remainder) </span><span style="color:#569cd6;">=&gt; match</span><span> remainder.downcast_fields(PhantomData::&lt;TriangleOnly&gt;) {
+</span><span>        Ok(TriangleOnly::Triangle(triangle)) </span><span style="color:#569cd6;">=&gt;</span><span> triangle.base * triangle.height / </span><span style="color:#b5cea8;">2.0</span><span>,
+</span><span>    },
+</span><span>};
+</span></code></pre>
+<p>In this example, we first attempt to downcast into <code>Shape</code>. If that fails, the remainder is passed to <code>downcast_fields</code>, which attempts to further downcast to <code>TriangleOnly</code>. When all variants are properly handled, Rust automatically knows that there is no variant left to be handled, and we can safely omit the final <code>Err</code> case.</p>
+<p>At first glance, this approach may appear more complex than simply matching against the original enum directly. However, its true strength lies in its <strong>generality</strong>. With CGP’s downcasting mechanism, you can pattern match over generic enum types without knowing their full structure in advance. This enables highly extensible and type-safe designs where variants can be added or removed modularly, without breaking existing logic.</p>
+<h2 id="safe-struct-building"><a class="zola-anchor" href="#safe-struct-building" aria-label="Anchor link for: safe-struct-building">Safe Struct Building</a></h2>
+<p>Just as CGP enables safe, composable deconstruction of enums, it also brings <strong>extensible construction</strong> to structs. This is achieved through a form of structural merging, where smaller structs can be incrementally combined into larger ones. The result is a flexible and modular approach to building complex data types, well-suited for highly decoupled or plugin-style architectures.</p>
+<p>To illustrate this, let’s take the example of a <code>Employee</code> struct:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Employee {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>employee_id: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>last_name: String,
+</span><span>}
+</span></code></pre>
+<p>Suppose we also define two smaller structs — <code>Person</code> and <code>EmployeeId</code> — each containing a subset of the fields in <code>Employee</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>last_name: String,
+</span><span>}
+</span><span>
+</span><span>#[derive(HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>EmployeeId {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>employee_id: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>}
+</span></code></pre>
+<p>With CGP, we can now construct a <code>Employee</code> value in a modular and extensible way, by composing these smaller building blocks:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> person = Person {
+</span><span>    first_name: </span><span style="color:#d69d85;">&quot;John&quot;</span><span>.to_owned(),
+</span><span>    last_name: </span><span style="color:#d69d85;">&quot;Smith&quot;</span><span>.to_owned(),
+</span><span>};
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> employee_id = EmployeeId { employee_id: </span><span style="color:#b5cea8;">1 </span><span>};
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> employee = Employee::builder()
+</span><span>    .build_from(person)
+</span><span>    .build_from(employee_id)
+</span><span>    .finalize_build();
+</span></code></pre>
+<p>Here’s what’s happening: The <code>builder()</code> method on <code>Employee</code> initiates a <em>partial record</em> builder, an intermediate structure that initially contains none of the target fields. Each call to <code>build_from</code> takes a struct that contributes one or more of the remaining fields and returns a new builder with those fields filled in. Once all required fields have been supplied, the <code>finalize_build()</code> method consumes the builder and produces a fully constructed <code>Employee</code> instance.</p>
+<p>Just like enum upcasting and downcasting, the struct builder is implemented entirely in <strong>safe</strong>, <strong>panic-free</strong> Rust. There’s no runtime reflection or unsafe code involved. The only requirement is that the participating structs must have compatible fields and derive the CGP-provided traits <code>HasFields</code> and <code>BuildField</code>.</p>
+<p>Moreover, this system is completely decoupled from specific struct definitions. The individual component structs — <code>Person</code>, <code>EmployeeId</code>, and <code>Employee</code> — can be defined in separate crates, with no awareness of each other. Once the CGP traits are derived, they become interoperable through structural field compatibility alone.</p>
+<p>While this example may seem trivial — after all, constructing <code>Employee</code> directly is straightforward — it serves as a foundation for much more powerful generic abstractions. As you’ll see in the upcoming sections, the builder pattern opens the door to writing highly reusable, type-safe logic that can construct <strong>generic types</strong> without ever referencing their concrete types. This makes it possible to write libraries or plugins that contribute data to a shared structure without tight coupling or dependency on a central type definition.</p>
+<h1 id="motivation-for-extensible-builders"><a class="zola-anchor" href="#motivation-for-extensible-builders" aria-label="Anchor link for: motivation-for-extensible-builders">Motivation for Extensible Builders</a></h1>
+<p>To understand how extensible records enable modular builders, let’s explore a practical use case: constructing an application context from configuration inputs.</p>
+<p>Imagine we’re building an API client for our application. The application context needs to include an SQLite database connection and an HTTP client. A typical way to model this in Rust would be to define a struct like the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span style="color:#569cd6;">pub struct </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>sqlite_pool: SqlitePool,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_client: Client,
+</span><span>}
+</span></code></pre>
+<p>This <code>App</code> struct holds a <a href="https://docs.rs/sqlx/latest/sqlx/sqlite/type.SqlitePool.html"><code>SqlitePool</code></a> from the <code>sqlx</code> crate, and an HTTP <a href="https://docs.rs/reqwest/latest/reqwest/struct.Client.html"><code>Client</code></a> from <code>reqwest</code>. To construct this context, we might implement a <code>new</code> function as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">pub</span><span> async </span><span style="color:#569cd6;">fn </span><span>new(db_path: </span><span style="color:#569cd6;">&amp;str</span><span>) -&gt; Result&lt;</span><span style="color:#569cd6;">Self</span><span>, Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> http_client = Client::new();
+</span><span>        </span><span style="color:#569cd6;">let</span><span> sqlite_pool = SqlitePool::connect(db_path).await</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        Ok(</span><span style="color:#569cd6;">Self </span><span>{
+</span><span>            http_client,
+</span><span>            sqlite_pool,
+</span><span>        })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This constructor is asynchronous and returns a <code>Result&lt;App, Error&gt;</code>. It creates a default <code>Client</code> using <code>reqwest</code>, connects to the database using the provided path, and assembles both into an <code>App</code> struct.</p>
+<h2 id="adding-ai-capabilities-to-app"><a class="zola-anchor" href="#adding-ai-capabilities-to-app" aria-label="Anchor link for: adding-ai-capabilities-to-app">Adding AI Capabilities to <code>App</code></a></h2>
+<p>At this point, the constructor looks simple. But in a real-world setting, it’s rarely that clean. Suppose the product team now wants to integrate AI capabilities into the application. To support this, we decide to use an LLM service like ChatGPT and extend the <code>App</code> struct accordingly:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span style="color:#569cd6;">pub struct </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>sqlite_pool: SqlitePool,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_client: Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_client: openai::Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_agent: Agent&lt;openai::CompletionModel&gt;,
+</span><span>}
+</span></code></pre>
+<p>In this updated version, we introduce two new fields: <code>open_ai_client</code>, which is used to communicate with the OpenAI API, and <code>open_ai_agent</code>, which encapsulates a configured agent that can perform conversational tasks using a model like GPT-4o using <a href="https://docs.rs/rig-core/latest/rig/index.html"><code>rig</code></a>.</p>
+<p>The <code>new</code> constructor must now also handle the initialization logic for these fields:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">pub</span><span> async </span><span style="color:#569cd6;">fn </span><span>new(db_path: </span><span style="color:#569cd6;">&amp;str</span><span>) -&gt; Result&lt;</span><span style="color:#569cd6;">Self</span><span>, Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> http_client = Client::new();
+</span><span>        </span><span style="color:#569cd6;">let</span><span> sqlite_pool = SqlitePool::connect(db_path).await</span><span style="color:#569cd6;">?</span><span>;
+</span><span>        </span><span style="color:#569cd6;">let</span><span> open_ai_client = openai::Client::from_env();
+</span><span>        </span><span style="color:#569cd6;">let</span><span> open_ai_agent = open_ai_client.agent(</span><span style="color:#d69d85;">&quot;gpt-4o&quot;</span><span>).build();
+</span><span>
+</span><span>        Ok(</span><span style="color:#569cd6;">Self </span><span>{
+</span><span>            http_client,
+</span><span>            sqlite_pool,
+</span><span>            open_ai_client,
+</span><span>            open_ai_agent,
+</span><span>        })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, we initialize the OpenAI client using environment variables, and then build an agent configured for the <code>gpt-4o</code> model. These values are added alongside the existing HTTP and database clients.</p>
+<h2 id="from-simple-to-complex"><a class="zola-anchor" href="#from-simple-to-complex" aria-label="Anchor link for: from-simple-to-complex">From Simple to Complex</a></h2>
+<p>Even with these additions, our constructor remains relatively manageable. However, as often happens in production, the requirements grow—and so does the configuration logic. Let’s imagine a more realistic version of this <code>new</code> function:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">pub</span><span> async </span><span style="color:#569cd6;">fn </span><span>new(
+</span><span>        db_options: </span><span style="color:#569cd6;">&amp;str</span><span>,
+</span><span>        db_journal_mode: </span><span style="color:#569cd6;">&amp;str</span><span>,
+</span><span>        http_user_agent: </span><span style="color:#569cd6;">&amp;str</span><span>,
+</span><span>        open_ai_key: </span><span style="color:#569cd6;">&amp;str</span><span>,
+</span><span>        open_ai_model: </span><span style="color:#569cd6;">&amp;str</span><span>,
+</span><span>        llm_preamble: </span><span style="color:#569cd6;">&amp;str</span><span>,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self</span><span>, Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> journal_mode = SqliteJournalMode::from_str(db_journal_mode)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> db_options = SqliteConnectOptions::from_str(db_options)</span><span style="color:#569cd6;">?</span><span>.journal_mode(journal_mode);
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> sqlite_pool = SqlitePool::connect_with(db_options).await</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> http_client = Client::builder()
+</span><span>            .user_agent(http_user_agent)
+</span><span>            .connect_timeout(Duration::from_secs(</span><span style="color:#b5cea8;">5</span><span>))
+</span><span>            .build()</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> open_ai_client = openai::Client::new(open_ai_key);
+</span><span>        </span><span style="color:#569cd6;">let</span><span> open_ai_agent = open_ai_client
+</span><span>            .agent(open_ai_model)
+</span><span>            .preamble(llm_preamble)
+</span><span>            .build();
+</span><span>
+</span><span>        Ok(</span><span style="color:#569cd6;">Self </span><span>{
+</span><span>            open_ai_client,
+</span><span>            open_ai_agent,
+</span><span>            sqlite_pool,
+</span><span>            http_client,
+</span><span>        })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This constructor now handles <em>five</em> separate input parameters, each contributing to the configuration of different parts of the application. It creates a <code>SqliteConnectOptions</code> object to configure the database with the specified journal mode. The HTTP client is set up with a custom user agent and a longer timeout. The AI client is initialized using an explicit API key, and the agent is constructed with a custom model and preamble.</p>
+<p>While none of these steps are especially difficult on their own, the function is starting to grow in complexity. It’s also becoming more <strong>fragile</strong>, as all responsibilities are bundled into one place. Every change to a single subsystem — whether it’s database, HTTP, or AI — requires editing the same constructor.</p>
+<h2 id="why-modular-constructor-matters"><a class="zola-anchor" href="#why-modular-constructor-matters" aria-label="Anchor link for: why-modular-constructor-matters">Why Modular Constructor Matters</a></h2>
+<p>As we've seen in the previous example, even modest configurability can cause a constructor's complexity to grow rapidly. With just a few additional fields or customization options, the function becomes harder to maintain, test, and reason about.</p>
+<p>In many cases, there's no single “correct” way to construct an application context. For example, you might want to retain both versions of the <code>new</code> constructor from earlier: a minimal one for unit tests with default values, and a more elaborate, configurable one for production. In fact, it's common for different parts of an application to require different levels of configurability—some using defaults, others requiring fine-grained setup.</p>
+<p>To manage this complexity, Rust developers often reach for the <a href="https://rust-unofficial.github.io/patterns/patterns/creational/builder.html"><em>builder pattern</em></a>. This involves creating a separate builder struct, typically with optional or defaultable fields and fluent setter methods. The builder is used to gradually assemble values before producing the final struct.</p>
+<h2 id="challenges-for-modular-builders"><a class="zola-anchor" href="#challenges-for-modular-builders" aria-label="Anchor link for: challenges-for-modular-builders">Challenges for Modular Builders</a></h2>
+<p>The traditional builder pattern works, but it comes with serious limitations — especially when extensibility and modularity are important.</p>
+<p>The first limitation is <strong>tight coupling</strong>. A builder is usually tied directly to a specific target struct. If you create a new context that’s only slightly different from an existing one, you often have to duplicate the entire builder implementation, even if most of the logic is the same.</p>
+<p>Second, builders are typically <strong>non-extensible</strong>. If you want to extend the construction logic — say, by adding a new step to initialize an additional field — you usually have to modify the original builder struct. This makes it hard to share construction logic across crates or teams without exposing internal implementation details.</p>
+<p>The root cause of these problems is that struct construction in Rust typically requires direct access to the <strong>concrete type</strong>. That means the builder must know the exact shape of the final struct and have access to all its field values up front. If you need intermediate values or want to plug in custom build steps, those values must be manually threaded through the builder and its state.</p>
+<p>This rigidity makes it difficult to define reusable, composable building blocks—especially in large or evolving codebases.</p>
+<h2 id="modular-builders-with-cgp"><a class="zola-anchor" href="#modular-builders-with-cgp" aria-label="Anchor link for: modular-builders-with-cgp">Modular Builders with CGP</a></h2>
+<p>Earlier versions of CGP also ran into these limitations. When writing <em>context-generic</em> code, we wanted to construct structs in a way that didn’t require knowing their concrete types ahead of time. But because Rust structs require all field values to be present simultaneously at construction time, we couldn’t easily implement flexible or reusable context-generic constructors.</p>
+<p>With the latest release, that limitation is fully resolved.</p>
+<p>CGP now supports <strong>modular, extensible struct builders</strong> that can be composed from smaller, independent parts. Each module can define how to build a piece of a context struct, and the builder automatically merges them — without needing to know the final shape of the struct ahead of time.</p>
+<p>This opens the door to a new style of constructor logic: one that is <strong>modular</strong>, <strong>composable</strong>, and <strong>context-generic</strong>. You can define builders for individual subsystems (e.g., database, HTTP client, AI agent), and combine them to build any compatible application context.</p>
+<h1 id="extensible-builders"><a class="zola-anchor" href="#extensible-builders" aria-label="Anchor link for: extensible-builders">Extensible Builders</a></h1>
+<p>In this section, we’ll revisit the constructor examples we’ve already seen — and show how to rewrite them using CGP’s new builder pattern to achieve clean, modular, and reusable construction logic. A full version of the example code covered in this section is available on our <a href="https://github.com/contextgeneric/cgp-examples/tree/main/builder">GitHub repository</a></p>
+<h2 id="modular-sqlite-builder"><a class="zola-anchor" href="#modular-sqlite-builder" aria-label="Anchor link for: modular-sqlite-builder">Modular SQLite Builder</a></h2>
+<p>Let’s now explore how to implement modular construction of the <code>App</code> context using multiple CGP providers. We’ll start by defining a default SQLite builder provider using CGP's <code>Handler</code> component:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Build, Code: Send, Input: Send&gt; Handler&lt;Build, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildDefaultSqliteClient
+</span><span style="color:#569cd6;">where
+</span><span>    Build: HasSqlitePath + CanRaiseAsyncError&lt;sqlx::Error&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= SqliteClient;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        build: </span><span style="color:#569cd6;">&amp;</span><span>Build,
+</span><span>        _code: PhantomData&lt;Code&gt;,
+</span><span>        _input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Build::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> sqlite_pool = SqlitePool::connect(build.db_path())
+</span><span>            .await
+</span><span>            .map_err(Build::raise_error)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        Ok(SqliteClient { sqlite_pool })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this example, we define <code>BuildDefaultSqliteClient</code> as a CGP provider that implements the <code>Handler</code> component. This is the same <code>Handler</code> trait we introduced in <a href="/blog/hypershell-release/#handler-component">Hypershell</a>, where it was used to power shell-like pipelines. Here, we repurpose the same trait to construct modular context components. This demonstrates how general-purpose the <code>Handler</code> trait is — it can be used for pipelines, API handlers, visitors, and now, context builders.</p>
+<p>The <code>Build</code> type parameter refers to a generic <strong>builder context</strong>, not the final <code>App</code> struct. This context includes the inputs required to construct a <code>SqliteClient</code>. In this case, the builder must be able to provide a database path, as well as a way to raise errors from <code>sqlx</code>. These requirements are expressed through the <code>HasSqlitePath</code> and <code>CanRaiseAsyncError</code> constraints.</p>
+<p>The <code>HasSqlitePath</code> trait is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasSqlitePath {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>db_path(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span></code></pre>
+<p>By marking the trait with <a href="https://patterns.contextgeneric.dev/generic-accessor-providers.html#the-cgp_auto_getter-macro"><code>#[cgp_auto_getter]</code></a>, CGP can automatically implement this trait for any builder context that contains a <code>db_path</code> field of type <code>String</code>. This automatic implementation reduces boilerplate and ensures that any context with the appropriate fields can satisfy the trait bounds.</p>
+<p>Although our example does not make use of the <code>Code</code> or <code>Input</code> parameters, they remain part of the <code>Handler</code> signature. The <code>Code</code> parameter may be used for <em>compile-time options</em> that allow contexts to be constructed in multiple ways. Meanwhile, <code>Input</code> typically refers to the <strong>partial</strong> value of the final struct being built. These capabilities are useful in more advanced scenarios, but we will leave their explanation for a later section.</p>
+<p>In this implementation, the <code>handle</code> method simply connects to the SQLite database using the provided path, wraps the resulting pool in a <code>SqliteClient</code> struct, and returns it. The <code>SqliteClient</code> is defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>SqliteClient {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>sqlite_pool: SqlitePool,
+</span><span>}
+</span></code></pre>
+<p>This struct acts as a wrapper around <code>SqlitePool</code> and serves as the output of our modular builder. Although <code>BuildDefaultSqliteClient</code> does not build the full <code>App</code> context, we can merge its output into <code>App</code> using CGP’s <code>build_from</code> mechanism we covered earlier. Deriving <code>HasField</code>, <code>HasFields</code>, and <code>BuildField</code> on <code>SqliteClient</code> allows it to be safely and automatically merged into the final context during composition.</p>
+<p>At this point, you might be wondering why so much infrastructure is needed just to call <code>SqlitePool::connect</code>. The answer is that, while this example is simple, real-world construction logic can be much more complex. By encapsulating each part of the logic into modular components, we gain flexibility, reusability, and testability.</p>
+<p>To demonstrate this flexibility, consider a more complex version of the SQLite builder. This version uses connection options and journal mode configuration rather than a simple path string:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Build, Code: Send, Input: Send&gt; Handler&lt;Build, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildSqliteClient
+</span><span style="color:#569cd6;">where
+</span><span>    Build: HasSqliteOptions + CanRaiseAsyncError&lt;sqlx::Error&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= SqliteClient;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        build: </span><span style="color:#569cd6;">&amp;</span><span>Build,
+</span><span>        _code: PhantomData&lt;Code&gt;,
+</span><span>        _input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Build::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> journal_mode =
+</span><span>            SqliteJournalMode::from_str(build.db_journal_mode()).map_err(Build::raise_error)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> db_options = SqliteConnectOptions::from_str(build.db_options())
+</span><span>            .map_err(Build::raise_error)</span><span style="color:#569cd6;">?
+</span><span>            .journal_mode(journal_mode);
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> sqlite_pool = SqlitePool::connect_with(db_options)
+</span><span>            .await
+</span><span>            .map_err(Build::raise_error)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        Ok(SqliteClient { sqlite_pool })
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasSqliteOptions {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>db_options(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>db_journal_mode(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span></code></pre>
+<p>In this version, <code>BuildSqliteClient</code> constructs a <code>SqliteClient</code> using fully configurable connection options. The <code>Build</code> context must now implement <code>HasSqliteOptions</code>, a trait that provides both the connection URI and the desired journal mode.</p>
+<p>This example illustrates the key advantage of modular builders: the builder logic is entirely <strong>decoupled</strong> from the context itself. If we want to use <code>BuildDefaultSqliteClient</code>, we can define a simple builder context with just a <code>db_path</code> field. If we switch to <code>BuildSqliteClient</code>, we only need to provide a different context that includes <code>db_options</code> and <code>db_journal_mode</code>. All other components of the builder can remain unchanged.</p>
+<p>Thanks to this decoupling, we can easily swap in different builder providers depending on the needs of the environment — be it development, testing, or production — without rewriting the entire construction logic. This modularity makes CGP builders highly scalable and adaptable to real-world applications.</p>
+<h2 id="http-client-builder"><a class="zola-anchor" href="#http-client-builder" aria-label="Anchor link for: http-client-builder">HTTP Client Builder</a></h2>
+<p>Just as we modularized the construction of the SQLite client, we can also define a modular builder for an HTTP client using CGP. In this case, we will construct a custom <code>reqwest</code> client with specific configuration options. To keep the focus on advanced use cases, we will skip the simpler version and go directly to the more complex construction logic.</p>
+<p>The HTTP client builder is implemented as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Build, Code: Send, Input: Send&gt; Handler&lt;Build, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildHttpClient
+</span><span style="color:#569cd6;">where
+</span><span>    Build: HasHttpClientConfig + CanRaiseAsyncError&lt;reqwest::Error&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= HttpClient;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        build: </span><span style="color:#569cd6;">&amp;</span><span>Build,
+</span><span>        _code: PhantomData&lt;Code&gt;,
+</span><span>        _input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Build::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> http_client = Client::builder()
+</span><span>            .user_agent(build.http_user_agent())
+</span><span>            .connect_timeout(Duration::from_secs(</span><span style="color:#b5cea8;">5</span><span>))
+</span><span>            .build()
+</span><span>            .map_err(Build::raise_error)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        Ok(HttpClient { http_client })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This provider, <code>BuildHttpClient</code>, is structured very similarly to <code>BuildSqliteClient</code>. It implements the <code>Handler</code> trait and defines <code>HttpClient</code> as its output. The <code>Build</code> context is required to implement two traits: <code>HasHttpClientConfig</code>, which supplies the necessary configuration values, and <code>CanRaiseAsyncError&lt;reqwest::Error&gt;</code>, which allows the context to convert <code>reqwest</code> errors into its own error type.</p>
+<p>The required configuration is minimal. In this case, we only need a user agent string, which is defined through the following trait:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasHttpClientConfig {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>http_user_agent(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span></code></pre>
+<p>As with the previous examples, the <code>#[cgp_auto_getter]</code> macro ensures that this trait is automatically implemented for any context that includes a <code>http_user_agent</code> field.</p>
+<p>The output of this builder is a simple wrapper around <code>reqwest::Client</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>HttpClient {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_client: Client,
+</span><span>}
+</span></code></pre>
+<p>Here again, we derive <code>HasField</code>, <code>HasFields</code>, and <code>BuildField</code> to support field merging into the final context later on. This makes the <code>HttpClient</code> output compatible with CGP’s <code>build_from</code> mechanism, allowing it to be composed with other builder outputs.</p>
+<p>The <code>handle</code> method creates a new <code>reqwest::Client</code> using the client builder from <code>reqwest</code>. It sets the user agent using a value from the context, and specifies a connection timeout of five seconds. The constructed client is then wrapped in the <code>HttpClient</code> struct and returned.</p>
+<p>Although this example remains relatively simple, it illustrates how each field or component in a context can be modularly constructed using dedicated builder logic. Each builder is independently defined, type-safe, and reusable. If the way we configure our HTTP client changes — for example, if we want to support proxies or TLS settings — we can define a new provider that implements a different construction strategy, without needing to change any of the other components in our application context.</p>
+<h2 id="combined-sqlite-and-http-client-builder"><a class="zola-anchor" href="#combined-sqlite-and-http-client-builder" aria-label="Anchor link for: combined-sqlite-and-http-client-builder">Combined SQLite and HTTP Client Builder</a></h2>
+<p>Before we move on, it is important to emphasize that CGP does <strong>not</strong> require you to break down the construction logic of every component in your application context into separate builders. While the modular approach can offer more flexibility and reuse, you are entirely free to combine multiple construction tasks into a single provider if that better suits your needs.</p>
+<p>For example, here is how you might implement a single builder that constructs <em>both</em> the SQLite client and the HTTP client together:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Build, Code: Send, Input: Send&gt; Handler&lt;Build, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildDefaultSqliteAndHttpClient
+</span><span style="color:#569cd6;">where
+</span><span>    Build: HasSqlitePath + CanRaiseAsyncError&lt;sqlx::Error&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= SqliteAndHttpClient;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        build: </span><span style="color:#569cd6;">&amp;</span><span>Build,
+</span><span>        _code: PhantomData&lt;Code&gt;,
+</span><span>        _input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Build::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> sqlite_pool = SqlitePool::connect(build.db_path())
+</span><span>            .await
+</span><span>            .map_err(Build::raise_error)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> http_client = Client::new();
+</span><span>
+</span><span>        Ok(SqliteAndHttpClient { sqlite_pool, http_client })
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>SqliteAndHttpClient {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>sqlite_pool: SqlitePool,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_client: Client,
+</span><span>}
+</span></code></pre>
+<p>In this implementation, we define a single provider <code>BuildDefaultSqliteAndHttpClient</code> that returns a combined struct <code>SqliteAndHttpClient</code>, which contains both a <code>SqlitePool</code> and a <code>reqwest::Client</code>. The construction logic is written in one place, which can be convenient when these components are always used together or when their configuration is tightly integrated.</p>
+<p>However, the tradeoff of this approach is that it reduces flexibility. This tight coupling can limit reuse and make future changes more difficult.</p>
+<p>That said, the choice of whether to combine or separate builders is <strong>entirely up to you</strong>. CGP does <strong>not</strong> impose any rules on how you must structure your builder logic. It provides the tools to compose and reuse components where helpful, but it leaves design decisions to the developer.</p>
+<p>For the remainder of this article, we will continue to use the fully modular approach, breaking construction logic down into smaller, independent units. Our goal is to illustrate the full extent of flexibility and reusability that CGP enables. However, if you prefer a different organizational structure, you are free to structure your builders in whatever way best suits your project.</p>
+<h2 id="chatgpt-client-builder"><a class="zola-anchor" href="#chatgpt-client-builder" aria-label="Anchor link for: chatgpt-client-builder">ChatGPT Client Builder</a></h2>
+<p>Regardless of whether you prefer to split or combine the construction of components such as the SQLite and HTTP clients, there are many situations where it makes sense to separate construction logic into smaller, more focused units. For instance, you might want to offer two versions of your application — one standard version and one "smart" version that includes AI capabilities. In such cases, it is useful to define a separate builder provider for the ChatGPT client, so that AI-related logic can be included only when necessary.</p>
+<p>The implementation for the ChatGPT client builder follows the same general pattern as the previous builders. It is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Build, Code: Send, Input: Send&gt; Handler&lt;Build, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildOpenAiClient
+</span><span style="color:#569cd6;">where
+</span><span>    Build: HasOpenAiConfig + HasAsyncErrorType,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= OpenAiClient;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        build: </span><span style="color:#569cd6;">&amp;</span><span>Build,
+</span><span>        _code: PhantomData&lt;Code&gt;,
+</span><span>        _input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Build::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> open_ai_client = openai::Client::new(build.open_ai_key());
+</span><span>        </span><span style="color:#569cd6;">let</span><span> open_ai_agent = open_ai_client
+</span><span>            .agent(build.open_ai_model())
+</span><span>            .preamble(build.llm_preamble())
+</span><span>            .build();
+</span><span>
+</span><span>        Ok(OpenAiClient {
+</span><span>            open_ai_client,
+</span><span>            open_ai_agent,
+</span><span>        })
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This builder requires the <code>Build</code> context to provide three string fields: the OpenAI API key, the model name, and a custom preamble string. These requirements are captured by the <code>HasOpenAiConfig</code> trait:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasOpenAiConfig {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>open_ai_key(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>open_ai_model(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>llm_preamble(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span></code></pre>
+<p>As with the other providers, we use the <code>#[cgp_auto_getter]</code> macro to automatically implement the trait, as long as the builder context contains the corresponding fields and derives <code>HasField</code>.</p>
+<p>The <code>BuildOpenAiClient</code> provider returns an <code>OpenAiClient</code> struct that wraps two values: the low-level <code>openai::Client</code> and the higher-level <code>Agent</code> configured with the specified model and preamble.</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>OpenAiClient {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_client: openai::Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_agent: Agent&lt;openai::CompletionModel&gt;,
+</span><span>}
+</span></code></pre>
+<p>By defining this logic in a standalone builder provider, we can easily opt in or out of ChatGPT support in our application context.</p>
+<h2 id="builder-context"><a class="zola-anchor" href="#builder-context" aria-label="Anchor link for: builder-context">Builder Context</a></h2>
+<p>Now that we have implemented builder providers for SQLite, HTTP, and ChatGPT clients, we can demonstrate how to combine them in a complete builder context that constructs the final <code>App</code> instance. Defining this context is surprisingly concise and requires only a few lines of code:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, Deserialize)]
+</span><span style="color:#569cd6;">pub struct </span><span>FullAppBuilder {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>db_options: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>db_journal_mode: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_user_agent: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_key: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_model: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>llm_preamble: String,
+</span><span>}
+</span></code></pre>
+<p>Here, we define a <code>FullAppBuilder</code> struct that includes all of the fields required by the three individual builder providers. The <code>#[cgp_context]</code> macro enables the CGP capabilities for the context struct, while the <code>HasField</code> derive macro enables automatic implementation of the necessary accessor traits using <code>#[cgp_auto_getter]</code>. In addition, we derive <code>Deserialize</code> so that <code>FullAppBuilder</code> can be easily loaded from a configuration file in formats such as JSON or TOML.</p>
+<p>Next, we wire up the builder context using the <code>delegate_components!</code> macro:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    FullAppBuilderComponents {
+</span><span>        ErrorTypeProviderComponent:
+</span><span>            UseAnyhowError,
+</span><span>        ErrorRaiserComponent:
+</span><span>            RaiseAnyhowError,
+</span><span>        HandlerComponent:
+</span><span>            BuildAndMergeOutputs&lt;
+</span><span>                App,
+</span><span>                Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                    BuildSqliteClient,
+</span><span>                    BuildHttpClient,
+</span><span>                    BuildOpenAiClient,
+</span><span>                ]&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This macro allows us to delegate the implementation of various components of the builder context. First, we configure error handling by using the <code>cgp-anyhow-error</code> library. The <code>UseAnyhowError</code> provider specifies that our abstract <code>Error</code> type will be instantiated to <code>anyhow::Error</code>, and the <code>RaiseAnyhowError</code> provider allows conversion from error types implementing <code>core::error::Error</code>, like <code>sqlx::Error</code> and <code>reqwest::Error</code>, into <code>anyhow::Error</code>.</p>
+<h2 id="builder-dispatcher"><a class="zola-anchor" href="#builder-dispatcher" aria-label="Anchor link for: builder-dispatcher">Builder Dispatcher</a></h2>
+<p>In the example above, we used a special <strong>builder dispatcher</strong> called <code>BuildAndMergeOutputs</code> to implement the <code>HandlerComponent</code>. This dispatcher allows us to construct the final <code>App</code> type by sequentially combining the outputs of multiple builder providers. We specify the target <code>App</code> type as the output of the build process, and then pass in a <em>type-level list</em> of builder providers using the <code>Product!</code> macro. In this case, we used <code>BuildSqliteClient</code>, <code>BuildHttpClient</code>, and <code>BuildOpenAiClient</code>, all of which we implemented previously.</p>
+<p>To understand how <code>BuildAndMergeOutputs</code> operates under the hood, let us walk through a manual implementation that performs the same task:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Code: Send, Input: Send&gt; Handler&lt;FullAppBuilder, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildApp {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= App;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(context: </span><span style="color:#569cd6;">&amp;</span><span>FullAppBuilder, code: PhantomData&lt;Code&gt;, _input: Input) -&gt; Result&lt;App, Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> app = App::builder()
+</span><span>            .build_from(BuildSqliteClient::handle(context, code, ()).await</span><span style="color:#569cd6;">?</span><span>)
+</span><span>            .build_from(BuildHttpClient::handle(context, code, ()).await</span><span style="color:#569cd6;">?</span><span>)
+</span><span>            .build_from(BuildOpenAiClient::handle(context, code, ()).await</span><span style="color:#569cd6;">?</span><span>)
+</span><span>            .finalize_build();
+</span><span>
+</span><span>        Ok(app)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This manual implementation demonstrates the boilerplate that would be necessary if we did not use <code>BuildAndMergeOutputs</code>. Here, we define <code>BuildApp</code> as a <em>context-specific</em> provider for the <code>FullAppBuilder</code> context. It implements the <code>Handler</code> trait for any <code>Code</code> and <code>Input</code> types.</p>
+<p>Within the <code>handle</code> method, we construct the <code>App</code> in a step-by-step manner, similar to how we built complex types earlier in the <a href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#safe-struct-building">safe struct building</a> section. We begin by initializing an empty builder with <code>App::builder()</code>. Next, we invoke the <code>handle</code> method on each of the individual providers — <code>BuildSqliteClient</code>, <code>BuildHttpClient</code>, and <code>BuildOpenAiClient</code> — passing them the shared context and <code>PhantomData</code> for the code. The resulting outputs are incrementally merged into the builder using <code>build_from</code>, and finally, <code>finalize_build</code> is called to produce the completed <code>App</code> instance.</p>
+<p>In this example, we ignore the original <code>Input</code> parameter and instead pass <code>()</code> to each sub-handler for simplicity. In the actual implementation of <code>BuildAndMergeOutputs</code>, a <em>reference</em> to the intermediate builder is instead passed along as input to each sub-handler to support more advanced use cases. However, we have omitted that detail here to focus on the overall structure.</p>
+<p>While the manual implementation of <code>BuildApp</code> is relatively easy to follow, it is also quite repetitive. The main benefit of <code>BuildAndMergeOutputs</code> is that it eliminates this boilerplate by abstracting away the repetitive logic of chaining multiple builder steps and threading intermediary results. Furthermore, <code>BuildAndMergeOutputs</code> is implemented with the necessary generic parameters and constraints to work with <em>any</em> context type, as compared to being tied to the <code>App</code> context that we defined.</p>
+<p>Aside from this reduction in verbosity, the behavior remains conceptually the same as what is shown in the manual example.</p>
+<h2 id="building-the-app"><a class="zola-anchor" href="#building-the-app" aria-label="Anchor link for: building-the-app">Building the App</a></h2>
+<p>With the builder context defined, we can now construct the full <code>App</code> by simply instantiating the builder and calling its <code>handle</code> method:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>async </span><span style="color:#569cd6;">fn </span><span>main() -&gt; Result&lt;(), Error&gt; {
+</span><span>    </span><span style="color:#569cd6;">let</span><span> builder = FullAppBuilder {
+</span><span>        db_options: </span><span style="color:#d69d85;">&quot;file:./db.sqlite&quot;</span><span>.to_owned(),
+</span><span>        db_journal_mode: </span><span style="color:#d69d85;">&quot;WAL&quot;</span><span>.to_owned(),
+</span><span>        http_user_agent: </span><span style="color:#d69d85;">&quot;SUPER_AI_AGENT&quot;</span><span>.to_owned(),
+</span><span>        open_ai_key: </span><span style="color:#d69d85;">&quot;1234567890&quot;</span><span>.to_owned(),
+</span><span>        open_ai_model: </span><span style="color:#d69d85;">&quot;gpt-4o&quot;</span><span>.to_owned(),
+</span><span>        llm_preamble: </span><span style="color:#d69d85;">&quot;You are a helpful assistant&quot;</span><span>.to_owned(),
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">let</span><span> app = builder.handle(PhantomData::&lt;()&gt;, ()).await</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#608b4e;">/* Call methods on the app here */
+</span><span>
+</span><span>    Ok(())
+</span><span>}
+</span></code></pre>
+<p>In this example, we initialize <code>FullAppBuilder</code> by filling in the required configuration values. We then call <code>builder.handle()</code> to construct the <code>App</code>. The <code>handle</code> method requires two arguments: a <code>Code</code> type and an <code>Input</code> value. However, because neither of these are constrained in any way in our example, we can simply pass <em>any</em> type we want, such as the unit type <code>()</code> for both. This simplifies to the equivalent of calling <code>builder.handle()</code> with no argument in practice.</p>
+<p>This example illustrates how CGP allows new builder contexts to be defined with minimal effort by composing multiple independent builder providers — none of which require knowledge of the final type being constructed.</p>
+<p>Rather than writing custom constructor functions that take numerous arguments, we define a builder struct where each required input becomes a field. Instead of manually constructing each component of the context, we use <code>delegate_components!</code> to connect the appropriate builder providers, which handle the construction logic for us.</p>
+<p>By embracing this modular builder approach, our code becomes not only more extensible, but also easier to read, test, and maintain.</p>
+<h1 id="more-builder-examples"><a class="zola-anchor" href="#more-builder-examples" aria-label="Anchor link for: more-builder-examples">More Builder Examples</a></h1>
+<p>At this point, some readers may still be skeptical about the value of modularity offered by CGP builders. Since we’ve only shown a <strong>single</strong> application context and <strong>one</strong> corresponding builder context so far, it might not be obvious why we couldn’t just use a simple <code>new</code> constructor function like the one defined at the beginning.</p>
+<p>To truly demonstrate the power of modular builders, it’s helpful to explore how CGP makes it easy to define <strong>multiple</strong> contexts that are similar but have slight differences. However, if you're an <strong>advanced reader</strong> already familiar with the benefits of modular design, feel free to <a href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-1/#conclusion"><strong>skip ahead</strong></a> to the conclusion.</p>
+<h2 id="default-builder"><a class="zola-anchor" href="#default-builder" aria-label="Anchor link for: default-builder">Default Builder</a></h2>
+<p>Earlier, we introduced default builders like <code>BuildDefaultSqliteClient</code>, which can construct an <code>App</code> with default configuration values. These defaults can be combined to define a minimal builder for <code>App</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, Deserialize)]
+</span><span style="color:#569cd6;">pub struct </span><span>DefaultAppBuilder {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>db_path: String,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    DefaultAppBuilderComponents {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>        HandlerComponent:
+</span><span>            BuildAndMergeOutputs&lt;
+</span><span>                App,
+</span><span>                Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                    BuildDefaultSqliteClient,
+</span><span>                    BuildDefaultHttpClient,
+</span><span>                    BuildDefaultOpenAiClient,
+</span><span>                ]&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this context, the only required configuration is the <code>db_path</code>, simplifying the process of constructing an <code>App</code>, especially for use cases like unit testing or demos.</p>
+<h2 id="postgres-app"><a class="zola-anchor" href="#postgres-app" aria-label="Anchor link for: postgres-app">Postgres App</a></h2>
+<p>Now suppose we want an enterprise version of the app that uses <strong>Postgres</strong> instead of SQLite. We can define a new <code>App</code> context that swaps in <code>PgPool</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>postgres_pool: PgPool,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_client: Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_client: openai::Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_agent: Agent&lt;openai::CompletionModel&gt;,
+</span><span>}
+</span></code></pre>
+<p>Since the HTTP and ChatGPT logic remains unchanged, we only need to implement a new builder for Postgres:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Build, Code: Send, Input: Send&gt; Handler&lt;Build, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildPostgresClient
+</span><span style="color:#569cd6;">where
+</span><span>    Build: HasPostgresUrl + CanRaiseAsyncError&lt;sqlx::Error&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= PostgresClient;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        build: </span><span style="color:#569cd6;">&amp;</span><span>Build,
+</span><span>        _code: PhantomData&lt;Code&gt;,
+</span><span>        _input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Build::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> postgres_pool = PgPool::connect(build.postgres_url())
+</span><span>            .await
+</span><span>            .map_err(Build::raise_error)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>        Ok(PostgresClient { postgres_pool })
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasPostgresUrl {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>postgres_url(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>PostgresClient {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>postgres_pool: PgPool,
+</span><span>}
+</span></code></pre>
+<p>This builder closely mirrors the SQLite version, but reads the <code>postgres_url</code> field from the context instead.</p>
+<p>Next, we define a new builder context that includes Postgres configuration:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, Deserialize)]
+</span><span style="color:#569cd6;">pub struct </span><span>AppBuilder {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>postgres_url: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_user_agent: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_key: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_model: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>llm_preamble: String,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppBuilderComponents {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>        HandlerComponent:
+</span><span>            BuildAndMergeOutputs&lt;
+</span><span>                App,
+</span><span>                Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                    BuildPostgresClient,
+</span><span>                    BuildHttpClient,
+</span><span>                    BuildOpenAiClient,
+</span><span>                ]&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, we simply swap in <code>BuildPostgresClient</code> instead of <code>BuildSqliteClient</code>, while reusing the other builder providers unchanged.</p>
+<p>This example highlights a key advantage of CGP over traditional <strong>feature flags</strong>: with CGP, multiple application variants (e.g., SQLite or Postgres) can <strong>coexist</strong> in the same codebase and even be compiled together. In contrast, feature flags often force a binary either/or split at compile time.</p>
+<p>By enabling different configurations to exist side-by-side, CGP improves testability and reduces the likelihood of missing edge cases caused by untested feature combinations.</p>
+<h2 id="anthropic-app"><a class="zola-anchor" href="#anthropic-app" aria-label="Anchor link for: anthropic-app">Anthropic App</a></h2>
+<p>Just as we swapped SQLite for Postgres earlier, we can also substitute the AI model used in the application — such as replacing ChatGPT with <strong>Claude</strong>. With CGP, this becomes straightforward: we simply define a new <code>AnthropicApp</code> that uses the Anthropic client and agent:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>AnthropicApp {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>sqlite_pool: SqlitePool,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_client: Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_client: anthropic::Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_agent: Agent&lt;anthropic::completion::CompletionModel&gt;,
+</span><span>}
+</span></code></pre>
+<p>Next, we implement a builder provider to construct the Claude client:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Build, Code: Send, Input: Send&gt; Handler&lt;Build, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>BuildDefaultAnthropicClient
+</span><span style="color:#569cd6;">where
+</span><span>    Build: HasAnthropicConfig + HasAsyncErrorType,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= AnthropicClient;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        build: </span><span style="color:#569cd6;">&amp;</span><span>Build,
+</span><span>        _code: PhantomData&lt;Code&gt;,
+</span><span>        _input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Build::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> anthropic_client = ClientBuilder::new(build.anthropic_key())
+</span><span>            .anthropic_version(</span><span style="color:#b4cea8;">ANTHROPIC_VERSION_LATEST</span><span>)
+</span><span>            .build();
+</span><span>
+</span><span>        </span><span style="color:#569cd6;">let</span><span> anthropic_agent = anthropic_client
+</span><span>            .agent(anthropic::</span><span style="color:#b4cea8;">CLAUDE_3_7_SONNET</span><span>)
+</span><span>            .preamble(build.llm_preamble())
+</span><span>            .build();
+</span><span>
+</span><span>        Ok(AnthropicClient {
+</span><span>            anthropic_client,
+</span><span>            anthropic_agent,
+</span><span>        })
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasAnthropicConfig {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>anthropic_key(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>llm_preamble(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>AnthropicClient {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_client: anthropic::Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_agent: Agent&lt;CompletionModel&gt;,
+</span><span>}
+</span></code></pre>
+<p>With the builder provider in place, we define a new builder context that includes the Anthropic API key and wire it up using <code>BuildDefaultAnthropicClient</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, Deserialize)]
+</span><span style="color:#569cd6;">pub struct </span><span>AppBuilder {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>db_options: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>db_journal_mode: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_user_agent: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_key: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>llm_preamble: String,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppBuilderComponents {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>        HandlerComponent:
+</span><span>            BuildAndMergeOutputs&lt;
+</span><span>                AnthropicApp,
+</span><span>                Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                    BuildSqliteClient,
+</span><span>                    BuildHttpClient,
+</span><span>                    BuildDefaultAnthropicClient,
+</span><span>                ]&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This example shows how effortlessly CGP supports variation and customization. The same modular pattern can be reused to swap in different components — databases, HTTP clients, or agents — without rewriting core application logic.</p>
+<p>In fact, the process becomes so systematic that it’s easy to imagine an AI tool like <strong>Claude Code</strong> automating the entire setup given the right prompt and documentation.</p>
+<h2 id="anthropic-and-chatgpt-builder"><a class="zola-anchor" href="#anthropic-and-chatgpt-builder" aria-label="Anchor link for: anthropic-and-chatgpt-builder">Anthropic and ChatGPT Builder</a></h2>
+<p>It’s impressive that CGP lets us easily swap ChatGPT for Claude. But what’s even better is that we don’t have to choose at all — we can include <strong>both</strong> AI agents in the same application.</p>
+<p>This could be useful for scenarios where combining the strengths of multiple models improves the overall intelligence or reliability of your application. More importantly, it demonstrates that CGP is not just about selecting one provider over another — it’s also about composing multiple providers together in a clean, modular way.</p>
+<p>We begin by defining an <code>AnthropicAndChatGptApp</code> context that includes both Claude and ChatGPT clients:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>AnthropicAndChatGptApp {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>sqlite_pool: SqlitePool,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_client: Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_client: anthropic::Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_agent: Agent&lt;anthropic::completion::CompletionModel&gt;,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_client: openai::Client,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_agent: Agent&lt;openai::CompletionModel&gt;,
+</span><span>}
+</span></code></pre>
+<p>Next, we define a builder context that includes configuration fields for both AI platforms:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span>#[derive(HasField, Deserialize)]
+</span><span style="color:#569cd6;">pub struct </span><span>AnthropicAndChatGptAppBuilder {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>db_options: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>db_journal_mode: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>http_user_agent: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>anthropic_key: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_key: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>open_ai_model: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>llm_preamble: String,
+</span><span>}
+</span></code></pre>
+<p>In the component wiring, we include both <code>BuildDefaultAnthropicClient</code> and <code>BuildOpenAiClient</code> in the provider list:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    AnthropicAndChatGptAppBuilderComponents {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>        HandlerComponent:
+</span><span>            BuildAndMergeOutputs&lt;
+</span><span>                AnthropicAndChatGptApp,
+</span><span>                Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                    BuildSqliteClient,
+</span><span>                    BuildHttpClient,
+</span><span>                    BuildDefaultAnthropicClient,
+</span><span>                    BuildOpenAiClient,
+</span><span>                ]&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With just a few extra lines, we’ve created a <strong>dual-agent</strong> AI app that can leverage both Claude and ChatGPT simultaneously.</p>
+<p>It’s also worth noting that the <code>llm_preamble</code> field is reused by both the Claude and ChatGPT builders. This demonstrates CGP’s flexibility in sharing input values across multiple providers—without requiring any manual coordination or boilerplate.</p>
+<p>This kind of seamless reuse and composition is where CGP truly shines: giving you fine-grained control over how your application is assembled, while keeping your code modular and maintainable.</p>
+<h2 id="multi-context-builder"><a class="zola-anchor" href="#multi-context-builder" aria-label="Anchor link for: multi-context-builder">Multi-Context Builder</a></h2>
+<p>Looking closely at the <code>AnthropicAndChatGptAppBuilder</code> that we previously defined, we can observe that it already includes all the necessary fields required to construct the Claude-only and ChatGPT-only applications as well. This means we can reuse the same builder to construct <strong>all three</strong> versions of our application contexts, simply by changing how the builder is wired.</p>
+<p>To achieve this, we take advantage of the <code>Code</code> type parameter, which allows us to emulate DSL-like behavior similar to what is seen in <a href="/blog/hypershell-release/#abstract-syntax">Hypershell</a>. We begin by defining distinct marker types that represent the different build modes:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>BuildChatGptApp;
+</span><span style="color:#569cd6;">pub struct </span><span>BuildAnthropicApp;
+</span><span style="color:#569cd6;">pub struct </span><span>BuildAnthropicAndChatGptApp;
+</span></code></pre>
+<p>Using these types, we can apply the <a href="/blog/hypershell-release/#generic-dispatcher"><code>UseDelegate</code></a> pattern to route the <code>Handler</code> implementation to different builder pipelines depending on the code passed in. This enables conditional wiring based on the selected application mode:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    AnthropicAndChatGptAppBuilderComponents {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>        HandlerComponent:
+</span><span>            UseDelegate&lt;new BuilderHandlers </span><span style="color:#ff3333;">{
+</span><span>                BuildAnthropicAndChatGptApp:
+</span><span>                    BuildAndMergeOutputs&lt;
+</span><span>                        AnthropicAndChatGptApp,
+</span><span>                        Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                            BuildSqliteClient,
+</span><span>                            BuildHttpClient,
+</span><span>                            BuildDefaultAnthropicClient,
+</span><span>                            BuildOpenAiClient,
+</span><span>                        ]&gt;,
+</span><span>                BuildChatGptApp:
+</span><span>                    BuildAndMergeOutputs&lt;
+</span><span>                        ChatGptApp,
+</span><span>                        Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                            BuildSqliteClient,
+</span><span>                            BuildHttpClient,
+</span><span>                            BuildOpenAiClient,
+</span><span>                        ]&gt;,
+</span><span>                BuildAnthropicApp:
+</span><span>                    BuildAndMergeOutputs&lt;
+</span><span>                        AnthropicApp,
+</span><span>                        Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>                            BuildSqliteClient,
+</span><span>                            BuildHttpClient,
+</span><span>                            BuildDefaultAnthropicClient,
+</span><span>                        ]&gt;,
+</span><span>            }&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Now, when we want to construct a specific application context, we only need to change the <code>Code</code> type by using <code>PhantomData</code>. This gives us a flexible, type-safe way to select the desired builder pipeline at runtime:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub</span><span> async </span><span style="color:#569cd6;">fn </span><span>main() -&gt; Result&lt;(), Error&gt; {
+</span><span>    </span><span style="color:#569cd6;">let</span><span> builder = AnthropicAndChatGptAppBuilder {
+</span><span>        db_options: </span><span style="color:#d69d85;">&quot;file:./db.sqlite&quot;</span><span>.to_owned(),
+</span><span>        db_journal_mode: </span><span style="color:#d69d85;">&quot;WAL&quot;</span><span>.to_owned(),
+</span><span>        http_user_agent: </span><span style="color:#d69d85;">&quot;SUPER_AI_AGENT&quot;</span><span>.to_owned(),
+</span><span>        anthropic_key: </span><span style="color:#d69d85;">&quot;1234567890&quot;</span><span>.to_owned(),
+</span><span>        open_ai_key: </span><span style="color:#d69d85;">&quot;1234567890&quot;</span><span>.to_owned(),
+</span><span>        open_ai_model: </span><span style="color:#d69d85;">&quot;gpt-4o&quot;</span><span>.to_owned(),
+</span><span>        llm_preamble: </span><span style="color:#d69d85;">&quot;You are a helpful assistant&quot;</span><span>.to_owned(),
+</span><span>    };
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">let</span><span> chat_gpt_app: ChatGptApp =
+</span><span>        builder.handle(PhantomData::&lt;BuildChatGptApp&gt;, ()).await</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">let</span><span> anthropic_app: AnthropicApp =
+</span><span>        builder.handle(PhantomData::&lt;BuildAnthropicApp&gt;, ()).await</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">let</span><span> combined_app: AnthropicAndChatGptApp =
+</span><span>        builder.handle(PhantomData::&lt;BuildAnthropicAndChatGptApp&gt;, ()).await</span><span style="color:#569cd6;">?</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#608b4e;">/* Use the application contexts here */
+</span><span>
+</span><span>    Ok(())
+</span><span>}
+</span></code></pre>
+<p>This example highlights how CGP's DSL features are not limited to building full-fledged domain-specific languages like <a href="/blog/hypershell-release/">Hypershell</a>. Even in this lightweight form, they are immensely valuable for <strong>labeling and routing</strong> different behaviors based on combinations of builder providers.</p>
+<p>In essence, we are still constructing a mini-DSL, albeit one composed of simple symbolic "statements" without complex language constructs. This approach not only brings expressive power to your builder logic, but also lays the groundwork for future extensions — such as richer abstract syntaxes — using the same techniques introduced by Hypershell.</p>
+<h1 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">Conclusion</a></h1>
+<p>In this first installment, we explored how CGP v0.4.2 empowers Rust developers to construct application contexts using modular, extensible builders. You’ve seen how individual providers like <code>BuildSqliteClient</code>, <code>BuildHttpClient</code>, and <code>BuildOpenAiClient</code> can be composed to build complex types without tight coupling or boilerplate. We’ve also demonstrated how the same context can be reused across multiple application variants — from SQLite to Postgres, from ChatGPT to Claude — all through declarative builder composition.</p>
+<p>This approach dramatically simplifies configuration management, promotes code reuse, and opens the door to highly flexible, plugin-style architectures in Rust. Whether you're building minimal test contexts or full-featured production systems, CGP gives you the tools to scale your logic modularly and safely.</p>
+<p>In <a href="/blog/extensible-datatypes-part-2/">Part 2 of this series, <strong>Modular Interpreters and Extensible Visitors</strong></a>, we’ll shift gears to look at <strong>extensible variants</strong>, where CGP tackles the expression problem with a modular visitor pattern. If you've ever wanted to define interpreters, pattern match over generic enums, or evolve your data types without breaking existing logic — you won’t want to miss what’s coming next.</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

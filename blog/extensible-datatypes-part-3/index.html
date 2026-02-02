@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Programming Extensible Data Types in Rust with CGP - Part 3: Implementing Extensible Records | Context-Generic Programming</title>
+    <meta property="og:title" content="Programming Extensible Data Types in Rust with CGP - Part 3: Implementing Extensible Records | Context-Generic Programming" />
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="Programming Extensible Data Types in Rust with CGP - Part 3: Implementing Extensible Records | Context-Generic Programming">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#recap">Recap</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#series-overview">Series Overview</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#underlying-theory">Underlying Theory</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#constraint-propagation-problem"><small>- Constraint Propagation Problem</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#type-level-composition"><small>- Type-Level Composition</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#base-implementation">Base Implementation</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#hasfield-trait"><small>- HasField Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#partial-records"><small>- Partial Records</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#hasbuilder-trait"><small>- HasBuilder Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#buildfield-trait"><small>- BuildField Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#finalizebuild-trait"><small>- FinalizeBuild Trait</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#implementation-of-record-merges">Implementation of Record Merges</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#intobuilder-trait"><small>- IntoBuilder Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#takefield-trait"><small>- TakeField Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#hasfields-trait"><small>- HasFields Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#buildfrom-trait"><small>- BuildFrom Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#fieldsbuilder-trait"><small>- FieldsBuilder Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#example-use-of-buildfrom"><small>- Example Use of BuildFrom</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#builder-dispatcher">Builder Dispatcher</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#buildwithhandlers-provider"><small>- BuildWithHandlers Provider</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#example-use-of-buildwithhandlers"><small>- Example Use of BuildWithHandlers</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#buildandmerge"><small>- BuildAndMerge</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#buildandsetfield"><small>- BuildAndSetField</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#mapfields-trait"><small>- MapFields Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#buildandmergeoutputs"><small>- BuildAndMergeOutputs</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#hiding-constraints-with-delegate-components"><small>- Hiding Constraints with delegate_components!</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#type-level-metaprogramming"><small>- Type-Level Metaprogramming</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#conclusion">Conclusion</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#future-extensions"><small>- Future Extensions</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-3/#next-part"><small>- Next Part</small></a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">Programming Extensible Data Types in Rust with CGP - Part 3: Implementing Extensible Records</div>
+<div style="text-align: right;"><i>Posted on 2025-07-12</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><p>Discuss on <a href="https://www.reddit.com/r/rust/comments/1lxv6zr/the_design_and_implementation_of_extensible/">Reddit</a>, <a href="https://github.com/orgs/contextgeneric/discussions/14">GitHub</a> or <a href="https://discord.gg/Hgk3rCw6pQ">Discord</a>.</p>
+<h1 id="recap"><a class="zola-anchor" href="#recap" aria-label="Anchor link for: recap">Recap</a></h1>
+<p>This is the <strong>third</strong> part of the blog series on <strong>Programming Extensible Data Types in Rust with CGP</strong>. You can read the <a href="/blog/extensible-datatypes-part-1">first</a> and <a href="/blog/extensible-datatypes-part-2">second</a> parts here.</p>
+<p>As a recap, we have covered the new release of <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.4.2"><strong>CGP v0.4.2</strong></a> which now supports the use of <strong>extensible records and variants</strong>, allowing developers to write code that operates on <em>any struct containing specific fields</em> or <em>any enum containing specific variants</em>, without needing their concrete definition.</p>
+<p>In the first part of the series, <a href="/blog/extensible-datatypes-part-1"><strong>Modular App Construction and Extensible Builders</strong></a>, we demonstrated an example use of the <strong>extensible builder pattern</strong>, which uses <strong>extensible records</strong> to support modular construction of an application context.</p>
+<p>Similarly, in the second part of the series, <a href="/blog/extensible-datatypes-part-2"><strong>Modular Interpreters and Extensible Visitors</strong></a>, we saw how the modular visitor pattern allows us to implement evaluation and to-Lisp conversion for each variant of a language expression enum using separate visitor providers.</p>
+<p>At this point, you’ve likely seen how these patterns can make real-world applications more modular and maintainable. If these examples have convinced you of CGP’s practical value, that’s great. But if you still feel the examples are not grounded enough in production use cases, you are welcome to pause here and revisit CGP later.</p>
+<p>The next 2 parts of the series are aimed at readers who want to go deeper — those interested in how CGP implements extensible data types under the hood and who might even want to contribute to CGP itself by helping to build the real-world examples you’re looking for.</p>
+<p>We will first explore the implementation of extensible records in this part, followed by the implementation of extensible variants in the coming Part 4.</p>
+<h1 id="series-overview"><a class="zola-anchor" href="#series-overview" aria-label="Anchor link for: series-overview">Series Overview</a></h1>
+<p><a href="/blog/extensible-datatypes-part-1"><strong>Part 1: Modular App Construction and Extensible Builders</strong></a> – In this introductory part, we present a high-level overview of the key features enabled by extensible data types. We then dive into a hands-on demonstration showing how extensible records can be used to build and compose modular builders for real-world applications.</p>
+<p><a href="/blog/extensible-datatypes-part-2"><strong>Part 2: Modular Interpreters and Extensible Visitors</strong></a> – This part continues the demonstration by introducing extensible variants. We use them to address the <a href="https://en.wikipedia.org/wiki/Expression_problem"><strong>expression problem</strong></a>, implementing a set of reusable interpreter components for a small toy language.</p>
+<p><strong>Part 3: Implementing Extensible Records</strong> (this post) – Here, we walk through the internal mechanics behind extensible records. We show how CGP supports the modular builder pattern demonstrated in Part 1 through its underlying type and trait machinery.</p>
+<p><a href="/blog/extensible-datatypes-part-4"><strong>Part 4: Implementing Extensible Variants</strong></a> – This part mirrors Part 3, but for extensible variants. We examine how extensible variants are implemented, and compare the differences and similarities between extensible records and variants.</p>
+<h1 id="underlying-theory"><a class="zola-anchor" href="#underlying-theory" aria-label="Anchor link for: underlying-theory">Underlying Theory</a></h1>
+<p>The design of extensible data types in CGP is inspired by a rich body of research in the programming languages community. In particular, CGP draws heavily from the implementation techniques found in <a href="https://wiki.haskell.org/index.php?title=Generics"><strong>datatype-generic programming in Haskell</strong></a>, as well as ideas presented in the paper <a href="https://dl.acm.org/doi/10.1145/3290325"><strong>Abstracting extensible data types: or, rows by any other name</strong></a>. Concepts similar to CGP’s have also appeared in other languages under names like <strong>row polymorphism</strong> and <strong>polymorphic variants</strong>.</p>
+<p>While it might be too academic — or simply too dry — for this post to delve into all the theoretical differences between CGP and these approaches, it’s worth highlighting one essential distinction: CGP’s seamless integration of extensible data types with the CGP system itself. This tight integration sets CGP apart by making the extensibility not just a design principle, but a native part of how you build and scale software in Rust.</p>
+<h2 id="constraint-propagation-problem"><a class="zola-anchor" href="#constraint-propagation-problem" aria-label="Anchor link for: constraint-propagation-problem">Constraint Propagation Problem</a></h2>
+<p>At the heart of CGP lies a powerful solution to a common challenge:</p>
+<p><em>how can we compose two generic functions that each rely on their own row constraints, and automatically propagate those constraints into the resulting composed function?</em></p>
+<p>To illustrate this problem, consider the following simple example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub fn </span><span>first_name_to_string&lt;Context&gt;(context: </span><span style="color:#569cd6;">&amp;</span><span>Context) -&gt; String
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;), Value: Display&gt;,
+</span><span>{
+</span><span>    context.get_field(PhantomData).to_string()
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">pub fn </span><span>last_name_to_string&lt;Context&gt;(context: </span><span style="color:#569cd6;">&amp;</span><span>Context) -&gt; String
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;), Value: Display&gt;,
+</span><span>{
+</span><span>    context.get_field(PhantomData).to_string()
+</span><span>}
+</span></code></pre>
+<p>In this example, we define two functions that extract the <code>first_name</code> and <code>last_name</code> fields from a generic <code>Context</code> type and convert them to strings. The trait <code>HasField</code> is used to represent a <strong>row constraint</strong>, where field names are expressed as type-level strings using <code>Symbol!</code>.</p>
+<p>Now, suppose we want to combine the output of these two functions into a full name string. We can write a function that explicitly concatenates the two results, like so:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub fn </span><span>full_name_to_string&lt;Context&gt;(context: </span><span style="color:#569cd6;">&amp;</span><span>Context) -&gt; String
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;), Value: Display&gt;
+</span><span>        + HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;), Value: Display&gt;,
+</span><span>{
+</span><span>    format!(
+</span><span>        </span><span style="color:#d69d85;">&quot;</span><span style="color:#b4cea8;">{} {}</span><span style="color:#d69d85;">&quot;</span><span>,
+</span><span>        first_name_to_string(context),
+</span><span>        last_name_to_string(context)
+</span><span>    )
+</span><span>}
+</span></code></pre>
+<p>This works, but requires us to manually specify all the field constraints in the function signature. This becomes increasingly cumbersome as the number of required constraints grows.</p>
+<p>More critically, it becomes difficult to write generic higher-order functions that can accept any two such functions with their own constraints, and automatically compose them into a new function that correctly propagates those constraints. For instance, consider this naive attempt:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub fn </span><span>concate_outputs&lt;Context&gt;(
+</span><span>    fn_a: impl Fn(&amp;Context) -&gt; String,
+</span><span>    fn_b: impl Fn(&amp;Context) -&gt; String,
+</span><span>) -&gt; impl Fn(</span><span style="color:#569cd6;">&amp;</span><span>Context) -&gt; String {
+</span><span>    </span><span style="color:#569cd6;">move |</span><span>context</span><span style="color:#569cd6;">| </span><span>format!(</span><span style="color:#d69d85;">&quot;</span><span style="color:#b4cea8;">{} {}</span><span style="color:#d69d85;">&quot;</span><span>, fn_a(context), fn_b(context))
+</span><span>}
+</span></code></pre>
+<p>Here, <code>concate_outputs</code> takes two functions and returns a new one that calls both and concatenates their results. However, the function signature does not capture the constraints required by <code>fn_a</code> and <code>fn_b</code>. As a result, when we use this to build a composed function, we still have to restate all of the necessary constraints explicitly:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub fn </span><span>full_name_to_string&lt;Context&gt;(context: </span><span style="color:#569cd6;">&amp;</span><span>Context) -&gt; String
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;), Value: Display&gt;
+</span><span>        + HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;), Value: Display&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">let</span><span> composed = concate_outputs(first_name_to_string, last_name_to_string);
+</span><span>    composed(context)
+</span><span>}
+</span></code></pre>
+<p>This works within the body of a function, but it prevents us from defining the composed function as a top-level value. In other words, we cannot simply write something like:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#608b4e;">// Invalid export
+</span><span style="color:#569cd6;">pub let</span><span> full_name_to_string = concate_outputs(first_name_to_string, last_name_to_string);
+</span></code></pre>
+<p>and then export that directly from a module. The constraints must still be manually declared somewhere, limiting the expressiveness and reusability of our composition.</p>
+<h2 id="type-level-composition"><a class="zola-anchor" href="#type-level-composition" aria-label="Anchor link for: type-level-composition">Type-Level Composition</a></h2>
+<p>In many programming languages research, solving the problem of constraint-aware function composition typically requires advanced language features like <strong>constraint kinds</strong>. These features allow constraints to be expressed and manipulated at the type level, enabling functions with different requirements to be composed seamlessly. However, languages like Rust do not yet support these advanced capabilities. This limitation has been one of the major reasons why extensible data types have not seen broader adoption in the Rust and other mainstream languages.</p>
+<p>The breakthrough that CGP introduces is the ability to perform this kind of composition in Rust today — without waiting for the language to evolve. The key insight is to <strong>represent functions as types</strong>, and then use CGP's system of traits and type-level programming to manage composition and constraint propagation.</p>
+<p>To see how this works, let’s begin by transforming two basic functions into CGP providers. Instead of writing traditional functions, we define <code>FirstNameToString</code> and <code>LastNameToString</code> as types that implement the <code>ComputerRef</code> trait:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input&gt; ComputerRef&lt;Context, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>FirstNameToString
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;), Value: Display&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= String;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute_ref(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, _code: PhantomData&lt;Code&gt;, _input: </span><span style="color:#569cd6;">&amp;</span><span>Input) -&gt; String {
+</span><span>        context.get_field(PhantomData).to_string()
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input&gt; ComputerRef&lt;Context, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>LastNameToString
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;), Value: Display&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= String;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute_ref(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, _code: PhantomData&lt;Code&gt;, _input: </span><span style="color:#569cd6;">&amp;</span><span>Input) -&gt; String {
+</span><span>        context.get_field(PhantomData).to_string()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this setup, <code>FirstNameToString</code> and <code>LastNameToString</code> are no longer standalone functions, but rather types that can be plugged into the CGP system. Each type implements the <code>ComputerRef</code> trait and specifies its output as a <code>String</code>. For simplicity, we ignore the <code>Code</code> and <code>Input</code> parameters, as they are not essential for this example.</p>
+<p>Once we have our functions defined as types, we can now build a new provider that composes them:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input, ProviderA, ProviderB&gt; ComputerRef&lt;Context, Code, Input&gt;
+</span><span>    for ConcatOutputs&lt;ProviderA, ProviderB&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    ProviderA: ComputerRef&lt;Context, Code, Input, Output: Display&gt;,
+</span><span>    ProviderB: ComputerRef&lt;Context, Code, Input, Output: Display&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= String;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute_ref(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, input: </span><span style="color:#569cd6;">&amp;</span><span>Input) -&gt; String {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> output_a = ProviderA::compute_ref(context, code, input);
+</span><span>        </span><span style="color:#569cd6;">let</span><span> output_b = ProviderB::compute_ref(context, code, input);
+</span><span>        format!(</span><span style="color:#d69d85;">&quot;</span><span style="color:#b4cea8;">{} {}</span><span style="color:#d69d85;">&quot;</span><span>, output_a, output_b)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p><code>ConcatOutputs</code> acts as a <strong>higher-order provider</strong>: it composes two other providers and returns a new one that computes both and combines their results. This is conceptually similar to a higher-order function that takes two closures and returns a new closure, except that it operates entirely at the type level. It requires that both inner providers implement <code>ComputerRef</code> and produce outputs that implement <code>Display</code>, ensuring that both results can be formatted into a string.</p>
+<p>The real power of this approach becomes evident when we compose the two providers with a simple <strong>type alias</strong>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">FullNameToString </span><span>= ConcatOutputs&lt;FirstNameToString, LastNameToString&gt;;
+</span></code></pre>
+<p>With this definition, <code>FullNameToString</code> behaves like a single provider that computes the full name by combining the first and last name. What’s remarkable is that we don’t need to explicitly restate the underlying constraints from <code>FirstNameToString</code> and <code>LastNameToString</code>. Those constraints are <strong>inferred and propagated</strong> automatically, and will only be enforced at the point where <code>FullNameToString</code> is actually used.</p>
+<p>This programming model effectively introduces <strong>lazy type-level computation</strong>. The logic for computing outputs is driven by trait implementations at the type level, but the actual evaluation only occurs when the provider is invoked. This allows CGP to perform complex, constraint-aware compositions without requiring language-level support.</p>
+<h1 id="base-implementation"><a class="zola-anchor" href="#base-implementation" aria-label="Anchor link for: base-implementation">Base Implementation</a></h1>
+<h2 id="hasfield-trait"><a class="zola-anchor" href="#hasfield-trait" aria-label="Anchor link for: hasfield-trait"><code>HasField</code> Trait</a></h2>
+<p>Now that we have a clearer understanding of how CGP builds on extensible data types, it is time to take a closer look at the key field-related traits that CGP introduces to support this functionality. We begin with the simplest and most foundational trait: <code>HasField</code>.</p>
+<p>The <code>HasField</code> trait has been part of CGP since its early versions, but it is still worth revisiting here to bridge the gap toward the more advanced constructs that follow. Its definition is straightforward:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasField&lt;Tag&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>get_field(</span><span style="color:#569cd6;">&amp;</span><span>self, _tag: PhantomData&lt;Tag&gt;) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Value;
+</span><span>}
+</span></code></pre>
+<p>This trait provides <strong>read-only access</strong> to individual fields of a struct, using <code>Tag</code> as the field identifier. The tag indicates which field we want to access, and can take one of two forms depending on the struct: <code>Symbol!("first_name")</code> for named fields, or <code>Index&lt;0&gt;</code> for tuple-style fields. The associated type <code>Value</code> represents the type of the field being accessed, and the <code>get_field</code> method returns a reference to that field.</p>
+<p>The use of <code>PhantomData&lt;Tag&gt;</code> as an argument may look unusual at first, but it plays a critical role in allowing Rust to infer which field is being requested. When multiple <code>HasField</code> implementations are available for a type, this allows the compiler to resolve the correct one.</p>
+<p>Consider the following struct:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>last_name: String,
+</span><span>}
+</span></code></pre>
+<p>When the <code>HasField</code> macro is derived, it automatically generates implementations for both fields as follows.</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= String;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>get_field(</span><span style="color:#569cd6;">&amp;</span><span>self, _tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;)&gt;) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Value {
+</span><span>        </span><span style="color:#569cd6;">&amp;</span><span>self.first_name
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= String;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>get_field(</span><span style="color:#569cd6;">&amp;</span><span>self, _tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;)&gt;) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Value {
+</span><span>        </span><span style="color:#569cd6;">&amp;</span><span>self.last_name
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This allows generic code to access either field in a type-safe way without requiring access to the concrete types.</p>
+<p>With <code>HasField</code>, we can write code that reads from a subset of fields on a struct, enabling a flexible and reusable programming model. However, if we want to <em>construct</em> such subsets — as is required for the extensible builder pattern — we will first need to introduce a few additional building blocks.</p>
+<h2 id="partial-records"><a class="zola-anchor" href="#partial-records" aria-label="Anchor link for: partial-records">Partial Records</a></h2>
+<p>One of the core limitations of Rust’s struct system is that when constructing a value, you must provide values for <em>all</em> of its fields. This rigidity makes it difficult to build structs in a piecemeal fashion. To overcome this, CGP introduces the idea of <strong>partial records</strong> — a way to represent a struct with some fields intentionally left out.</p>
+<p>Let’s consider the same <code>Person</code> struct used previously:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>last_name: String,
+</span><span>}
+</span></code></pre>
+<p>When we derive the <code>BuildField</code> trait for this struct, CGP automatically generates a corresponding partial version of the struct called <code>PartialPerson</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>PartialPerson&lt;F0: MapType, F1: MapType&gt; {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: F0::Map&lt;String&gt;,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>last_name: F1::Map&lt;String&gt;,
+</span><span>}
+</span></code></pre>
+<p>Here, <code>F0</code> and <code>F1</code> are type parameters that must implement the <code>MapType</code> trait. These type parameters control whether each field is present or not in a given instance of the partial struct.</p>
+<p>The <code>MapType</code> trait is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>MapType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map</span><span>&lt;T&gt;;
+</span><span>}
+</span></code></pre>
+<p>This trait uses a <em>generic associated type</em> (GAT) called <code>Map</code> to determine how the original field types should be transformed. In particular, <code>Map&lt;T&gt;</code> will either be <code>T</code> itself (if the field is present) or a placeholder type <code>()</code> (if the field is missing).</p>
+<p>To support this, CGP provides two implementations of the <code>MapType</code> trait. The first is <code>IsPresent</code>, which maps a type to itself to indicate that a field is included:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>IsPresent;
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>MapType </span><span style="color:#569cd6;">for </span><span>IsPresent {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map</span><span>&lt;T&gt; = T;
+</span><span>}
+</span></code></pre>
+<p>The second is <code>IsNothing</code>, which maps every type to <code>()</code> to indicate that the field is absent:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>IsNothing;
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>MapType </span><span style="color:#569cd6;">for </span><span>IsNothing {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map</span><span>&lt;T&gt; = ();
+</span><span>}
+</span></code></pre>
+<p>To see how this works in practice, suppose we want to construct a partial <code>Person</code> value that only includes the <code>first_name</code> field. We can instantiate the type as <code>PartialPerson&lt;IsPresent, IsNothing&gt;</code>, where <code>F0 = IsPresent</code> and <code>F1 = IsNothing</code>. The resulting type expands to:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>PartialPerson {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>last_name: (),
+</span><span>}
+</span></code></pre>
+<p>This means we can create a partial instance like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> partial_person = PartialPerson::&lt;IsPresent, IsNothing&gt; {
+</span><span>    first_name: </span><span style="color:#d69d85;">&quot;John&quot;</span><span>.to_owned(),
+</span><span>    last_name: (),
+</span><span>};
+</span></code></pre>
+<h2 id="hasbuilder-trait"><a class="zola-anchor" href="#hasbuilder-trait" aria-label="Anchor link for: hasbuilder-trait"><code>HasBuilder</code> Trait</a></h2>
+<p>Once we have defined a partial record struct, we can introduce the <code>HasBuilder</code> trait. This trait allows us to initialize a partial record where <em>all fields are absent</em> by default:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasBuilder {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Builder</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>builder() -&gt; </span><span style="color:#569cd6;">Self::</span><span>Builder;
+</span><span>}
+</span></code></pre>
+<p>The <code>HasBuilder</code> trait defines an associated type called <code>Builder</code>, which represents the initial form of the partial record. The key requirement is that this <code>Builder</code> must have all of its fields empty, since the <code>builder()</code> method constructs it without requiring any input.</p>
+<p>For the <code>Person</code> struct, we can implement the <code>HasBuilder</code> trait as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasBuilder </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Builder </span><span>= PartialPerson&lt;IsNothing, IsNothing&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>builder() -&gt; </span><span style="color:#569cd6;">Self::</span><span>Builder {
+</span><span>        PartialPerson {
+</span><span>            first_name: (),
+</span><span>            last_name: (),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this implementation, the initial <code>Builder</code> is simply a <code>PartialPerson</code> type where both field parameters use the <code>IsNothing</code> type mapper. To construct the empty builder, we initialize each field with its mapped type, which for <code>IsNothing</code> is always the unit type <code>()</code>. This gives us a clean and predictable starting point for incrementally building up a complete <code>Person</code> instance.</p>
+<h2 id="buildfield-trait"><a class="zola-anchor" href="#buildfield-trait" aria-label="Anchor link for: buildfield-trait"><code>BuildField</code> Trait</a></h2>
+<p>With the initial builder in place, the next step is to define the <code>BuildField</code> trait, which enables us to incrementally populate fields in the partial record. This trait is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>BuildField&lt;Tag&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_field(self, _tag: PhantomData&lt;Tag&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span></code></pre>
+<p>The <code>BuildField</code> trait is parameterized by a <code>Tag</code> type, which identifies the field being constructed, just like in the <code>HasField</code> trait. It also includes an associated type <code>Value</code>, representing the type of the field being added.</p>
+<p>The trait additionally includes an associated type <code>Output</code>, which represents the new type of the builder after the field has been inserted. This <code>Output</code> type is essential because each insertion updates the builder’s type parameters, effectively transforming it into a new type that reflects the presence of additional fields.</p>
+<p>The <code>build_field</code> method takes ownership of the current builder and consumes the new field value, returning an updated builder that includes the newly added field.</p>
+<p>To see how this works in practice, consider the implementation of <code>BuildField</code> for the <code>first_name</code> field of the <code>PartialPerson</code> struct:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;F1: MapType&gt; BuildField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>PartialPerson&lt;IsNothing, F1&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= String;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= PartialPerson&lt;IsPresent, F1&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_field(self, _tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;)&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        PartialPerson {
+</span><span>            first_name: value,
+</span><span>            last_name: self.last_name,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this implementation, we define <code>BuildField&lt;Symbol!("first_name")&gt;</code> for a <code>PartialPerson</code> where the <code>first_name</code> field is absent (<code>IsNothing</code>) and the <code>last_name</code> field is parameterized generically as <code>F1</code>. This means the implementation will work regardless of whether <code>last_name</code> is present or not. We specify the <code>Value</code> as <code>String</code>, which matches the type of <code>first_name</code>, and set the <code>Output</code> type to a new <code>PartialPerson</code> where the first parameter has been updated to <code>IsPresent</code>. The second parameter remains unchanged to preserve the existing state of <code>last_name</code>.</p>
+<p>The method body constructs a new <code>PartialPerson</code> where the <code>first_name</code> field is now set to the given value, while the <code>last_name</code> field is carried over from the original builder.</p>
+<p>Similarly, we can define <code>BuildField</code> for the <code>last_name</code> field:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;F0: MapType&gt; BuildField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>PartialPerson&lt;F0, IsNothing&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= String;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= PartialPerson&lt;F0, IsPresent&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_field(self, _tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;last_name&quot;)&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        PartialPerson {
+</span><span>            first_name: self.first_name,
+</span><span>            last_name: value,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this case, the generic parameter <code>F0</code> tracks the state of <code>first_name</code>, while <code>IsNothing</code> ensures that <code>last_name</code> is not yet present. The logic follows the same structure as the earlier implementation, simply updating the appropriate field.</p>
+<p>With these implementations in place, we can now use the <code>HasBuilder</code> and <code>BuildField</code> traits together to construct a <code>Person</code> incrementally:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Person::builder() </span><span style="color:#608b4e;">// PartialPerson&lt;IsNothing, IsNothing&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;first_name&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;John&quot;</span><span>.to_string()) </span><span style="color:#608b4e;">// PartialPerson&lt;IsPresent, IsNothing&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;last_name&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;Smith&quot;</span><span>.to_string()) </span><span style="color:#608b4e;">// PartialPerson&lt;IsPresent, IsPresent&gt;
+</span></code></pre>
+<p>Notably, the <strong>order</strong> in which fields are built does not matter. The type transformations ensure correctness regardless of sequencing, so the builder also works if we construct the <code>last_name</code> field first:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Person::builder() </span><span style="color:#608b4e;">// PartialPerson&lt;IsNothing, IsNothing&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;last_name&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;Smith&quot;</span><span>.to_string()) </span><span style="color:#608b4e;">// PartialPerson&lt;IsNothing, IsPresent&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;first_name&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;John&quot;</span><span>.to_string()) </span><span style="color:#608b4e;">// PartialPerson&lt;IsPresent, IsPresent&gt;
+</span></code></pre>
+<p>This gives developers the freedom to build up records in any order while maintaining type safety.</p>
+<h2 id="finalizebuild-trait"><a class="zola-anchor" href="#finalizebuild-trait" aria-label="Anchor link for: finalizebuild-trait"><code>FinalizeBuild</code> Trait</a></h2>
+<p>The previous example demonstrated how the <code>builder</code> and <code>build_field</code> methods can be used to construct values in the style of a fluent builder pattern. However, it is important to note that the result of the final <code>build_field</code> call is still a <code>PartialPerson&lt;IsPresent, IsPresent&gt;</code>, not a fully constructed <code>Person</code>.</p>
+<p>This limitation arises because each <code>BuildField</code> implementation for <code>PartialPerson</code> is only responsible for inserting a single field. The presence or absence of other fields is abstracted away through generic type parameters, which means that the implementation cannot detect when the final field has been added. Consequently, there is no opportunity to directly return a <code>Person</code> value when the last required field is set.</p>
+<p>While this might make the final construction step slightly more verbose, it is a deliberate trade-off. The generic nature of <code>BuildField</code> is what allows fields to be built in any order without having to implement every possible combination of partially constructed records — something that would otherwise result in an overwhelming combinatorial explosion of implementations.</p>
+<p>To resolve this, CGP introduces the <code>FinalizeBuild</code> trait. This trait is used once the builder has been fully populated, converting the complete <code>PartialPerson</code> into a proper <code>Person</code> value:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>FinalizeBuild {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>finalize_build(self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span></code></pre>
+<p>The <code>FinalizeBuild</code> trait defines an associated <code>Output</code> type, representing the final constructed result. The <code>finalize_build</code> method takes ownership of the builder and transforms it into the desired output.</p>
+<p>For <code>PartialPerson</code>, the trait is implemented as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>FinalizeBuild </span><span style="color:#569cd6;">for </span><span>PartialPerson&lt;IsPresent, IsPresent&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Person;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>finalize_build(self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        Person {
+</span><span>            first_name: self.first_name,
+</span><span>            last_name: self.last_name,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This implementation only applies when all fields are marked as present. At this point, the builder contains all the data necessary to construct a <code>Person</code>, so the conversion is a straightforward transfer of fields.</p>
+<p>With this in place, the build process becomes complete by appending a call to <code>finalize_build</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> person = Person::builder() </span><span style="color:#608b4e;">// PartialPerson&lt;IsNothing, IsNothing&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;first_name&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;John&quot;</span><span>.to_string()) </span><span style="color:#608b4e;">// PartialPerson&lt;IsPresent, IsNothing&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;last_name&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;Smith&quot;</span><span>.to_string()) </span><span style="color:#608b4e;">// PartialPerson&lt;IsPresent, IsPresent&gt;
+</span><span>    .finalize_build(); </span><span style="color:#608b4e;">// Person
+</span></code></pre>
+<p>Together, the partial record struct and the traits <code>HasBuilder</code>, <code>BuildField</code>, and <code>FinalizeBuild</code> form a solid and ergonomic foundation for supporting extensible records in CGP. All of these pieces are automatically generated by the <code>#[derive(BuildField)]</code> macro. We do not use multiple derive macros here, so as to ensure consistency and correctness, eliminating the possibility of compilation failures due to the user missing to derive one of these traits.</p>
+<h1 id="implementation-of-record-merges"><a class="zola-anchor" href="#implementation-of-record-merges" aria-label="Anchor link for: implementation-of-record-merges">Implementation of Record Merges</a></h1>
+<p>With the field builder traits in place, we can now explore how the earlier <a href="/blog/extensible-datatypes-part-1#safe-struct-building">struct building</a> method <code>build_from</code> can be implemented to support merging a <code>Person</code> struct into a superset struct such as <code>Employee</code>.</p>
+<p>Before we can implement <code>build_from</code>, we first need a few more supporting constructs to enable the merging operation.</p>
+<h2 id="intobuilder-trait"><a class="zola-anchor" href="#intobuilder-trait" aria-label="Anchor link for: intobuilder-trait"><code>IntoBuilder</code> Trait</a></h2>
+<p>In typical usage, partial records begin in an empty state and are gradually populated with field values until they can be finalized into a complete struct. However, we can also go in the <strong>opposite</strong> direction by converting a fully constructed struct <em>into</em> a partial record where all fields are present, and then progressively <em>remove</em> fields from it, one by one, until none remain.</p>
+<p>This reverse direction is particularly important for the merging process, where we need to <em>move</em> fields out of a source struct and insert them into a target partial record, field by field.</p>
+<p>To support this, we introduce the <code>IntoBuilder</code> trait:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>IntoBuilder {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Builder</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>into_builder(self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Builder;
+</span><span>}
+</span></code></pre>
+<p>This trait mirrors the structure of <code>HasBuilder</code>, with an associated <code>Builder</code> type that represents a partial record in which all fields are populated. The key difference is that <code>into_builder</code> consumes the original struct and produces its fully populated partial record equivalent.</p>
+<p>The implementation of <code>IntoBuilder</code> for <code>Person</code> looks like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>IntoBuilder </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Builder </span><span>= PartialPerson&lt;IsPresent, IsPresent&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>into_builder(self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Builder {
+</span><span>        PartialPerson {
+</span><span>            first_name: self.first_name,
+</span><span>            last_name: self.last_name,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>If you compare this to the implementation of the earlier <code>FinalizeBuild</code> trait, you’ll see that they are nearly identical in structure. The only difference is the direction of conversion — <code>IntoBuilder</code> transforms a <code>Person</code> into a <code>PartialPerson&lt;IsPresent, IsPresent&gt;</code>, while <code>FinalizeBuild</code> does the reverse.</p>
+<p>Even though these interfaces are similar, we define <code>IntoBuilder</code> and <code>FinalizeBuild</code> as separate traits. This distinction is valuable because it makes the intent of each trait clear and prevents accidental misuse. Each trait captures a specific stage in the lifecycle of a partial record, whether we are constructing it from scratch, building it up field by field, or tearing it down for merging.</p>
+<h2 id="takefield-trait"><a class="zola-anchor" href="#takefield-trait" aria-label="Anchor link for: takefield-trait"><code>TakeField</code> Trait</a></h2>
+<p>Now that we have the <code>IntoBuilder</code> trait to help convert a struct into a fully populated partial record, we also need a way to extract individual fields from that partial record. This is where the <code>TakeField</code> trait comes in. It serves as the <em>opposite</em> of <code>BuildField</code>, allowing us to take a field value <em>out</em> of a partial record:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>TakeField&lt;Tag&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>take_field(self, _tag: PhantomData&lt;Tag&gt;) -&gt; (</span><span style="color:#569cd6;">Self::</span><span>Value, </span><span style="color:#569cd6;">Self::</span><span>Remainder);
+</span><span>}
+</span></code></pre>
+<p>The <code>Tag</code> and <code>Value</code> types in <code>TakeField</code> behave just like they do in <code>BuildField</code> and <code>HasField</code>. What is new here is the associated type <code>Remainder</code>, which represents the state of the partial record after the specified field has been removed. The <code>take_field</code> method consumes <code>self</code> and returns a tuple containing the extracted field value along with the updated remainder of the partial record.</p>
+<p>As an example, here is the <code>TakeField</code> implementation for extracting the <code>first_name</code> field from a <code>PartialPerson</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;F1&gt; TakeField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>PartialPerson&lt;IsPresent, F1&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= String;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder </span><span>= PartialPerson&lt;IsNothing, F1&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>take_field(self, _tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;first_name&quot;)&gt;) -&gt; (</span><span style="color:#569cd6;">Self::</span><span>Value, </span><span style="color:#569cd6;">Self::</span><span>Remainder) {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> value = self.first_name;
+</span><span>        </span><span style="color:#569cd6;">let</span><span> remainder = PartialPerson {
+</span><span>            first_name: (),
+</span><span>            last_name: self.last_name,
+</span><span>        };
+</span><span>
+</span><span>        (value, remainder)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As shown, this implementation is defined for a <code>PartialPerson</code> where the first generic parameter is <code>IsPresent</code>, indicating that the <code>first_name</code> field is available to be taken. In the resulting <code>Remainder</code>, that parameter is updated to <code>IsNothing</code>, reflecting the removal of the field. The method itself returns the <code>first_name</code> value and a new partial record with <code>first_name</code> cleared and the rest of the fields left untouched.</p>
+<p>This setup provides the building blocks needed to flexibly extract and transfer fields, which is essential for safely merging one struct into another.</p>
+<h2 id="hasfields-trait"><a class="zola-anchor" href="#hasfields-trait" aria-label="Anchor link for: hasfields-trait"><code>HasFields</code> Trait</a></h2>
+<p>With <code>IntoBuilder</code> available, we can now begin transferring fields from a source struct into a target partial record by peeling them off one at a time. To enable this process generically, we need a mechanism to <em>enumerate</em> the fields of a struct so that generic code can discover which fields are available for transfer.</p>
+<p>This is where the <code>HasFields</code> trait comes into play. It is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasFields {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Fields</span><span>;
+</span><span>}
+</span></code></pre>
+<p>The <code>HasFields</code> trait includes a single associated type called <code>Fields</code>, which holds a <em>type-level list</em> representing all the fields of the struct. For example, here is how <code>HasFields</code> would be implemented for the <code>Person</code> struct:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasFields </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Fields </span><span>= Product</span><span style="color:#569cd6;">!</span><span>[
+</span><span>        Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;first_name&quot;</span><span>), String&gt;,
+</span><span>        Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;last_name&quot;</span><span>), String&gt;,
+</span><span>    ];
+</span><span>}
+</span></code></pre>
+<p>Once the fields of a struct are made available as a type-level list, this list can be used to drive <em>type-level iteration</em> for field-wise operations such as merging. This lays the foundation for generically moving fields between records in a structured and type-safe way.</p>
+<h2 id="buildfrom-trait"><a class="zola-anchor" href="#buildfrom-trait" aria-label="Anchor link for: buildfrom-trait"><code>BuildFrom</code> Trait</a></h2>
+<p>The <code>build_from</code> method is defined within the <code>CanBuildFrom</code> trait, which uses a blanket implementation to support merging fields from one struct into another:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>CanBuildFrom&lt;Source&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_from(self, source: Source) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Builder, Source, Output&gt; CanBuildFrom&lt;Source&gt; </span><span style="color:#569cd6;">for </span><span>Builder
+</span><span style="color:#569cd6;">where
+</span><span>    Source: HasFields + IntoBuilder,
+</span><span>    </span><span style="color:#569cd6;">Source::</span><span>Fields: FieldsBuilder&lt;</span><span style="color:#569cd6;">Source::</span><span>Builder, Builder, Output = Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_from(self, source: Source) -&gt; Output {
+</span><span>        Source::Fields::build_fields(source.into_builder(), self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this setup, the <code>CanBuildFrom</code> trait is implemented for the partial record acting as the <em>target</em> of the merge, while the <code>Source</code> type is specified through a generic parameter. The trait defines an associated type <code>Output</code>, representing the result of merging the fields from <code>Source</code> into the current builder. The <code>build_from</code> method takes ownership of both the builder (<code>self</code>) and the source value, and returns a new builder that incorporates the fields from <code>Source</code>.</p>
+<p>The blanket implementation of <code>CanBuildFrom</code> imposes several trait bounds. First, the <code>Source</code> type must implement both <code>HasFields</code> and <code>IntoBuilder</code>. These traits provide access to a type-level list of fields and the ability to convert <code>Source</code> into a partial record with all fields present. The field list obtained from <code>Source::Fields</code> must also implement the <code>FieldsBuilder</code> helper trait. This trait is responsible for driving the merge process field by field, taking as input the <code>Source::Builder</code> and the target <code>Builder</code> (i.e., <code>Self</code>), and producing an <code>Output</code>.</p>
+<p>The implementation of <code>build_from</code> begins by converting the source into its partial form using <code>into_builder</code>, then delegates the merge logic to <code>FieldsBuilder::build_fields</code>, which handles transferring each field in sequence.</p>
+<h2 id="fieldsbuilder-trait"><a class="zola-anchor" href="#fieldsbuilder-trait" aria-label="Anchor link for: fieldsbuilder-trait"><code>FieldsBuilder</code> Trait</a></h2>
+<p>The <code>FieldsBuilder</code> trait is a <em>private</em> helper used exclusively by the <code>CanBuildFrom</code> trait. It is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">trait </span><span>FieldsBuilder&lt;Source, Target&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_fields(source: Source, target: Target) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span></code></pre>
+<p>Unlike <code>CanBuildFrom</code>, the parameters for <code>FieldsBuilder</code> are slightly reordered. The <code>Self</code> type represents the list of fields from the source struct, while <code>Source</code> and <code>Target</code> refer to the partial records we are merging from and into. The goal of this trait is to drive type-level iteration across the list of fields, one by one, and move each field from the source to the target.</p>
+<p>To accomplish this, we start with an implementation that matches on the head of the <code>Fields</code> list:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Source, Target, RestFields, Tag, Value&gt; FieldsBuilder&lt;Source, Target&gt;
+</span><span>    for Cons&lt;Field&lt;Tag, Value&gt;, RestFields&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Source: TakeField&lt;Tag, Value = Value&gt;,
+</span><span>    Target: BuildField&lt;Tag, Value = Value&gt;,
+</span><span>    RestFields: FieldsBuilder&lt;</span><span style="color:#569cd6;">Source::</span><span>Remainder, </span><span style="color:#569cd6;">Target::</span><span>Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= RestFields::Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_fields(source: Source, target: Target) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        </span><span style="color:#569cd6;">let </span><span>(value, next_source) = source.take_field(PhantomData);
+</span><span>        </span><span style="color:#569cd6;">let</span><span> next_target = target.build_field(PhantomData, value);
+</span><span>
+</span><span>        RestFields::build_fields(next_source, next_target)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, we pattern match the <code>Fields</code> type to <code>Cons&lt;Field&lt;Tag, Value&gt;, RestFields&gt;</code>, allowing us to extract the field name <code>Tag</code> and its type <code>Value</code>. Given this information, we require that the <code>Source</code> partial record implements <code>TakeField</code> and that the <code>Target</code> partial record implements <code>BuildField</code>, both using the same <code>Tag</code> and <code>Value</code>.</p>
+<p>We then handle the remaining fields recursively by requiring <code>RestFields</code> to implement <code>FieldsBuilder</code>, using the <code>Remainder</code> type from <code>TakeField</code> as the next <code>Source</code>, and the <code>Output</code> type from <code>BuildField</code> as the next <code>Target</code>. This enables a seamless hand-off from one field to the next during the merging process.</p>
+<p>The recursive chain is terminated by the base case, when there are no more fields left to process:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Source, Target&gt; FieldsBuilder&lt;Source, Target&gt; </span><span style="color:#569cd6;">for </span><span>Nil {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Target;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_fields(_source: Source, target: Target) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        target
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this final implementation, the <code>Source</code> partial record is now fully depleted — all fields have been taken out — so we simply return the <code>Target</code>, which now contains all the merged fields.</p>
+<h2 id="example-use-of-buildfrom"><a class="zola-anchor" href="#example-use-of-buildfrom" aria-label="Anchor link for: example-use-of-buildfrom">Example Use of <code>BuildFrom</code></a></h2>
+<p>The implementation of <code>FieldsBuilder</code> can appear intimidating at first, particularly for readers unfamiliar with type-level programming. To make the process more approachable, let’s walk through a concrete example using <code>BuildFrom</code> to illustrate what actually happens under the hood.</p>
+<p>Consider a new struct named <code>Employee</code>, which contains the same fields as <code>Person</code>, along with an additional field called <code>employee_id</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Employee {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>employee_id: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>first_name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>last_name: String,
+</span><span>}
+</span></code></pre>
+<p>We begin by constructing a <code>Person</code> value. After that, we can use <code>build_from</code> to merge its contents into a partially built <code>Employee</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> person = Person {
+</span><span>    first_name: </span><span style="color:#d69d85;">&quot;John&quot;</span><span>.to_owned(),
+</span><span>    last_name: </span><span style="color:#d69d85;">&quot;Smith&quot;</span><span>.to_owned(),
+</span><span>};
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> employee = Employee::builder() </span><span style="color:#608b4e;">// PartialEmployee&lt;IsNothing, IsNothing, IsNothing&gt;
+</span><span>    .build_from(person) </span><span style="color:#608b4e;">// PartialEmployee&lt;IsNothing, IsPresent, IsPresent&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;employee_id&quot;</span><span>)&gt;, </span><span style="color:#b5cea8;">1</span><span>) </span><span style="color:#608b4e;">// PartialEmployee&lt;IsPresent, IsPresent, IsPresent&gt;
+</span><span>    .finalize_build(); </span><span style="color:#608b4e;">// Person
+</span></code></pre>
+<p>When we call <code>build_from</code>, several steps take place behind the scenes:</p>
+<ul>
+<li>The type <code>PartialEmployee&lt;IsNothing, IsNothing, IsNothing&gt;</code> is required to implement <code>CanBuildFrom&lt;Person&gt;</code>.
+<ul>
+<li>The <code>Person</code> type implements <code>HasFields::Fields</code> as:<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Product</span><span style="color:#569cd6;">!</span><span>[
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;first_name&quot;</span><span>), String&gt;,
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;last_name&quot;</span><span>), String&gt;,
+</span><span>]
+</span></code></pre>
+</li>
+<li><code>Person</code> also implements <code>IntoBuilder</code>, producing <code>PartialPerson&lt;IsPresent, IsPresent&gt;</code> as its <code>Builder</code>.</li>
+</ul>
+</li>
+<li><code>Person::Fields</code> must then implement <code>FieldsBuilder&lt;PartialPerson&lt;IsPresent, IsPresent&gt;, PartialEmployee&lt;IsNothing, IsNothing, IsNothing&gt;&gt;</code>.
+<ul>
+<li>The first <code>Cons</code> in the list matches:
+<ul>
+<li><code>Tag</code> is <code>Symbol!("first_name")</code></li>
+<li><code>Value</code> is <code>String</code></li>
+<li><code>RestFields</code> is <code>Cons&lt;Field&lt;Symbol!("last_name"), String&gt;, Nil&gt;</code></li>
+</ul>
+</li>
+<li><code>PartialPerson&lt;IsPresent, IsPresent&gt;</code> implements <code>TakeField&lt;Symbol!("first_name"), Value = String&gt;</code>, resulting in:
+<ul>
+<li>A <code>Remainder</code> of <code>PartialPerson&lt;IsNothing, IsPresent&gt;</code></li>
+</ul>
+</li>
+<li><code>PartialEmployee&lt;IsNothing, IsNothing, IsNothing&gt;</code> implements <code>BuildField&lt;Symbol!("first_name"), Value = String&gt;</code>, producing:
+<ul>
+<li>An <code>Output</code> of <code>PartialEmployee&lt;IsNothing, IsPresent, IsNothing&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>The remaining fields, <code>Cons&lt;Field&lt;Symbol!("last_name"), String&gt;, Nil&gt;</code>, must now implement <code>FieldsBuilder&lt;PartialPerson&lt;IsNothing, IsPresent&gt;, PartialEmployee&lt;IsNothing, IsPresent, IsNothing&gt;&gt;</code>.
+<ul>
+<li>This matches:
+<ul>
+<li><code>Tag</code> is <code>Symbol!("last_name")</code></li>
+<li><code>Value</code> is <code>String</code></li>
+<li><code>RestFields</code> is <code>Nil</code></li>
+</ul>
+</li>
+<li><code>PartialPerson&lt;IsNothing, IsPresent&gt;</code> implements <code>TakeField&lt;Symbol!("last_name"), Value = String&gt;</code>, giving:
+<ul>
+<li>A <code>Remainder</code> of <code>PartialPerson&lt;IsNothing, IsNothing&gt;</code></li>
+</ul>
+</li>
+<li><code>PartialEmployee&lt;IsNothing, IsPresent, IsNothing&gt;</code> implements <code>BuildField&lt;Symbol!("last_name"), Value = String&gt;</code>, yielding:
+<ul>
+<li>An <code>Output</code> of <code>PartialEmployee&lt;IsNothing, IsPresent, IsPresent&gt;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Finally, the <code>Nil</code> case implements <code>FieldsBuilder&lt;PartialPerson&lt;IsNothing, IsNothing&gt;, PartialEmployee&lt;IsNothing, IsPresent, IsPresent&gt;&gt;</code>, which concludes by returning:
+<ul>
+<li><code>PartialEmployee&lt;IsNothing, IsPresent, IsPresent&gt;</code> as the final <code>Output</code>.</li>
+</ul>
+</li>
+</ul>
+<p>Although these steps may seem complex at first glance, a closer look reveals that the process simply moves each field from the <code>PartialPerson</code> instance into the <code>PartialEmployee</code>, one at a time. What makes this look more complicated is not the logic itself, but the fact that it is encoded entirely at the type level using traits and generics, rather than as regular Rust code.</p>
+<p>If any part of this explanation remains unclear, it might be helpful to paste this blog post — or just this sub-section — into your favorite LLM and ask it to explain the process in simpler terms. Hopefully, the explanation provided here is already clear enough for an LLM to understand, so that it can in turn help make this pattern more accessible to developers who are still learning the intricacies of type-level programming.</p>
+<h1 id="builder-dispatcher"><a class="zola-anchor" href="#builder-dispatcher" aria-label="Anchor link for: builder-dispatcher">Builder Dispatcher</a></h1>
+<p>With the <code>BuildFrom</code> trait in place, we can now explore how CGP implements generalized <strong>builder dispatchers</strong> that enable flexible and reusable ways to assemble struct fields from various sources.</p>
+<h2 id="buildwithhandlers-provider"><a class="zola-anchor" href="#buildwithhandlers-provider" aria-label="Anchor link for: buildwithhandlers-provider"><code>BuildWithHandlers</code> Provider</a></h2>
+<p>In <a href="/blog/extensible-datatypes-part-1/#builder-dispatcher">earlier examples</a>, we used a utility called <code>BuildAndMergeOutputs</code> to combine outputs from multiple builder providers such as <code>BuildSqliteClient</code>, <code>BuildHttpClient</code>, and <code>BuildOpenAiClient</code>. Under the hood, <code>BuildAndMergeOutputs</code> is built upon a more fundamental dispatcher named <code>BuildWithHandlers</code>. The implementation of this dispatcher looks like the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input, Output, Builder, Handlers, Res&gt; Computer&lt;Context, Code, Input&gt;
+</span><span>    for BuildWithHandlers&lt;Output, Handlers&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Output: HasBuilder&lt;Builder = Builder&gt;,
+</span><span>    PipeHandlers&lt;Handlers&gt;: Computer&lt;Context, Code, Builder, Output = Res&gt;,
+</span><span>    Res: FinalizeBuild&lt;Output = Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, _input: Input) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        PipeHandlers::compute(context, code, Output::builder()).finalize_build()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The <code>BuildWithHandlers</code> struct is parameterized by an <code>Output</code> type, which is the final struct we want to construct, and a <code>Handlers</code> type, which represents a type-level list of builder handlers. These handlers will be used to incrementally populate the fields of the <code>Output</code> struct.</p>
+<p>This provider implements the <code>Computer</code> trait for any combination of <code>Context</code>, <code>Code</code>, and <code>Input</code>, although the <code>Input</code> parameter is intentionally ignored. To begin, the dispatcher requires the <code>Output</code> type to implement <code>HasBuilder</code>, which gives access to an initially empty partial record through <code>Output::builder()</code>.</p>
+<p>Once the empty builder is obtained, it is passed as input to <code>PipeHandlers&lt;Handlers&gt;</code>, a pipeline that applies each handler in the list to progressively build up the partial record. The result of this pipeline must implement <code>FinalizeBuild</code>, allowing it to be converted into the fully constructed <code>Output</code> struct.</p>
+<p>And yes, if you're wondering whether this <code>PipeHandlers</code> is the same one used in <a href="/blog/hypershell-release">Hypershell</a> to build shell-like command pipelines — the answer is absolutely yes. <code>BuildWithHandlers</code> operates by initializing an empty partial record, passing it through a chain of handlers using <code>PipeHandlers</code>, and then finalizing the result into a complete struct. It’s the same elegant piping mechanism, just applied to a different domain.</p>
+<p>This reuse of core abstractions like <code>Pipe</code> and <code>Handler</code> across different systems is one of the most powerful aspects of CGP. These components weren’t designed just for piping shell commands — they were built to support general-purpose <a href="https://en.wikipedia.org/wiki/Function_composition_%28computer_science%29">function composition</a>, a core concept in functional programming.</p>
+<h2 id="example-use-of-buildwithhandlers"><a class="zola-anchor" href="#example-use-of-buildwithhandlers" aria-label="Anchor link for: example-use-of-buildwithhandlers">Example Use of <code>BuildWithHandlers</code></a></h2>
+<p>The <code>BuildWithHandlers</code> trait serves as the foundational builder dispatcher in CGP. It is the low-level mechanism behind higher-level dispatchers like <code>BuildAndMergeOutputs</code>, and understanding it provides valuable insight into how CGP composes complex data construction pipelines.</p>
+<p>Let’s walk through a concrete example to illustrate how <code>BuildWithHandlers</code> works in practice.</p>
+<p>Suppose we have two <code>Computer</code> providers: one that constructs a <code>Person</code> and another that produces a <code>u64</code> value for the <code>employee_id</code> field. We can use <code>BuildWithHandlers</code> to compose these providers and construct an <code>Employee</code>.</p>
+<p>We begin by implementing the two providers as simple functions using the <code>#[cgp_producer]</code> macro:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_producer]
+</span><span style="color:#569cd6;">pub fn </span><span>build_person() -&gt; Person {
+</span><span>    Person {
+</span><span>        first_name: </span><span style="color:#d69d85;">&quot;John&quot;</span><span>.to_owned(),
+</span><span>        last_name: </span><span style="color:#d69d85;">&quot;Smith&quot;</span><span>.to_owned(),
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[cgp_producer]
+</span><span style="color:#569cd6;">pub fn </span><span>build_employee_id() -&gt; </span><span style="color:#569cd6;">u64 </span><span>{
+</span><span>    </span><span style="color:#b5cea8;">1
+</span><span>}
+</span></code></pre>
+<p>The <code>#[cgp_producer]</code> macro generates provider implementations (named <code>BuildPerson</code> and <code>BuildEmployeeId</code>) that wrap these functions. These implementations conform to the <code>Computer</code> trait by automatically calling the associated function. This macro allows pure functions to be used as providers with minimal boilerplate, especially useful when you don't need to depend on the generic <code>Context</code> or <code>Code</code> parameters.</p>
+<p>Now, with both providers defined, we can compose them using <code>BuildWithHandlers</code> like so:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> employee = BuildWithHandlers::&lt;
+</span><span>    Employee,
+</span><span>    Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>        BuildAndMerge&lt;BuildPerson&gt;,
+</span><span>        BuildAndSetField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;employee_id&quot;</span><span>), BuildEmployeeId&gt;
+</span><span>    ],
+</span><span>&gt;::compute(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, ());
+</span></code></pre>
+<p>In this example, we tell <code>BuildWithHandlers</code> that the final struct we want to build is <code>Employee</code>. We then provide a list of two builder handlers:</p>
+<ol>
+<li><code>BuildAndMerge&lt;BuildPerson&gt;</code> wraps the <code>BuildPerson</code> provider. It first calls the provider to build a <code>Person</code>, then uses <code>BuildFrom</code> to merge the resulting fields into the <code>PartialEmployee</code> builder.</li>
+<li><code>BuildAndSetField&lt;Symbol!("employee_id"), BuildEmployeeId&gt;</code> wraps the <code>BuildEmployeeId</code> provider. It calls the provider to get the <code>u64</code> value and then uses <code>BuildField</code> to assign that value to the <code>employee_id</code> field.</li>
+</ol>
+<p>We invoke <code>compute</code> on the specialized <code>BuildWithHandlers</code>, using unit types <code>()</code> as dummy arguments for <code>Context</code>, <code>Code</code>, and <code>Input</code>. In real-world applications, these types would typically carry contextual information such as configurations or runtime.</p>
+<p>This example demonstrates the flexibility of <code>BuildWithHandlers</code>. You’re not limited to merging entire record subsets — you can also work with providers that produce individual field values, then insert them into specific fields using composable builder logic.</p>
+<h2 id="buildandmerge"><a class="zola-anchor" href="#buildandmerge" aria-label="Anchor link for: buildandmerge"><code>BuildAndMerge</code></a></h2>
+<p>The <code>BuildAndMerge</code> adapter is relatively simple and is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Builder, Provider, Output, Res&gt; Computer&lt;Context, Code, Builder&gt;
+</span><span>    for BuildAndMerge&lt;Provider&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Provider: </span><span style="color:#569cd6;">for</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; Computer&lt;Context, Code, </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Builder, Output = Res&gt;,
+</span><span>    Builder: CanBuildFrom&lt;Res, Output = Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, builder: Builder) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> output = Provider::compute(context, code, </span><span style="color:#569cd6;">&amp;</span><span>builder);
+</span><span>        builder.build_from(output)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p><code>BuildAndMerge</code> wraps an inner provider (such as <code>BuildPerson</code>) and expects the current <code>Builder</code> — a partial record for the target struct — as input. The inner provider is invoked with a <strong>reference</strong> to this builder as its inner input, allowing it to inspect any fields that may already be set. This feature enables more advanced scenarios where intermediate results influence later ones.</p>
+<p>After the inner provider returns a value, <code>BuildAndMerge</code> uses the <code>BuildFrom</code> trait to merge the result into the existing builder. The merged builder is then returned as output.</p>
+<p>In simpler cases like <code>BuildPerson</code>, the input builder is ignored, so the trait bounds are trivially satisfied. But the mechanism still works the same way: take a value and merge its fields into the partial record.</p>
+<h2 id="buildandsetfield"><a class="zola-anchor" href="#buildandsetfield" aria-label="Anchor link for: buildandsetfield"><code>BuildAndSetField</code></a></h2>
+<p>The <code>BuildAndSetField</code> adapter works similarly but focuses on setting a single field rather than merging a full record:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Tag, Value, Provider, Output, Builder&gt; Computer&lt;Context, Code, Builder&gt;
+</span><span>    for BuildAndSetField&lt;Tag, Provider&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Provider: </span><span style="color:#569cd6;">for</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; Computer&lt;Context, Code, </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Builder, Output = Value&gt;,
+</span><span>    Builder: BuildField&lt;Tag, Value = Value, Output = Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, builder: Builder) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> value = Provider::compute(context, code, </span><span style="color:#569cd6;">&amp;</span><span>builder);
+</span><span>        builder.build_field(PhantomData::&lt;Tag&gt;, value)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Instead of calling <code>BuildFrom</code>, this adapter uses the <code>BuildField</code> trait to assign a value to a specific field. The field to be set is identified by <code>Tag</code>, and its value comes from the wrapped provider.</p>
+<p>This adapter is ideal for cases where you have an individual value (such as <code>u64</code>) and want to insert it into a specific field (like <code>employee_id</code>).</p>
+<h2 id="mapfields-trait"><a class="zola-anchor" href="#mapfields-trait" aria-label="Anchor link for: mapfields-trait"><code>MapFields</code> Trait</a></h2>
+<p>In the previous example, we saw how to use <code>BuildWithHandlers</code> with a list of individual providers — each wrapped in <code>BuildAndMerge</code> or <code>BuildAndSetField</code> — to build a composite struct. This same pattern is what powers higher-level dispatchers like <code>BuildAndMergeOutputs</code>.</p>
+<p>Since the pattern of wrapping a list of handlers is so common, CGP provides the <code>MapFields</code> trait to simplify the process. Here’s how it’s defined:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>MapFields&lt;Mapper&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Mapper, Current, Rest&gt; MapFields&lt;Mapper&gt; </span><span style="color:#569cd6;">for </span><span>Cons&lt;Current, Rest&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Mapper: MapType,
+</span><span>    Rest: MapFields&lt;Mapper&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map </span><span>= Cons&lt;</span><span style="color:#569cd6;">Mapper::</span><span>Map&lt;Current&gt;, </span><span style="color:#569cd6;">Rest::</span><span>Map&gt;;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Mapper&gt; MapFields&lt;Mapper&gt; </span><span style="color:#569cd6;">for </span><span>Nil {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map </span><span>= Nil;
+</span><span>}
+</span></code></pre>
+<p>The <code>MapFields</code> trait enables type-level mapping over a type-level list — very similar to how <code>.iter().map()</code> works on value-level lists in Rust. You pass in a <code>Mapper</code> that implements the <code>MapType</code> trait, and it is applied to each element in the list. This is the same <code>MapType</code> trait we’ve seen used earlier in other utilities, like <code>IsPresent</code> and <code>IsNothing</code>.</p>
+<h2 id="buildandmergeoutputs"><a class="zola-anchor" href="#buildandmergeoutputs" aria-label="Anchor link for: buildandmergeoutputs"><code>BuildAndMergeOutputs</code></a></h2>
+<p>Now that we have the pieces in place, we can implement <code>BuildAndMergeOutputs</code> as a composition of <code>BuildWithHandlers</code> and <code>BuildAndMerge</code>.</p>
+<p>We start by defining a simple type mapper called <code>ToBuildAndMergeHandler</code>, which takes any <code>Handler</code> type and maps it to a <code>BuildAndMerge&lt;Handler&gt;</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>ToBuildAndMergeHandler;
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>MapType </span><span style="color:#569cd6;">for </span><span>ToBuildAndMergeHandler {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map</span><span>&lt;Handler&gt; = BuildAndMerge&lt;Handler&gt;;
+</span><span>}
+</span></code></pre>
+<p>With that, we can define <code>BuildAndMergeOutputs</code> simply as a <em>type alias</em>. It takes an <code>Output</code> type and a list of handler types, and internally applies <code>ToBuildAndMergeHandler</code> to each handler in the list. The result is passed to <code>BuildWithHandlers</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">BuildAndMergeOutputs</span><span>&lt;Output, Handlers&gt; =
+</span><span>    BuildWithHandlers&lt;Output, &lt;Handlers </span><span style="color:#569cd6;">as </span><span>MapFields&lt;ToBuildAndMergeHandler&gt;&gt;::Map&gt;;
+</span></code></pre>
+<p>This implementation showcases the power of type-level composition in CGP. By combining smaller, reusable components like <code>BuildWithHandlers</code>, <code>BuildAndMerge</code>, and <code>MapFields</code>, we can construct higher-level abstractions like <code>BuildAndMergeOutputs</code> with minimal boilerplate and high flexibility.</p>
+<p>This modular, composable design stands in contrast to traditional macro-based approaches. With macros, it’s much harder to verify that combining two smaller macros results in correct behavior — especially as the complexity grows. In contrast, with CGP's type-level constructs, each piece remains type-checked and composable under well-defined <code>where</code> constraints. These constraints act as a safeguard, ensuring that the combined logic remains sound and predictable.</p>
+<p>Moreover, this approach enables us to easily define other dispatcher variants, such as those that use <code>BuildAndSetField</code> instead of <code>BuildAndMerge</code>, without having to rewrite or duplicate core logic.</p>
+<h2 id="hiding-constraints-with-delegate-components"><a class="zola-anchor" href="#hiding-constraints-with-delegate-components" aria-label="Anchor link for: hiding-constraints-with-delegate-components">Hiding Constraints with <code>delegate_components!</code></a></h2>
+<p>While it's possible to define <code>BuildAndMergeOutputs</code> as a simple type alias, doing so introduces ergonomic issues when it’s used with a <em>generic</em> <code>Handlers</code> type provided by the caller.</p>
+<p>Consider a situation where we want to implement a provider that wraps around <code>BuildAndMergeOutputs</code> in order to perform validation on the result before returning it. We might write something like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input, Output, Handlers&gt; Computer&lt;Context, Code, Input&gt;
+</span><span>    for BuildAndValidateOutput&lt;Output, Handlers&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    BuildAndMergeOutputs&lt;Output, Handlers&gt;: Computer&lt;Context, Code, Input&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, input: Input) -&gt; Output {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, <code>BuildAndValidateOutput</code> <em>statically</em> depends on <code>BuildAndMergeOutputs</code> by requiring that it implements <code>Computer</code>. However, this code won’t compile as-is. The problem is that <code>BuildAndMergeOutputs</code> is defined as a type alias that internally relies on a hidden constraint: <code>Handlers: MapFields&lt;ToBuildAndMergeHandler&gt;</code>. Since this constraint is not visible at the site of usage, the compiler now demands that we explicitly provide proof that <code>Handlers</code> satisfies this requirement.</p>
+<p>While we could add the missing constraint to the <code>where</code> clause of <code>BuildAndValidateOutput</code>, this reduces the ergonomics and composability of the abstraction. It requires callers to understand the internal structure of <code>BuildAndMergeOutputs</code>, which goes against one of the core strengths of CGP — <em>hiding internal constraints</em> so they don't leak into user code.</p>
+<p>Fortunately, we can solve this by turning <code>BuildAndMergeOutputs</code> into a regular provider struct, and using the <code>delegate_components!</code> macro to <strong>delegate</strong> the <code>Computer</code> implementation to <code>BuildWithHandlers</code>, while keeping the necessary constraints encapsulated.</p>
+<p>Here’s how:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    &lt;Output, Handlers: MapFields&lt;ToBuildAndMergeHandler&gt;&gt;
+</span><span>    new BuildAndMergeOutputs&lt;Output, Handlers&gt; {
+</span><span>        ComputerComponent:
+</span><span>            BuildWithHandlers&lt;Output, </span><span style="color:#569cd6;">Handlers::</span><span>Map&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This macro creates a new <code>BuildAndMergeOutputs</code> provider that wraps <code>BuildWithHandlers</code>, while adding the required constraint on <code>Handlers</code> behind the scenes. Internally, the macro expands into a <code>DelegateComponent</code> implementation like the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Output, Handlers&gt; DelegateComponent&lt;ComputerComponent&gt;
+</span><span>    for BuildAndMergeOutputs&lt;Output, Handlers&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Handlers: MapFields&lt;ToBuildAndMergeHandler&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Delegate </span><span>= BuildWithHandlers&lt;Output, </span><span style="color:#569cd6;">Handlers::</span><span>Map&gt;;
+</span><span>}
+</span></code></pre>
+<p>With this setup, <code>BuildAndMergeOutputs</code> can now be used like any other CGP provider — without needing to manually restate its internal type constraints. This keeps client code clean and focused, and allows CGP abstractions to remain composable and extensible.</p>
+<p>The key benefit of this pattern is that it avoids boilerplate while preserving type safety. Whenever a provider's implementation is simply a thin wrapper around another provider with some added constraints, it's much more convenient to use <code>DelegateComponent</code> via <code>delegate_components!</code> than to implement the provider trait manually.</p>
+<h2 id="type-level-metaprogramming"><a class="zola-anchor" href="#type-level-metaprogramming" aria-label="Anchor link for: type-level-metaprogramming">Type-Level Metaprogramming</a></h2>
+<p>The technique we just explored — wrapping providers and using <code>delegate_components!</code> — can be seen as a form of <strong>metaprogramming</strong> in CGP. Here, we’re leveraging <strong>type-level programming</strong> not just within CGP’s core component abstractions like <code>DelegateComponent</code>, but also as a tool for <em>programmatically defining component wiring</em> through the use of generic parameters and trait constraints.</p>
+<p>This highlights a deeper design philosophy behind CGP: rather than inventing a new meta-language or macro system, CGP embraces Rust’s existing type system and trait machinery as the foundation for composability and abstraction. Type-level programming in CGP isn’t an escape hatch — it is the underlying mechanism that <em>makes escape hatches unnecessary</em>.</p>
+<p>Some readers may find the phrase "type-level programming" intimidating, especially if they associate it with obscure or overly abstract code. But consider the alternatives: in many dynamic languages like Ruby, Python, or JavaScript, metaprogramming is accomplished through bespoke syntax, reflection, or runtime patching — approaches that can be powerful but often come with poor tooling, fragile semantics, and hard-to-debug behavior.</p>
+<p>In contrast, type-level programming offers a principled and well-typed foundation for metaprogramming. Constraints are checked at compile time, tooling support remains robust, and the abstractions remain composable. Instead of inventing ad hoc metaprogramming constructs, CGP relies on the well-established theory and practice of type-level computation.</p>
+<p>By doing so, CGP achieves a rare combination of power and predictability. Developers who embrace this pattern gain access to highly expressive abstractions, while staying within the familiar boundaries of Rust's type system.</p>
+<h1 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">Conclusion</a></h1>
+<p>By this point, I hope you have a clearer understanding of how CGP supports extensible records. If you are interested in exploring the implementation further, take a look at the <a href="https://github.com/contextgeneric/cgp">GitHub repository</a>, especially the <code>cgp-field</code> and <code>cgp-dispatch</code> crates, which contain the full source code.</p>
+<p>With partial records and field traits such as <code>HasField</code>, <code>BuildField</code>, and <code>TakeField</code>, CGP enables powerful generic operations like <code>BuildFrom</code>, which allows one struct to be merged into another seamlessly. These building blocks form the foundation for more advanced compositional patterns.</p>
+<p>To implement the extensible builder pattern, we introduced the <code>BuildWithHandlers</code> dispatcher. This component composes multiple builder handlers and merges their outputs using a clean and predictable build pipeline, constructed with <code>PipeHandlers</code>. The simplicity arises from a system where modularity is built into the core design, rather than added as an afterthought.</p>
+<p>On top of this, we implemented the high-level <code>BuildAndMergeOutputs</code> dispatcher by defining a conditional delegation to <code>BuildWithHandlers</code>, after first wrapping each handler using the <code>BuildAndMerge</code> adapter. This design preserves composability while allowing for customized construction logic.</p>
+<h2 id="future-extensions"><a class="zola-anchor" href="#future-extensions" aria-label="Anchor link for: future-extensions">Future Extensions</a></h2>
+<p>Because extensible records and builders are implemented modularly, it is easy to extend the system further without rewriting the core. For instance, the current builder pattern requires the source struct to match the target struct exactly, but we may want to allow certain fields to be <strong>dropped</strong> rather than merged.</p>
+<p>We might also want to support <strong>overriding</strong> existing fields in a partial record when the same field appears in multiple sources. Additionally, it would be useful to finalize a partial record by filling in any missing fields with <strong>default values</strong>.</p>
+<p>These enhancements are already within reach, and we plan to support them in future versions of CGP. Even if they are not included directly in the library, the existing abstractions make it easy for others to implement them independently.</p>
+<p>Thanks to the expressive power of Rust’s type system and the composability of type-level programming, these extensions can be implemented in a way that is both straightforward and correct by construction. They remain completely optional and do not introduce additional complexity to the core logic presented here.</p>
+<p>This level of flexibility would be difficult to achieve with more ad hoc approaches, such as macros or code generation, which often require the entire logic and all possible extensions to be baked into a single monolithic system. That leads to unnecessary coupling and limits customizability.</p>
+<p>If you're still unsure how all of this comes together, a future blog post will walk through the implementation of these extensions in detail to show exactly how they work.</p>
+<h2 id="next-part"><a class="zola-anchor" href="#next-part" aria-label="Anchor link for: next-part">Next Part</a></h2>
+<p>In the final <a href="/blog/extensible-datatypes-part-4">Part 4 of this series, <strong>Implementing Extensible Variants</strong></a>, we will follow a similar path to explore how CGP implements extensible variants. Keep in mind the concepts we covered for extensible records — you may be surprised to discover just how much of the same logic carries over, despite the differences between records and variants.</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

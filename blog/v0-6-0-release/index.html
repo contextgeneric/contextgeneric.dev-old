@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CGP v0.6.0 Release - Major ergonomic improvements for provider and context implementations | Context-Generic Programming</title>
+    <meta property="og:title" content="CGP v0.6.0 Release - Major ergonomic improvements for provider and context implementations | Context-Generic Programming" />
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="CGP v0.6.0 Release - Major ergonomic improvements for provider and context implementations | Context-Generic Programming">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#overview">Overview</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#simplified-provider-implementation-with-cgp-impl">Simplified provider implementation with #[cgp_impl]</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#example"><small>- Example</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#direct-component-delegation-on-context-types">Direct component delegation on context types</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#direct-implementation-of-consumer-traits"><small>- Direct implementation of consumer traits</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#unlock-use-of-cgp-component-on-any-trait"><small>- Unlock use of #[cgp_component] on any trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#removal-of-hascgpprovider-trait"><small>- Removal of HasCgpProvider trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#backward-compatibility"><small>- Backward Compatibility</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#background"><small>- Background</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#introduce-cgp-inherit-macro">Introduce #[cgp_inherit] macro</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#example-1"><small>- Example</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#migration-guide">Migration Guide</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#removal-of-hascgpprovider-trait-1"><small>- Removal of HasCgpProvider trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#deprecation-of-cgp-context"><small>- Deprecation of #[cgp_context]</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#deprecation-of-cgp-provider"><small>- Deprecation of #[cgp_provider]</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#updates">Updates</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#rustlab-presentation"><small>- RustLab Presentation</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-6-0-release/#acknowledgement"><small>- Acknowledgement</small></a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">CGP v0.6.0 Release - Major ergonomic improvements for provider and context implementations</div>
+<div style="text-align: right;"><i>Posted on 2025-10-26</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><h1 id="overview"><a class="zola-anchor" href="#overview" aria-label="Anchor link for: overview">Overview</a></h1>
+<p>It has only been two weeks since <a href="/blog/v0-5-0-release/">v0.5.0 was released</a>, yet we are already introducing another major update. <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.6.0"><strong>CGP v0.6.0</strong></a> brings significant improvements to the ergonomics of implementing providers and contexts, making it easier and more intuitive for developers to build on top of CGP.</p>
+<h1 id="simplified-provider-implementation-with-cgp-impl"><a class="zola-anchor" href="#simplified-provider-implementation-with-cgp-impl" aria-label="Anchor link for: simplified-provider-implementation-with-cgp-impl">Simplified provider implementation with <code>#[cgp_impl]</code></a></h1>
+<p>The highlight of v0.6.0 is the introduction of the new <code>#[cgp_impl]</code> macro, which replaces <code>#[cgp_provider]</code> and greatly simplifies the way provider traits are implemented in CGP.</p>
+<p>Essentially, <code>#[cgp_impl]</code> lets you write a provider trait implementation as if it were a blanket implementation for the consumer trait. This makes implementing CGP providers feel as natural as working with regular Rust traits, reducing boilerplate and making the intent clearer.</p>
+<h2 id="example"><a class="zola-anchor" href="#example" aria-label="Anchor link for: example">Example</a></h2>
+<p>Consider the following example trait:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(HttpRequestFetcher)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanFetchHttpRequest: HasErrorType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>fetch_http_request(</span><span style="color:#569cd6;">&amp;</span><span>self, request: Request) -&gt; Result&lt;Response, </span><span style="color:#569cd6;">Self::</span><span>Error&gt;;
+</span><span>}
+</span></code></pre>
+<p>With <code>#[cgp_impl]</code>, you can now implement a provider like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(new FetchWithHttpClient)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; HttpRequestFetcher </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    </span><span style="color:#569cd6;">Self</span><span>: HasHttpClient + HasErrorType,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>fetch_http_request(</span><span style="color:#569cd6;">&amp;</span><span>self, request: Request) -&gt; Result&lt;Response, </span><span style="color:#569cd6;">Self::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Previously, the same functionality required using <code>#[cgp_provider]</code>, which looked like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; HttpRequestFetcher&lt;Context&gt; </span><span style="color:#569cd6;">for </span><span>FetchWithHttpClient
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasHttpClient + HasErrorType,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>fetch_http_request(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, request: Request) -&gt; Result&lt;Response, </span><span style="color:#569cd6;">Context::</span><span>Error&gt; {
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As shown above, <code>#[cgp_impl]</code> produces syntax that is much closer to standard Rust trait implementations, making provider definitions easier to read and write.</p>
+<p>Behind the scenes, <code>#[cgp_impl]</code> expands to the same form as a manually written provider implementation using <code>#[cgp_provider]</code>. Understanding how provider traits work remains important, especially when debugging or exploring the generated code.</p>
+<h1 id="direct-component-delegation-on-context-types"><a class="zola-anchor" href="#direct-component-delegation-on-context-types" aria-label="Anchor link for: direct-component-delegation-on-context-types">Direct component delegation on context types</a></h1>
+<p>In v0.6.0, we can now use <code>delegate_components!</code> directly on the context type itself, without requiring a separate provider struct. This makes it possible to write code like the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>App { ... }
+</span><span>
+</span><span>delegate_components! {
+</span><span>    App {
+</span><span>        FooComponent: FooProvider,
+</span><span>        BarComponent: BarProvider,
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Previously, it was necessary to use a separate provider for the context:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span style="color:#569cd6;">pub struct </span><span>App { ... }
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppComponents {
+</span><span>        FooComponent: FooProvider,
+</span><span>        BarComponent: BarProvider,
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This new approach significantly simplifies how components are wired to a concrete context. There is no longer a need to introduce an extra <code>AppComponents</code> struct just to serve as a type-level lookup table. The lookup table is now embedded directly in the <code>App</code> type itself.</p>
+<p>This change can also yield a small improvement in compile times, since there is one fewer level of indirection for the trait solver to handle when resolving provider relationships.</p>
+<h2 id="direct-implementation-of-consumer-traits"><a class="zola-anchor" href="#direct-implementation-of-consumer-traits" aria-label="Anchor link for: direct-implementation-of-consumer-traits">Direct implementation of consumer traits</a></h2>
+<p>A major benefit of this improvement is the ability to implement consumer traits directly on a concrete context type. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[cgp_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasCount {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>count(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">u32</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>count: </span><span style="color:#569cd6;">u32</span><span>,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    App {
+</span><span>        NameGetterComponent: UseField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;name&quot;</span><span>)&gt;,
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#608b4e;">// Consumer trait can now be implemented directly
+</span><span style="color:#569cd6;">impl </span><span>HasCount </span><span style="color:#569cd6;">for </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>count(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">u32 </span><span>{
+</span><span>        self.count
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In earlier versions, you would have needed to write the following instead:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl </span><span>CountGetter&lt;App&gt; </span><span style="color:#569cd6;">for </span><span>AppComponents {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>count(app: </span><span style="color:#569cd6;">&amp;</span><span>App) -&gt; </span><span style="color:#569cd6;">u32 </span><span>{
+</span><span>        app.count
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This older style often made code appear verbose and confusing, particularly for newcomers. The new approach is cleaner and more intuitive, aligning better with standard Rust trait conventions.</p>
+<h2 id="unlock-use-of-cgp-component-on-any-trait"><a class="zola-anchor" href="#unlock-use-of-cgp-component-on-any-trait" aria-label="Anchor link for: unlock-use-of-cgp-component-on-any-trait">Unlock use of <code>#[cgp_component]</code> on any trait</a></h2>
+<p>This simplification also enables <code>#[cgp_component]</code> to be applied to nearly any existing Rust trait without breaking existing code. This is a major step toward making CGP easier to adopt, since developers can start integrating it gradually without needing to first learn all its concepts.</p>
+<p>For example, in principle it is now possible to annotate the standard library’s <a href="https://doc.rust-lang.org/std/hash/trait.Hash.html"><code>Hash</code></a> trait with <code>#[cgp_component]</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(HashProvider)]
+</span><span style="color:#569cd6;">pub trait </span><span>Hash { </span><span style="color:#569cd6;">... </span><span>}
+</span></code></pre>
+<p>This does not affect existing code that uses or implements <code>Hash</code>, but it allows new overlapping implementations such as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(HashWithDisplay)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;T: Display&gt; HashProvider </span><span style="color:#569cd6;">for </span><span>T {
+</span><span>    </span><span style="color:#569cd6;">...
+</span><span>}
+</span></code></pre>
+<p>You can then reuse this implementation on any type using <code>delegate_components!</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>MyData { ... }
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>Display </span><span style="color:#569cd6;">for </span><span>MyData { </span><span style="color:#569cd6;">... </span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    MyData {
+</span><span>        HashProviderComponent: HashWithDisplay,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With this capability, CGP can now enhance any existing Rust trait without changing how those traits are implemented. By supporting overlapping and orphan implementations safely, CGP v0.6.0 makes it far easier and more appealing for developers to experiment with the framework, since the onboarding cost is now significantly lower.</p>
+<h2 id="removal-of-hascgpprovider-trait"><a class="zola-anchor" href="#removal-of-hascgpprovider-trait" aria-label="Anchor link for: removal-of-hascgpprovider-trait">Removal of <code>HasCgpProvider</code> trait</a></h2>
+<p>Consumer traits can now be implemented directly because CGP has removed the <code>HasCgpProvider</code> trait. Instead of relying on <code>HasCgpProvider</code>, blanket implementations for consumer traits now use <code>DelegateComponent</code>, just as provider traits do.</p>
+<p>For example, the <code>HasName</code> trait introduced earlier now expands into the following blanket implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; HasName </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: DelegateComponent&lt;NameGetterComponent&gt;,
+</span><span>    </span><span style="color:#569cd6;">Context::</span><span>Delegate: NameGetter&lt;Context&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str </span><span>{
+</span><span>        Context::Delegate::name(self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Previously, the generated code looked like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; HasName </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasCgpProvider,
+</span><span>    </span><span style="color:#569cd6;">Context::</span><span>CgpProvider: NameGetter&lt;Context&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str </span><span>{
+</span><span>        Context::CgpProvider::name(self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The old design had an important limitation: any type implementing <code>HasCgpProvider</code> could not also implement the corresponding consumer trait directly, because the blanket implementation would already cover it. With the new approach, this restriction no longer applies. A type that implements <code>DelegateComponent</code> can still define its own consumer trait implementation, as long as there is no conflicting implementation for the same component key. This means developers can freely implement consumer traits on their context types without running into conflicts, as long as the delegation remains unambiguous.</p>
+<h2 id="backward-compatibility"><a class="zola-anchor" href="#backward-compatibility" aria-label="Anchor link for: backward-compatibility">Backward Compatibility</a></h2>
+<p>Since many projects already use CGP, removing context providers entirely could cause extensive breakage. To avoid this, the new version modifies the behavior of <code>#[cgp_context]</code> so that it automatically provides blanket <code>DelegateComponent&lt;Name&gt;</code> implementations for all component names, preserving compatibility with existing code.</p>
+<p>For instance, consider the following context definition:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span style="color:#569cd6;">pub struct </span><span>App { ... }
+</span></code></pre>
+<p>The macro now generates the following code:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>AppComponents;
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Name&gt; DelegateComponent&lt;Name&gt; </span><span style="color:#569cd6;">for </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Delegate </span><span>= AppComponents;
+</span><span>}
+</span></code></pre>
+<p>This bulk delegation plays the same role that <code>HasCgpProvider</code> once did, ensuring that older codebases continue to function correctly. Previously, the generated code would have looked like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>AppComponents;
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasCgpProvider </span><span style="color:#569cd6;">for </span><span>App {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">CgpProvider </span><span>= AppComponents;
+</span><span>}
+</span></code></pre>
+<p>By automatically generating the bulk delegation, CGP v0.6.0 maintains backward compatibility while adopting a cleaner and more flexible design.</p>
+<h2 id="background"><a class="zola-anchor" href="#background" aria-label="Anchor link for: background">Background</a></h2>
+<p>To understand why <code>HasCgpProvider</code> was used in the first place, it helps to look back at CGP’s early design. The original idea was to allow multiple concrete contexts to share a single provider “table.” For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>AppComponents;
+</span><span>
+</span><span style="color:#569cd6;">pub struct </span><span>AppA { ... }
+</span><span style="color:#569cd6;">pub struct </span><span>AppB { ... }
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasCgpProvider </span><span style="color:#569cd6;">for </span><span>AppA {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">CgpProvider </span><span>= AppComponents;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasCgpProvider </span><span style="color:#569cd6;">for </span><span>AppB {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">CgpProvider </span><span>= AppComponents;
+</span><span>}
+</span></code></pre>
+<p>In this design, different applications could reuse the same wiring setup without reconfiguring components each time. However, in practice, many contexts shared most of their wiring but required small customizations. This need for partial reuse led to the introduction of the <em>preset</em> feature, which provided the same flexibility without the drawbacks of shared context providers.</p>
+<p>Over time, the <code>HasCgpProvider</code> system became a remnant of CGP’s early architecture. It persisted mainly out of concern for backward compatibility. After reevaluating the issue, it became clear that generating <code>DelegateComponent</code> implementations through <code>#[cgp_context]</code> could preserve compatibility while removing unnecessary complexity. This realization made it possible to remove <code>HasCgpProvider</code> entirely in v0.6.0, simplifying the design and improving flexibility without disrupting existing users.</p>
+<h1 id="introduce-cgp-inherit-macro"><a class="zola-anchor" href="#introduce-cgp-inherit-macro" aria-label="Anchor link for: introduce-cgp-inherit-macro">Introduce <code>#[cgp_inherit]</code> macro</a></h1>
+<p>With the deprecation of <code>#[cgp_context]</code>, CGP v0.6.0 introduces a new and clearer way for concrete contexts to inherit from a preset. The new <code>#[cgp_inherit]</code> macro provides this functionality directly, allowing a context to build upon a preset without the need for an additional provider type.</p>
+<h2 id="example-1"><a class="zola-anchor" href="#example-1" aria-label="Anchor link for: example-1">Example</a></h2>
+<p>Given the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_inherit(MyPreset)]
+</span><span style="color:#569cd6;">pub struct </span><span>App { ... }
+</span></code></pre>
+<p>is roughly equivalent to the previous way of expressing preset inheritance with <code>#[cgp_context]</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context(AppComponents: MyPreset)]
+</span><span style="color:#569cd6;">pub struct </span><span>App { ... }
+</span></code></pre>
+<p>The key difference is that with <code>#[cgp_inherit]</code>, the preset inheritance happens directly on the <code>App</code> context itself. There is no need to generate an intermediary <code>AppComponents</code> provider type that inherits from <code>MyPreset</code>. This makes the inheritance mechanism simpler and more transparent.</p>
+<p>Behind the scenes, <code>#[cgp_inherit]</code> generates code similar to the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Name&gt; DelegateComponent&lt;Name&gt; </span><span style="color:#569cd6;">for </span><span>App
+</span><span style="color:#569cd6;">where
+</span><span>    </span><span style="color:#569cd6;">Self</span><span>: </span><span style="color:#569cd6;">MyPreset::</span><span>IsPreset&lt;Name&gt;,
+</span><span>    </span><span style="color:#569cd6;">MyPreset::</span><span>Components: DelegateComponent&lt;Name&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Delegate </span><span>= &lt;</span><span style="color:#569cd6;">MyPreset::</span><span>Components </span><span style="color:#569cd6;">as </span><span>DelegateComponent&lt;Name&gt;&gt;::Delegate;
+</span><span>}
+</span></code></pre>
+<p>This generated implementation delegates component resolution to the preset whenever the component key is part of that preset. At the same time, the design allows for flexibility: even with these blanket implementations, you can still implement consumer traits directly on the <code>App</code> context for any component keys that are not provided by the preset.</p>
+<h1 id="migration-guide"><a class="zola-anchor" href="#migration-guide" aria-label="Anchor link for: migration-guide">Migration Guide</a></h1>
+<p>In most cases, upgrading to v0.6.0 should not require any changes to existing code. The update has been designed with backward compatibility in mind, allowing projects to transition smoothly while taking advantage of the new ergonomic improvements.</p>
+<h2 id="removal-of-hascgpprovider-trait-1"><a class="zola-anchor" href="#removal-of-hascgpprovider-trait-1" aria-label="Anchor link for: removal-of-hascgpprovider-trait-1">Removal of <code>HasCgpProvider</code> trait</a></h2>
+<p>The most significant breaking change in v0.6.0 is the removal of the <code>HasCgpProvider</code> trait and the change in how consumer trait blanket implementations are generated. However, most CGP users do not directly interact with these internal constructs, so existing code should continue to compile without modification. The change primarily affects macro-generated code and internal delegation logic rather than user-defined traits or providers.</p>
+<h2 id="deprecation-of-cgp-context"><a class="zola-anchor" href="#deprecation-of-cgp-context" aria-label="Anchor link for: deprecation-of-cgp-context">Deprecation of <code>#[cgp_context]</code></a></h2>
+<p>The <code>#[cgp_context]</code> macro has been retained for backward compatibility, ensuring that existing projects using context providers will continue to function as before. However, it is strongly recommended to remove <code>#[cgp_context]</code> when upgrading to v0.6.0. Doing so allows your context types to directly implement consumer traits, taking full advantage of the simplified delegation system and cleaner trait relationships introduced in this release.</p>
+<h2 id="deprecation-of-cgp-provider"><a class="zola-anchor" href="#deprecation-of-cgp-provider" aria-label="Anchor link for: deprecation-of-cgp-provider">Deprecation of <code>#[cgp_provider]</code></a></h2>
+<p>The introduction of the <code>#[cgp_impl]</code> macro replaces the need for <code>#[cgp_provider]</code> when defining provider implementations. Existing uses of <code>#[cgp_provider]</code> will still compile and function correctly in v0.6.0, but developers are encouraged to migrate to <code>#[cgp_impl]</code> for new code. The new syntax is closer to standard Rust trait implementations, making provider definitions easier to read and reason about.</p>
+<p>It is also advisable to migrate all existing provider implementations to use <code>#[cgp_impl]</code>, especially in projects with multiple contributors. Mixing both macros can lead to confusion among developers unfamiliar with CGP, as they may wonder why two different styles exist. In contrast, <code>#[cgp_impl]</code> is intuitive to Rust users, since it effectively represents a named blanket implementation and requires no prior knowledge of CGP’s internal model.</p>
+<hr />
+<h1 id="updates"><a class="zola-anchor" href="#updates" aria-label="Anchor link for: updates">Updates</a></h1>
+<h2 id="rustlab-presentation"><a class="zola-anchor" href="#rustlab-presentation" aria-label="Anchor link for: rustlab-presentation">RustLab Presentation</a></h2>
+<p><img src="/blog/images/rustlab-2025.png" alt="RustLab 2025" /></p>
+<p>The time is drawing near, and I will be presenting <a href="https://rustlab.it/talks/how-to-stop-fighting-with-coherence-and-start-writing-context-generic-trait-impls"><strong>How to Stop Fighting with Coherence and Start Writing Context-Generic Trait Impls</strong></a> at RustLab on November 3rd. I look forward to meeting everyone attending the conference!</p>
+<h2 id="acknowledgement"><a class="zola-anchor" href="#acknowledgement" aria-label="Anchor link for: acknowledgement">Acknowledgement</a></h2>
+<p>Thank you April Gonçalves and Dzmitry Lahoda for <a href="https://github.com/sponsors/soareschen">sponsoring</a> the development of CGP!</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

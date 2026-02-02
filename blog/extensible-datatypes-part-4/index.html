@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Programming Extensible Data Types in Rust with CGP - Part 4: Implementing Extensible Variants | Context-Generic Programming</title>
+    <meta property="og:title" content="Programming Extensible Data Types in Rust with CGP - Part 4: Implementing Extensible Variants | Context-Generic Programming" />
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="Programming Extensible Data Types in Rust with CGP - Part 4: Implementing Extensible Variants | Context-Generic Programming">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#recap">Recap</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#acknowledgement"><small>- Acknowledgement</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#the-design-and-implementation-of-extensible-variants">The Design and Implementation of Extensible Variants</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#base-implementation">Base Implementation</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#fromvariant-trait"><small>- FromVariant Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#example-deriving-fromvariant"><small>- Example: Deriving FromVariant</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#restrictions-on-enum-shape"><small>- Restrictions on Enum Shape</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#partial-variants"><small>- Partial Variants</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#hasextractor-trait"><small>- HasExtractor trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#isvoid-type-mapper"><small>- IsVoid Type Mapper</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#extractfield-trait"><small>- ExtractField Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#short-circuiting-remainder"><small>- Short-Circuiting Remainder</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#finalizeextract-trait"><small>- FinalizeExtract Trait</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#implementation-of-casts">Implementation of Casts</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#hasfields-implementation"><small>- HasFields Implementation</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#canupcast-implementation"><small>- CanUpcast Implementation</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#fieldsextractor-trait"><small>- FieldsExtractor Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#example-use-of-upcast"><small>- Example Use of Upcast</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#candowncast-implementation"><small>- CanDowncast Implementation</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#example-use-of-downcast"><small>- Example Use of Downcast</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#implementation-of-visitor-dispatcher">Implementation of Visitor Dispatcher</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#matchwithhandlers"><small>- MatchWithHandlers</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#what-is-a-monad"><small>- What is a Monad?!</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#example-use-of-matchwithhandlers"><small>- Example Use of MatchWithHandlers</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#extractfieldandhandle"><small>- ExtractFieldAndHandle</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#unifying-variant-value-handlers"><small>- Unifying Variant Value Handlers</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#matchwithvaluehandlers"><small>- MatchWithValueHandlers</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#implementing-hasarea-for-shape"><small>- Implementing HasArea for Shape</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#dispatching-to-context"><small>- Dispatching to Context</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#visitor-dispatcher-by-reference">Visitor Dispatcher by Reference</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#reference-based-area-computation"><small>- Reference-Based Area Computation</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#partialref-variants"><small>- PartialRef Variants</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#matchwithhandlersref"><small>- MatchWithHandlersRef</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#promoteref"><small>- PromoteRef</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#matchwithvaluehandlersref"><small>- MatchWithValueHandlersRef</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#future-work">Future Work</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#additional-arguments"><small>- Additional Arguments</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#mut-references"><small>- &amp;mut References</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#custom-partial-records-updater"><small>- Custom Partial Records Updater</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#explanation-for-computation-hierarchy"><small>- Explanation for Computation Hierarchy</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#conclusion">Conclusion</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#end-of-series"><small>- End of Series</small></a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">Programming Extensible Data Types in Rust with CGP - Part 4: Implementing Extensible Variants</div>
+<div style="text-align: right;"><i>Posted on 2025-07-30</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><p>Discuss on <a href="https://www.reddit.com/r/rust/comments/1md3emg/the_design_and_implementation_of_extensible/">Reddit</a>, <a href="https://github.com/orgs/contextgeneric/discussions/16">GitHub</a> or <a href="https://discord.gg/Hgk3rCw6pQ">Discord</a>.</p>
+<h1 id="recap"><a class="zola-anchor" href="#recap" aria-label="Anchor link for: recap">Recap</a></h1>
+<p>This is the <strong>fourth</strong> part of the blog series on <strong>Programming Extensible Data Types in Rust with CGP</strong>. You can read the <a href="/blog/extensible-datatypes-part-1">first</a>, <a href="/blog/extensible-datatypes-part-2">second</a> and <a href="/blog/extensible-datatypes-part-3">third</a> parts here.</p>
+<p>As a recap, we have covered the new release of <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.4.2"><strong>CGP v0.4.2</strong></a> which now supports the use of <strong>extensible records and variants</strong>, allowing developers to write code that operates on <em>any struct containing specific fields</em> or <em>any enum containing specific variants</em>, without needing their concrete definition.</p>
+<p>In the first part of the series, <a href="/blog/extensible-datatypes-part-1"><strong>Modular App Construction and Extensible Builders</strong></a>, we demonstrated an example use of the <strong>extensible builder pattern</strong>, which uses <strong>extensible records</strong> to support modular construction of an application context.</p>
+<p>Similarly, in the second part of the series, <a href="/blog/extensible-datatypes-part-2"><strong>Modular Interpreters and Extensible Visitors</strong></a>, we saw how the modular visitor pattern allows us to implement evaluation and to-Lisp conversion for each variant of a language expression enum using separate visitor providers.</p>
+<p>In the third part of the series, <a href="/blog/extensible-datatypes-part-3"><strong>Implementing Extensible Records</strong></a>, we have walked through the internal implementation of extensible records, and learned about concepts such as partial records and builder dispatchers.</p>
+<p>In this final fourth part of the series, we will have the same walk through for the internal implementation details for <strong>extensible variants</strong>.</p>
+<h2 id="acknowledgement"><a class="zola-anchor" href="#acknowledgement" aria-label="Anchor link for: acknowledgement">Acknowledgement</a></h2>
+<p>Thank you April Gonçalves for your generous donation support on <a href="https://ko-fi.com/maybevoid">Ko-fi</a>! ☺️</p>
+<hr />
+<h1 id="the-design-and-implementation-of-extensible-variants"><a class="zola-anchor" href="#the-design-and-implementation-of-extensible-variants" aria-label="Anchor link for: the-design-and-implementation-of-extensible-variants">The Design and Implementation of Extensible Variants</a></h1>
+<p>Now that we've covered how extensible records work in CGP, we can turn our attention to <strong>extensible variants</strong>. At first glance, it might seem like a completely different mechanism — but surprisingly, the approach used to implement extensible variants is very similar to that of extensible records. In fact, many of the same principles apply, just in the “opposite direction”.</p>
+<p>This close relationship between records and variants is rooted in <strong>category theory</strong>. In that context, records are known as <strong>products</strong>, while variants (or enums) are referred to as <strong>sums</strong> or <strong>coproducts</strong>. These terms highlight a deep <strong>duality</strong> between the two: just as products <em>combine</em> values, coproducts represent a <em>choice</em> among alternatives. CGP embraces this theoretical foundation and leverages it to create a unified design for both extensible records and extensible variants.</p>
+<p>This duality is not just theoretical — it has practical implications for software architecture. Our design in CGP builds directly on prior research into <strong>extensible data types</strong>, particularly in the context of functional programming and type systems. For more on the background, see the paper on <a href="https://dl.acm.org/doi/10.1145/3290325">Extensible Data Types</a>, as well as this excellent <a href="https://bartoszmilewski.com/2015/01/07/products-and-coproducts/">intro to category theory</a> by Bartosz Milewski.</p>
+<p>With this in mind, we’ll now explore the CGP constructs that support extensible variants. As you go through the examples and implementation details, we encourage you to look for the parallels and contrasts with extensible records.</p>
+<hr />
+<h1 id="base-implementation"><a class="zola-anchor" href="#base-implementation" aria-label="Anchor link for: base-implementation">Base Implementation</a></h1>
+<h2 id="fromvariant-trait"><a class="zola-anchor" href="#fromvariant-trait" aria-label="Anchor link for: fromvariant-trait"><code>FromVariant</code> Trait</a></h2>
+<p>Just as extensible records use the <code>HasField</code> trait to extract values from a struct, extensible variants in CGP use the <code>FromVariant</code> trait to <em>construct</em> an enum from a single variant value. The trait is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>FromVariant&lt;Tag&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>from_variant(_tag: PhantomData&lt;Tag&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self</span><span>;
+</span><span>}
+</span></code></pre>
+<p>Like <code>HasField</code>, the <code>FromVariant</code> trait is parameterized by a <code>Tag</code>, which identifies the name of the variant. It also defines an associated <code>Value</code> type, representing the data associated with that variant. Unlike <code>HasField</code>, which extracts a value, <code>from_variant</code> takes in a <code>Value</code> and returns an instance of the enum.</p>
+<h2 id="example-deriving-fromvariant"><a class="zola-anchor" href="#example-deriving-fromvariant" aria-label="Anchor link for: example-deriving-fromvariant">Example: Deriving <code>FromVariant</code></a></h2>
+<p>To see how this works in practice, consider the following <code>Shape</code> enum:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(FromVariant)]
+</span><span style="color:#569cd6;">pub enum </span><span>Shape {
+</span><span>    Circle(Circle),
+</span><span>    Rectangle(Rectangle),
+</span><span>}
+</span></code></pre>
+<p>Using the <code>#[derive(FromVariant)]</code> macro, the following trait implementations will be automatically generated:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>FromVariant&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= Circle;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>from_variant(_tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;)&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self </span><span>{
+</span><span>        Shape::Circle(value)
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>FromVariant&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Rectangle&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= Rectangle;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>from_variant(_tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Rectangle&quot;)&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self </span><span>{
+</span><span>        Shape::Rectangle(value)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This allows the <code>Shape</code> enum to be constructed generically using just the tag and value.</p>
+<h2 id="restrictions-on-enum-shape"><a class="zola-anchor" href="#restrictions-on-enum-shape" aria-label="Anchor link for: restrictions-on-enum-shape">Restrictions on Enum Shape</a></h2>
+<p>To ensure ergonomics and consistency, CGP restricts the kinds of enums that can derive <code>FromVariant</code>. Specifically, supported enums must follow the <strong>sums of products</strong> pattern — each variant must contain <em>exactly one unnamed field</em>.</p>
+<p>The following forms, for example, are <strong>not</strong> supported:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub enum </span><span>Shape {
+</span><span>    Circle(</span><span style="color:#569cd6;">f64</span><span>),
+</span><span>    Rectangle(</span><span style="color:#569cd6;">f64</span><span>, </span><span style="color:#569cd6;">f64</span><span>),
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">pub enum </span><span>Shape {
+</span><span>    Circle {
+</span><span>        radius: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>    },
+</span><span>    Rectangle {
+</span><span>        width: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>        height: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>    },
+</span><span>}
+</span></code></pre>
+<p>These more complex variants are not supported because they would make it harder to represent variant fields as simple types, which would, in turn, lead to less ergonomic APIs. By restricting each variant to a single unnamed field, CGP ensures that types like <code>FromVariant::Value</code> remain straightforward and intuitive.</p>
+<p>If you need to represent more complex data in a variant, we recommend wrapping that data in a dedicated struct. This way, you can still take advantage of CGP's extensible variant system while maintaining type clarity and composability.</p>
+<h2 id="partial-variants"><a class="zola-anchor" href="#partial-variants" aria-label="Anchor link for: partial-variants">Partial Variants</a></h2>
+<p>Just as CGP supports partially constructed structs through <em>partial records</em>, it also enables <strong>partial variants</strong> to work with <strong>partially deconstructed</strong> enums in a similarly flexible way. Partial variants allow you to pattern match on each variant of an enum incrementally, while safely excluding any variants that have already been handled. This makes it possible to build exhaustive and type-safe match chains that evolve over time.</p>
+<p>Consider the <code>Shape</code> enum we explored earlier. CGP would generate a corresponding <code>PartialShape</code> enum that represents the partial variant form of <code>Shape</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub enum </span><span>PartialShape&lt;F0: MapType, F1: MapType&gt; {
+</span><span>    Circle(</span><span style="color:#b4cea8;">F0</span><span>::Map&lt;Circle&gt;),
+</span><span>    Rectangle(</span><span style="color:#b4cea8;">F1</span><span>::Map&lt;Rectangle&gt;),
+</span><span>}
+</span></code></pre>
+<h2 id="hasextractor-trait"><a class="zola-anchor" href="#hasextractor-trait" aria-label="Anchor link for: hasextractor-trait"><code>HasExtractor</code> trait</a></h2>
+<p>To enable the transformation from a regular enum into its partial variant form, CGP provides the <code>HasExtractor</code> trait. This trait defines an associated type named <code>Extractor</code>, which represents the full set of partial variants for a given enum, and a method <code>to_extractor</code>, which performs the conversion:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasExtractor {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Extractor</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>to_extractor(self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Extractor;
+</span><span>}
+</span></code></pre>
+<p>For the <code>Shape</code> enum, an implementation of <code>HasExtractor</code> would look like the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasExtractor </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Extractor </span><span>= PartialShape&lt;IsPresent, IsPresent&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>to_extractor(self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Extractor {
+</span><span>        </span><span style="color:#569cd6;">match </span><span>self {
+</span><span>            Shape::Circle(circle) </span><span style="color:#569cd6;">=&gt; </span><span>PartialShape::Circle(circle),
+</span><span>            Shape::Rectangle(rectangle) </span><span style="color:#569cd6;">=&gt; </span><span>PartialShape::Rectangle(rectangle),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This implementation makes it possible to work with a <code>Shape</code> value as a <code>PartialShape</code>, where each variant is wrapped in an <code>IsPresent</code> marker, indicating that the variant is still available to be matched.</p>
+<h2 id="isvoid-type-mapper"><a class="zola-anchor" href="#isvoid-type-mapper" aria-label="Anchor link for: isvoid-type-mapper"><code>IsVoid</code> Type Mapper</a></h2>
+<p>The key distinction between partial records and partial variants lies in how we represent the <strong>absence</strong> of data. For partial variants, CGP introduces the <code>IsVoid</code> type mapper to indicate that a variant has already been extracted and is no longer available:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub enum </span><span>Void {}
+</span><span style="color:#569cd6;">pub struct </span><span>IsVoid;
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>MapType </span><span style="color:#569cd6;">for </span><span>IsVoid {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Map</span><span>&lt;T&gt; = Void;
+</span><span>}
+</span></code></pre>
+<p>The <code>Void</code> type is defined as an empty enum with no variants. This means that it is <strong>impossible</strong> to construct a value of type <code>Void</code>, and any code that attempts to match on a <code>Void</code> value will be statically unreachable. This makes it a safe and expressive way to model a variant that no longer exists in a given context.</p>
+<p>Conceptually, <code>Void</code> serves the same purpose as Rust’s built-in <a href="https://doc.rust-lang.org/reference/types/never.html"><strong>never type</strong></a> or the <a href="https://doc.rust-lang.org/std/convert/enum.Infallible.html"><code>Infallible</code></a> type from the standard library. However, CGP defines <code>Void</code> explicitly to distinguish its special role in the context of extensible variants.</p>
+<p>While <code>IsNothing</code> is used for absent fields in partial records, we use <code>IsVoid</code> to represent removed or matched variants in partial variants. This ensures that once a variant has been extracted, it cannot be matched again — preserving both soundness and safety in CGP’s type-driven pattern matching.</p>
+<h2 id="extractfield-trait"><a class="zola-anchor" href="#extractfield-trait" aria-label="Anchor link for: extractfield-trait"><code>ExtractField</code> Trait</a></h2>
+<p>Once an enum has been converted into its partial variant form, we can begin incrementally pattern matching on each variant using the <code>ExtractField</code> trait. This trait enables safe, step-by-step extraction of variant values, and is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>ExtractField&lt;Tag&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extract_field(self, _tag: PhantomData&lt;Tag&gt;) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Value, </span><span style="color:#569cd6;">Self::</span><span>Remainder&gt;;
+</span><span>}
+</span></code></pre>
+<p>Just like <code>FromVariant</code> and <code>HasField</code>, the <code>ExtractField</code> trait takes a <code>Tag</code> type to identify the variant, and includes an associated <code>Value</code> type representing the variant’s inner data. Additionally, it defines a <code>Remainder</code> type, which represents the <strong>remaining</strong> variants that have not yet been matched.</p>
+<p>The <code>extract_field</code> method consumes the value and returns a <code>Result</code>, where a successful match yields the extracted <code>Value</code>, and a failed match returns the <code>Remainder</code>. Although this uses the <code>Result</code> type, the <code>Err</code> case is not really an error in the traditional sense — rather, it represents the remaining variants yet to be handled, much like how errors represent alternative outcomes in Rust.</p>
+<h3 id="example-implementation-of-extractfield"><a class="zola-anchor" href="#example-implementation-of-extractfield" aria-label="Anchor link for: example-implementation-of-extractfield">Example Implementation of <code>ExtractField</code></a></h3>
+<p>To understand how <code>ExtractField</code> works in practice, let’s look at an implementation for extracting the <code>Circle</code> variant from a <code>PartialShape</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;F1: MapType&gt; ExtractField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>PartialShape&lt;IsPresent, F1&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= Circle;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder </span><span>= PartialShape&lt;IsVoid, F1&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extract_field(self, _tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;)&gt;) -&gt;
+</span><span>        Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Value, </span><span style="color:#569cd6;">Self::</span><span>Remainder&gt;
+</span><span>    {
+</span><span>        </span><span style="color:#569cd6;">match </span><span>self {
+</span><span>            PartialShape::Circle(circle) </span><span style="color:#569cd6;">=&gt; </span><span>Ok(circle),
+</span><span>            PartialShape::Rectangle(rectangle) </span><span style="color:#569cd6;">=&gt; </span><span>Err(PartialShape::Rectangle(rectangle))
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this implementation, we are working with a <code>PartialShape</code> in which the <code>Circle</code> variant is still marked as present. The trait is also generic over <code>F1: MapType</code>, which corresponds to the <code>Rectangle</code> variant, allowing the code to remain flexible regardless of whether the rectangle has already been extracted or not.</p>
+<p>The associated <code>Remainder</code> type updates the <code>Circle</code> variant from <code>IsPresent</code> to <code>IsVoid</code>, signifying that it has been extracted and should no longer be considered valid. The use of the <code>Void</code> type ensures that this variant cannot be constructed again, making it safe to ignore in further matches.</p>
+<p>Within the method body, we match on <code>self</code>. If the value is a <code>Circle</code>, we return it in the <code>Ok</code> case. Otherwise, we return the remaining <code>PartialShape</code>, reconstructing it with the other variant. Due to the type system’s enforcement, it is impossible to incorrectly return a <code>Circle</code> as part of the remainder once it has been marked as <code>IsVoid</code>. The compiler ensures that this branch is unreachable, preserving correctness by construction.</p>
+<h3 id="example-use-of-extractfield"><a class="zola-anchor" href="#example-use-of-extractfield" aria-label="Anchor link for: example-use-of-extractfield">Example Use of <code>ExtractField</code></a></h3>
+<p>With <code>ExtractField</code>, we can now incrementally extract and match against variants in a safe and ergonomic way. Here’s an example of computing the area of a shape using this approach:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub fn </span><span>compute_area(shape: Shape) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>    </span><span style="color:#569cd6;">match</span><span> shape
+</span><span>        .to_extractor() </span><span style="color:#608b4e;">// PartialShape&lt;IsPresent, IsPresent&gt;
+</span><span>        .extract_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>)&gt;)
+</span><span>    {
+</span><span>        Ok(circle) </span><span style="color:#569cd6;">=&gt; </span><span style="color:#b4cea8;">PI </span><span>* circle.radius * circle.radius,
+</span><span>        </span><span style="color:#608b4e;">// PartialShape&lt;IsVoid, IsPresent&gt;
+</span><span>        Err(remainder) </span><span style="color:#569cd6;">=&gt; match</span><span> remainder.extract_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>)&gt;) {
+</span><span>            Ok(rectangle) </span><span style="color:#569cd6;">=&gt;</span><span> rectangle.width * rectangle.height,
+</span><span>            </span><span style="color:#608b4e;">// PartialShape&lt;IsVoid, IsVoid&gt;
+</span><span>            </span><span style="color:#608b4e;">// No need to match on `Err`
+</span><span>        },
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this example, we begin by converting the <code>Shape</code> value into a <code>PartialShape</code> with all variants present using <code>to_extractor</code>. We then call <code>extract_field</code> to try extracting the <code>Circle</code> variant. If successful, we compute the circle's area. If not, we receive a remainder value where the <code>Circle</code> variant is now marked as <code>IsVoid</code>. This remainder is then used to attempt extracting the <code>Rectangle</code> variant. If that succeeds, we compute the area accordingly.</p>
+<p>By the time we reach the second <code>Err</code> case, the remainder has the type <code>PartialShape&lt;IsVoid, IsVoid&gt;</code>, which cannot contain any valid variant. Because of this, we can safely omit any further pattern matching, and the compiler guarantees that there are no unreachable or unhandled cases.</p>
+<p>What makes this approach so powerful is that the Rust type system can statically verify that it is impossible to construct a valid value for <code>PartialShape&lt;IsVoid, IsVoid&gt;</code>. We no longer need to write boilerplate <code>_ =&gt; unreachable!()</code> code or use runtime assertions. The type system ensures exhaustiveness and soundness entirely at compile time, enabling safer and more maintainable implementation of extensible variants.</p>
+<h2 id="short-circuiting-remainder"><a class="zola-anchor" href="#short-circuiting-remainder" aria-label="Anchor link for: short-circuiting-remainder">Short-Circuiting Remainder</a></h2>
+<p>In our earlier implementation of <code>compute_area</code>, we used nested <code>match</code> expressions to handle the <code>Result</code> returned from each call to <code>extract_field</code>. If you are familiar with the <code>?</code> operator in Rust, you might be wondering why we didn’t use it here to simplify the logic.</p>
+<p>The reason is that we want to short circuit and return the <code>Ok</code> variant as soon as a match succeeds, while the <code>Err</code> case contains a remainder type that changes with each call to <code>extract_field</code>. This behavior is the inverse of how <code>Result</code> is typically used in Rust, where the <code>Err</code> variant is the one that gets returned early, and the <code>Ok</code> type changes as the computation progresses.</p>
+<p>To better understand what we are trying to achieve, consider the following pseudocode that illustrates the intent more clearly:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub fn </span><span>compute_area(shape: Shape) -&gt; Result&lt;</span><span style="color:#569cd6;">f64</span><span>, Infallible&gt; {
+</span><span>    </span><span style="color:#569cd6;">let</span><span> remainder = shape
+</span><span>        .to_extractor()
+</span><span>        .extract_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>)&gt;)
+</span><span>        .map(|circle| </span><span style="color:#b4cea8;">PI </span><span>* circle.radius * circle.radius)⸮;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">let</span><span> remainder = remainder
+</span><span>        .extract_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>)&gt;)
+</span><span>        .map(|rectangle| rectangle.width * rectangle.height)⸮;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">match</span><span> remainder {}
+</span><span>}
+</span></code></pre>
+<p>In this pseudocode, we introduce a fictional operator <code>⸮</code>, which behaves like the opposite of <code>?</code>. Instead of short circuiting on <code>Err</code>, it short circuits on <code>Ok</code>, returning the value immediately. If the result is <code>Err</code>, it binds the remainder to the <code>remainder</code> variable and continues.</p>
+<p>In this setup, each call to <code>extract_field</code> uses <code>.map</code> to transform a successful match into the final <code>f64</code> result. If the match succeeds, <code>⸮</code> returns early. Otherwise, we continue with the remainder, which gradually becomes more constrained until it is fully uninhabited. Once all variants have been tried, the final <code>match remainder {}</code> statically asserts that no remaining case is possible.</p>
+<p>This highlights a subtle but important point: the <code>compute_area</code> function never actually returns an <code>Err</code> in practice. To satisfy the function’s signature, we return a <code>Result&lt;f64, Infallible&gt;</code>, where <code>Infallible</code> indicates that failure is not possible.</p>
+<p>Some readers may suggest alternative approaches, such as flipping the result to <code>Result&lt;Remainder, Value&gt;</code> so that the <code>?</code> operator could be used to return the value directly. While that might make the surface syntax cleaner, it reverses the intuitive meaning of the result. In this case, <code>Remainder</code> is the exceptional path, and <code>Value</code> is what we expect when the extraction succeeds.</p>
+<p>The introduction of <code>⸮</code> is not meant to advocate for a new language feature. Rather, it serves to clarify the control flow and encourage you to think about how this pattern relates to existing Rust constructs like <code>?</code>, <code>.await</code>, and combinations such as <code>.await?</code>. In practice, we do not need to manually write functions like <code>compute_area</code> or invent new operators. The extensible visitor pattern we will explore later provides a mechanism that effectively captures this logic for us.</p>
+<p>We will revisit this idea when we discuss how the visitor pattern automates this process. For now, let’s continue by looking at how to finalize an empty remainder.</p>
+<h2 id="finalizeextract-trait"><a class="zola-anchor" href="#finalizeextract-trait" aria-label="Anchor link for: finalizeextract-trait"><code>FinalizeExtract</code> Trait</a></h2>
+<p>While Rust’s type system can infer that a type like <code>PartialShape&lt;IsVoid, IsVoid&gt;</code> is uninhabitable, this inference only works when the compiler has access to the fully concrete type. To support this behavior more generically within CGP’s extensible variant system, the <code>FinalizeExtract</code> trait is introduced. This trait provides a mechanism to <em>discharge</em> an empty partial variant after all possible cases have been matched:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>FinalizeExtract {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>finalize_extract&lt;T&gt;(self) -&gt; T;
+</span><span>}
+</span></code></pre>
+<p>At first glance, the <code>finalize_extract</code> method might appear misleading. It accepts a <code>self</code> value and claims to return a value of <em>any</em> type <code>T</code>. This may seem unsound, but the key detail is that it is only ever implemented for types that are <em>uninhabited</em> — in other words, types that can never actually exist at runtime. Examples include <code>Void</code> and a fully exhausted partial variant like <code>PartialShape&lt;IsVoid, IsVoid&gt;</code>.</p>
+<p>The implementation is both safe and surprisingly simple:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>FinalizeExtract </span><span style="color:#569cd6;">for </span><span>PartialShape&lt;IsVoid, IsVoid&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>finalize_extract&lt;T&gt;(self) -&gt; T {
+</span><span>        </span><span style="color:#569cd6;">match </span><span>self {}
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, we use an empty <code>match</code> expression on <code>self</code>, which works because the compiler knows that <code>PartialShape&lt;IsVoid, IsVoid&gt;</code> has no possible value. Since it is impossible to construct such a value, the match is guaranteed to be unreachable. Rust verifies this at compile time, ensuring both safety and correctness.</p>
+<p>By leveraging the <code>Void</code> type in this way, CGP allows us to exhaustively extract every variant from a partial enum and confidently conclude that no cases remain. This eliminates the need for runtime assertions, unreachable branches, or panics. Instead, the type system itself guarantees that all variants have been handled, enabling a clean and fully type-safe approach to enum decomposition.</p>
+<h3 id="finalizeextractresult-trait"><a class="zola-anchor" href="#finalizeextractresult-trait" aria-label="Anchor link for: finalizeextractresult-trait"><code>FinalizeExtractResult</code> Trait</a></h3>
+<p>When working with results of type <code>Result&lt;Output, Remainder&gt;</code>, where the <code>Remainder</code> type is guaranteed to be inhabitable, it is often useful to have a convenient way to directly extract the <code>Output</code> value. To achieve this, CGP defines the <code>FinalizeExtractResult</code> trait, which provides a helper method to finalize and unwrap such results. Its definition includes a blanket implementation for all <code>Result</code> types where the error type implements <code>FinalizeExtract</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>FinalizeExtractResult {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>finalize_extract_result(self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;T, E&gt; FinalizeExtractResult </span><span style="color:#569cd6;">for </span><span>Result&lt;T, E&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    E: FinalizeExtract,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= T;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>finalize_extract_result(self) -&gt; T {
+</span><span>        </span><span style="color:#569cd6;">match </span><span>self {
+</span><span>            Ok(value) </span><span style="color:#569cd6;">=&gt;</span><span> value,
+</span><span>            Err(remainder) </span><span style="color:#569cd6;">=&gt;</span><span> remainder.finalize_extract(),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With <code>FinalizeExtractResult</code>, any result value can call <code>finalize_extract_result()</code> to obtain the <code>Output</code> directly, as long as the remainder type implements <code>FinalizeExtract</code>. This allows functions that work with extractable variants to become simpler and more readable. For example, the implementation of <code>compute_area</code> can be written as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub fn </span><span>compute_area(shape: Shape) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>    </span><span style="color:#569cd6;">match</span><span> shape
+</span><span>        .to_extractor()
+</span><span>        .extract_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>)&gt;)
+</span><span>    {
+</span><span>        Ok(circle) </span><span style="color:#569cd6;">=&gt; </span><span style="color:#b4cea8;">PI </span><span>* circle.radius * circle.radius,
+</span><span>        Err(remainder) </span><span style="color:#569cd6;">=&gt; </span><span>{
+</span><span>            </span><span style="color:#569cd6;">let</span><span> rectangle = remainder
+</span><span>                .extract_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>)&gt;)
+</span><span>                .finalize_extract_result();
+</span><span>
+</span><span>            rectangle.width * rectangle.height
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>When handling the remainder after the <code>Circle</code> variant was extracted, we use <code>finalize_extract_result</code> after calling <code>remainder.extract_field()</code> to get the <code>Rectangle</code> variant.</p>
+<p>This trait provides a small but valuable ergonomic improvement, especially when performing generic extractions and finalizations. It allows developers to avoid repetitive pattern matching and ensures that the final output can be obtained with a single, clear method call.</p>
+<hr />
+<h1 id="implementation-of-casts"><a class="zola-anchor" href="#implementation-of-casts" aria-label="Anchor link for: implementation-of-casts">Implementation of Casts</a></h1>
+<p>With the foundational traits for extensible variants in place, we can now explore how to implement the <code>CanUpcast</code> and <code>CanDowncast</code> traits. These traits enable safe and generic upcasting and downcasting between enums that share compatible variants.</p>
+<h2 id="hasfields-implementation"><a class="zola-anchor" href="#hasfields-implementation" aria-label="Anchor link for: hasfields-implementation"><code>HasFields</code> Implementation</a></h2>
+<p>Just as extensible records rely on <code>HasFields</code> for iterating over their fields, extensible variants use a similar mechanism to iterate over their variants. This allows the generic casting implementation to iterate over each variant of an enum.</p>
+<p>For example, the <code>HasFields</code> implementation for the <code>Shape</code> enum is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasFields </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Fields </span><span>= Sum</span><span style="color:#569cd6;">!</span><span>[
+</span><span>        Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), Circle&gt;,
+</span><span>        Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), Rectangle&gt;,
+</span><span>    ];
+</span><span>}
+</span></code></pre>
+<p>Here, instead of using the <code>Product!</code> macro (which is used for structs), we use the <code>Sum!</code> macro to build a <em>type-level sum</em> representing all variants in the enum. The <code>Sum!</code> macro expands to a nested structure of <code>Either</code>, similar to how <code>Product!</code> expands into a chain of <code>Cons</code>.</p>
+<p>For example, the <code>Sum!</code> expression above desugars to:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasFields </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Fields </span><span>= Either&lt;
+</span><span>        Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;), Circle&gt;,
+</span><span>        Either&lt;
+</span><span>            Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Rectangle&quot;), Rectangle&gt;,
+</span><span>            Void,
+</span><span>        &gt;,
+</span><span>    &gt;;
+</span><span>}
+</span></code></pre>
+<p>Where <code>Either</code> is defined in a similar fashion to Rust's standard <code>Result</code> type, but with variant names that reflect the sum type structure:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub enum </span><span>Either&lt;A, B&gt; {
+</span><span>    Left(A),
+</span><span>    Right(B),
+</span><span>}
+</span></code></pre>
+<p>In this way, we represent the enum's variants as a nested sum, with <code>Void</code> as the terminating type to signify the end of the variant choices.</p>
+<h2 id="canupcast-implementation"><a class="zola-anchor" href="#canupcast-implementation" aria-label="Anchor link for: canupcast-implementation"><code>CanUpcast</code> Implementation</a></h2>
+<p>With <code>HasFields</code> implemented, we are ready to define the <code>CanUpcast</code> trait. This trait allows a source enum to be upcasted to a target enum that is a superset of the source:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>CanUpcast&lt;Target&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>upcast(self, _tag: PhantomData&lt;Target&gt;) -&gt; Target;
+</span><span>}
+</span></code></pre>
+<p>The trait is generic over the <code>Target</code> type we wish to upcast to. The <code>upcast</code> method takes the original enum and converts it into the target enum, using <code>PhantomData</code> to assist with type inference.</p>
+<p>The implementation is provided generically through a blanket implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context, Source, Target, Remainder&gt; CanUpcast&lt;Target&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasFields + HasExtractor&lt;Extractor = Source&gt;,
+</span><span>    </span><span style="color:#569cd6;">Context::</span><span>Fields: FieldsExtractor&lt;Source, Target, Remainder = Remainder&gt;,
+</span><span>    Remainder: FinalizeExtract,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>upcast(self, _tag: PhantomData&lt;Target&gt;) -&gt; Target {
+</span><span>        Context::Fields::extract_from(self.to_extractor()).finalize_extract_result()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here’s how it works. First, the <code>Context</code> type (the source enum) must implement both <code>HasFields</code> and <code>HasExtractor</code>. The <code>HasFields</code> trait provides a type-level sum of variants, and <code>HasExtractor</code> converts the enum into its corresponding partial variants. Next, the associated <code>Fields</code> type must implement the helper trait <code>FieldsExtractor</code>, which handles the actual extraction of variants into the target type. The <code>Remainder</code> returned by this operation must then implement <code>FinalizeExtract</code>, which guarantees that all source variants have been accounted for.</p>
+<p>In the method body, we begin by calling <code>self.to_extractor()</code> to convert the source enum into a value with partial variants. We then use <code>Fields::extract_from</code> to extract the relevant variants into the target enum. Finally, we call <code>finalize_extract_result()</code> to discharge the remainder in <code>Err</code>, and return the <code>Target</code> result in <code>Ok</code>.</p>
+<h2 id="fieldsextractor-trait"><a class="zola-anchor" href="#fieldsextractor-trait" aria-label="Anchor link for: fieldsextractor-trait"><code>FieldsExtractor</code> Trait</a></h2>
+<p>The <code>FieldsExtractor</code> trait serves as a helper for casting between enums. It is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>FieldsExtractor&lt;Source, Target&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extract_from(source: Source) -&gt; Result&lt;Target, </span><span style="color:#569cd6;">Self::</span><span>Remainder&gt;;
+</span><span>}
+</span></code></pre>
+<p>This trait is parameterized by two types: <code>Source</code>, which represents the partial variants of the source enum, and <code>Target</code>, which is the fully constructed destination enum. It also defines a <code>Remainder</code> associated type to capture any variant in the source that could not be extracted into the target.</p>
+<p>The <code>extract_from</code> method attempts to convert the given partial variants from the <code>Source</code> into a complete <code>Target</code>. If successful, it returns the constructed <code>Target</code> value. Otherwise, it returns the remainder of the <code>Source</code> that could not be matched.</p>
+<p>The core implementation of <code>FieldsExtractor</code> operates recursively over the <code>Sum!</code> list of fields. For the head of the list, the implementation is written as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Source, Target, Tag, Value, RestFields, Remainder&gt; FieldsExtractor&lt;Source, Target&gt;
+</span><span>    for Either&lt;Field&lt;Tag, Value&gt;, RestFields&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Source: ExtractField&lt;Tag, Value = Value&gt;,
+</span><span>    Target: FromVariant&lt;Tag, Value = Value&gt;,
+</span><span>    RestFields: FieldsExtractor&lt;</span><span style="color:#569cd6;">Source::</span><span>Remainder, Target, Remainder = Remainder&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder </span><span>= Remainder;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extract_from(source: Source) -&gt; Result&lt;Target, Remainder&gt; {
+</span><span>        </span><span style="color:#569cd6;">match</span><span> source.extract_field(PhantomData) {
+</span><span>            Ok(field) </span><span style="color:#569cd6;">=&gt; </span><span>Ok(Target::from_variant(PhantomData, field)),
+</span><span>            Err(remainder) </span><span style="color:#569cd6;">=&gt; </span><span>RestFields::extract_from(remainder),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this implementation, we deconstruct the head of the sum into a <code>Field&lt;Tag, Value&gt;</code> type. We then require that the <code>Source</code> type supports <code>ExtractField&lt;Tag&gt;</code>, which allows us to attempt extracting the field corresponding to that tag. We also require the <code>Target</code> enum to support <code>FromVariant&lt;Tag&gt;</code>, so that once the field is extracted, we can reconstruct the target enum from it. In both traits, the associated <code>Value</code> type must be consistent.</p>
+<p>If the extraction succeeds, we pass the value into <code>Target::from_variant</code> to construct the result. If it fails, we take the <code>Remainder</code> returned from <code>extract_field</code>, and recursively call <code>extract_from</code> on the rest of the fields. The associated <code>Remainder</code> type continues to track whatever remains after each recursive step.</p>
+<p>Eventually, the recursion reaches the end of the <code>Sum!</code> list, which is represented by the <code>Void</code> type. At this point, we provide the base case:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Source, Target&gt; FieldsExtractor&lt;Source, Target&gt; </span><span style="color:#569cd6;">for </span><span>Void {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder </span><span>= Source;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extract_from(source: Source) -&gt; Result&lt;Target, Source&gt; {
+</span><span>        Err(source)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this final case, the trait simply sets the entire <code>Source</code> as the <code>Remainder</code>, indicating that none of the fields matched. This implementation ends the recursive search through the variants and signals that the cast could not be completed.</p>
+<p>This pattern allows us to generically extract variants from an extensible enum, one field at a time, while safely and efficiently handling any unmatched cases using Rust’s powerful type system.</p>
+<h2 id="example-use-of-upcast"><a class="zola-anchor" href="#example-use-of-upcast" aria-label="Anchor link for: example-use-of-upcast">Example Use of <code>Upcast</code></a></h2>
+<p>To better understand how the <code>FieldsExtractor</code> operation works, let’s walk through a concrete example of an upcast. Suppose we define a new enum <code>ShapePlus</code> that extends the original <code>Shape</code> type by including an additional variant:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasFields, FromVariant, ExtractField)]
+</span><span style="color:#569cd6;">pub enum </span><span>ShapePlus {
+</span><span>    Triangle(Triangle),
+</span><span>    Rectangle(Rectangle),
+</span><span>    Circle(Circle),
+</span><span>}
+</span></code></pre>
+<p>We can then perform an upcast from <code>Shape</code> to <code>ShapePlus</code> with the following code:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> shape = Shape::Circle(Circle { radius: </span><span style="color:#b5cea8;">5.0 </span><span>});
+</span><span style="color:#569cd6;">let</span><span> shape_plus = shape.upcast(PhantomData::&lt;ShapePlus&gt;);
+</span></code></pre>
+<p>Behind the scenes, the upcast proceeds through a series of trait-based checks and operations:</p>
+<p>First, the blanket implementation of <code>CanUpcast</code> verifies several conditions:</p>
+<ul>
+<li>The source type <code>Shape</code> must implement <code>HasFields</code>, with the <code>Fields</code> type resolving to:<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Sum</span><span style="color:#569cd6;">!</span><span>[
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), Circle&gt;,
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), Rectangle&gt;,
+</span><span>]
+</span></code></pre>
+</li>
+<li><code>Shape</code> must also implement <code>HasExtractor</code>, with its associated <code>Extractor</code> type being <code>PartialShape&lt;IsPresent, IsPresent&gt;</code>.</li>
+<li>The <code>Fields</code> type must implement <code>FieldsExtractor</code>, with <code>PartialShape&lt;IsPresent, IsPresent&gt;</code> as the source and <code>ShapePlus</code> as the target.</li>
+<li>The result of the extraction yields a remainder of type <code>PartialShape&lt;IsVoid, IsVoid&gt;</code>, which in turn implements <code>FinalizeExtract</code>.</li>
+</ul>
+<p>Next, the <code>FieldsExtractor</code> implementation for the head of the sum begins processing:</p>
+<ul>
+<li>The current <code>Tag</code> is <code>Symbol!("Circle")</code>, and the associated <code>Value</code> is of type <code>Circle</code>.</li>
+<li>The <code>Source</code> is <code>PartialShape&lt;IsPresent, IsPresent&gt;</code>, and the <code>Target</code> is <code>ShapePlus</code>.</li>
+<li>The source implements <code>ExtractField&lt;Symbol!("Circle")&gt;</code>, which succeeds with <code>Circle</code> as the extracted value and <code>PartialShape&lt;IsVoid, IsPresent&gt;</code> as the remainder.</li>
+<li>The target <code>ShapePlus</code> implements <code>FromVariant&lt;Symbol!("Circle")&gt;</code>, again with <code>Circle</code> being the <code>Value</code> type.</li>
+</ul>
+<p>The extractor then proceeds to the next variant in the sum:</p>
+<ul>
+<li>The current <code>Tag</code> is <code>Symbol!("Rectangle")</code>, with <code>Rectangle</code> as the <code>Value</code>.</li>
+<li>The updated <code>Source</code> is now <code>PartialShape&lt;IsVoid, IsPresent&gt;</code>, and the <code>Target</code> remains <code>ShapePlus</code>.</li>
+<li>This source implements <code>ExtractField&lt;Symbol!("Rectangle")&gt;</code>, yielding <code>Rectangle</code> as the value and <code>PartialShape&lt;IsVoid, IsVoid&gt;</code> as the final remainder.</li>
+<li>The target once again supports <code>FromVariant&lt;Symbol!("Rectangle")&gt;</code> using the matching <code>Rectangle</code> type.</li>
+<li>At the end of the chain, the <code>Void</code> variant is reached. The <code>FieldsExtractor</code> implementation for <code>Void</code> simply returns the remainder, which in this case is <code>PartialShape&lt;IsVoid, IsVoid&gt;</code>.</li>
+</ul>
+<p>What this process shows is that the <code>Upcast</code> operation works by examining each variant in the source type <code>Shape</code>, extracting each present value, and reinserting it into the target type <code>ShapePlus</code>. Once all fields have been processed, the remaining variants are guaranteed to be uninhabited. At that point, we can safely discharge the remainder using the <code>FinalizeExtract</code> trait.</p>
+<p>By breaking down the upcast into individual type-driven steps over extensible variants, we can implement upcasting entirely in safe Rust. Even more importantly, this implementation is fully generic and reusable. We are not writing code solely for the purpose of supporting <code>Upcast</code> — instead, we are building a reusable foundation that also supports operations like <code>Downcast</code> and other generic manipulations over extensible variants.</p>
+<h2 id="candowncast-implementation"><a class="zola-anchor" href="#candowncast-implementation" aria-label="Anchor link for: candowncast-implementation"><code>CanDowncast</code> Implementation</a></h2>
+<p>With the upcast operation in place, we can now turn to the implementation of <code>CanDowncast</code>. The <code>CanDowncast</code> trait is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>CanDowncast&lt;Target&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>downcast(self, _tag: PhantomData&lt;Target&gt;) -&gt; Result&lt;Target, </span><span style="color:#569cd6;">Self::</span><span>Remainder&gt;;
+</span><span>}
+</span></code></pre>
+<p>This trait is used to convert a value of an enum type into another enum that represents a <em>subset</em> of its variants. Unlike <code>CanUpcast</code>, which guarantees success by moving into a larger enum, <code>CanDowncast</code> may <em>fail</em> if the source contains variants not present in the target. To account for this, the trait includes an associated <code>Remainder</code> type to capture any unmatched variants, and the <code>downcast</code> method returns a <code>Result</code> that either yields the successfully downcasted value or the remainder.</p>
+<p>As with <code>CanUpcast</code>, we can define <code>CanDowncast</code> using a blanket implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context, Source, Target, Remainder&gt; CanDowncast&lt;Target&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasExtractor&lt;Extractor = Source&gt;,
+</span><span>    Target: HasFields,
+</span><span>    </span><span style="color:#569cd6;">Target::</span><span>Fields: FieldsExtractor&lt;Source, Target, Remainder = Remainder&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder </span><span>= Remainder;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>downcast(self, _tag: PhantomData&lt;Target&gt;) -&gt; Result&lt;Target, </span><span style="color:#569cd6;">Self::</span><span>Remainder&gt; {
+</span><span>        Target::Fields::extract_from(self.to_extractor())
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With all the foundational components from <code>CanUpcast</code> already in place, the implementation of <code>CanDowncast</code> becomes remarkably straightforward. Instead of requiring the source <code>Context</code> to implement <code>HasFields</code>, we shift that requirement to the <code>Target</code>. We still use the <code>HasExtractor</code> trait to obtain the partial variant representation of the source. From there, we iterate over the target fields using <code>FieldsExtractor</code>, attempting to extract a match from the source. Because we are narrowing into a smaller enum, some variants may remain unmatched. In those cases, we simply return the remainder rather than attempting to finalize it, as we did in <code>CanUpcast</code>.</p>
+<p>This difference highlights the key distinction between upcasting and downcasting in this model. The <code>Upcast</code> operation extracts from all fields in the source and expects the remainder to be empty, whereas <code>Downcast</code> extracts only those variants present in the target and leaves the unmatched remainder intact. Yet aside from this inversion of roles between source and target, the two implementations share the same reusable machinery — including <code>FieldsExtractor</code> — demonstrating the flexibility and composability of the CGP approach to extensible variants.</p>
+<h2 id="example-use-of-downcast"><a class="zola-anchor" href="#example-use-of-downcast" aria-label="Anchor link for: example-use-of-downcast">Example Use of Downcast</a></h2>
+<p>With <code>CanDowncast</code> in place, we can now explore how to use it in practice. Consider the following example, where we attempt to downcast from a <code>ShapePlus</code> enum to a <code>Shape</code> enum:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> shape_plus = ShapePlus::Triangle(Triangle {
+</span><span>    base: </span><span style="color:#b5cea8;">3.0</span><span>,
+</span><span>    height: </span><span style="color:#b5cea8;">4.0</span><span>,
+</span><span>});
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> area = </span><span style="color:#569cd6;">match</span><span> shape_plus.downcast(PhantomData::&lt;Shape&gt;) {
+</span><span>    Ok(shape) </span><span style="color:#569cd6;">=&gt; match</span><span> shape {
+</span><span>        Shape::Circle(circle) </span><span style="color:#569cd6;">=&gt; </span><span style="color:#b4cea8;">PI </span><span>* circle.radius * circle.radius,
+</span><span>        Shape::Rectangle(rectangle) </span><span style="color:#569cd6;">=&gt;</span><span> rectangle.width * rectangle.height,
+</span><span>    },
+</span><span>    </span><span style="color:#608b4e;">// PartialShapePlus&lt;IsPresent, IsVoid, IsVoid&gt;
+</span><span>    Err(remainder) </span><span style="color:#569cd6;">=&gt; match</span><span> remainder.extract_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Triangle&quot;</span><span>)&gt;) {
+</span><span>        Ok(triangle) </span><span style="color:#569cd6;">=&gt;</span><span> triangle.base * triangle.height / </span><span style="color:#b5cea8;">2.0</span><span>,
+</span><span>    },
+</span><span>};
+</span></code></pre>
+<p>In this example, we start with a <code>ShapePlus</code> value that holds a <code>Triangle</code>. We then call <code>downcast</code>, attempting to convert it to a <code>Shape</code>, which does not include the <code>Triangle</code> variant. Internally, the downcast operation uses <code>Shape::Fields</code> to iterate over the variants defined in <code>Shape</code> and tries to extract each from the original <code>ShapePlus</code> value. If any of those variants are found — such as <code>Circle</code> or <code>Rectangle</code> — the match succeeds and we compute the corresponding area from <code>Shape</code>.</p>
+<p>However, when the actual variant in this case is <code>Triangle</code>, which is not part of <code>Shape</code>, the downcast fails and we receive the remainder of the partial variant structure. This remainder, of type <code>PartialShapePlus&lt;IsPresent, IsVoid, IsVoid&gt;</code>, contains only the <code>Triangle</code> variant. We then use <code>extract_field</code> to retrieve the triangle and compute its area. At this point, no other variants remain to be handled.</p>
+<p>One of the most impressive aspects of both upcast and downcast is that they work seamlessly even when the source and target enums define their variants in entirely different orders. Because the trait implementations, such as <code>ExtractField</code>, operate in a generic and order-independent way, the correctness and behavior of casting are preserved regardless of variant ordering. This level of flexibility makes the CGP approach to extensible variants both powerful and practical for real-world use.</p>
+<hr />
+<h1 id="implementation-of-visitor-dispatcher"><a class="zola-anchor" href="#implementation-of-visitor-dispatcher" aria-label="Anchor link for: implementation-of-visitor-dispatcher">Implementation of Visitor Dispatcher</a></h1>
+<p>With the traits for extensible variants now in place, we can turn our attention to how CGP implements generalized <strong>visitor dispatchers</strong>, similar to the <a href="/blog/extensible-datatypes-part-3/#builder-dispatcher">builder dispatchers</a> described in the previous part of this series.</p>
+<h2 id="matchwithhandlers"><a class="zola-anchor" href="#matchwithhandlers" aria-label="Anchor link for: matchwithhandlers"><code>MatchWithHandlers</code></a></h2>
+<p>In the <a href="/blog/extensible-datatypes-part-2/#dispatching-eval">examples from Part 2</a>, we introduced dispatchers such as <code>MatchWithValueHandlers</code> and <code>MatchWithValueHandlersRef</code>, which delegate the handling of enum variants to different visitor handlers based on the <code>Input</code> type. These dispatchers are built on top of a more fundamental dispatcher called <code>MatchWithHandlers</code>, whose implementation is shown below:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input, Output, Remainder, Handlers&gt; Computer&lt;Context, Code, Input&gt;
+</span><span>    for MatchWithHandlers&lt;Handlers&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Input: HasExtractor,
+</span><span>    DispatchMatchers&lt;Handlers&gt;:
+</span><span>        Computer&lt;Context, Code, </span><span style="color:#569cd6;">Input::</span><span>Extractor, Output = Result&lt;Output, Remainder&gt;&gt;,
+</span><span>    Remainder: FinalizeExtract,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, input: Input) -&gt; Output {
+</span><span>        DispatchMatchers::compute(context, code, input.to_extractor()).finalize_extract_result()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The <code>MatchWithHandlers</code> provider is parameterized by a <code>Handlers</code> type, which represents a type-level list of visitor handlers responsible for processing the variants of a generic <code>Input</code> enum. The implementation requires <code>Input</code> to implement the <code>HasExtractor</code> trait, which provides access to its partial variants.</p>
+<p>Within the <code>compute</code> method, we first convert the input into its extractor form using <code>input.to_extractor()</code>. This partial variant is then passed to the lower-level dispatcher <code>DispatchMatchers&lt;Handlers&gt;</code>, which attempts to match and handle each variant. It returns a <code>Result&lt;Output, Remainder&gt;</code>, where a successful match produces an <code>Output</code>, and an unmatched remainder is returned otherwise. But since <code>Remainder</code> is expected to implement <code>FinalizeExtract</code>, we can call <code>finalize_extract_result()</code> to return the <code>Output</code> directly.</p>
+<h3 id="dispatchmatchers"><a class="zola-anchor" href="#dispatchmatchers" aria-label="Anchor link for: dispatchmatchers"><code>DispatchMatchers</code></a></h3>
+<p>In our earlier implementation of extensible builders via <code>BuildWithHandlers</code>, we <a href="/blog/extensible-datatypes-part-3/#buildwithhandlers-provider">used <code>PipeHandlers</code></a> to compose a pipeline of builder handlers that successively filled in partial records. For extensible visitors, we follow a similar pattern with a slight variation that reflects the different control flow.</p>
+<p>The dispatcher <code>DispatchMatchers</code> is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">DispatchMatchers</span><span>&lt;Providers&gt; = PipeMonadic&lt;OkMonadic, Providers&gt;;
+</span></code></pre>
+<p>This definition constructs a <strong>monadic pipeline</strong> of visitor handlers, using <code>OkMonadic</code> as the monad implementation.</p>
+<h2 id="what-is-a-monad"><a class="zola-anchor" href="#what-is-a-monad" aria-label="Anchor link for: what-is-a-monad">What is a Monad?!</a></h2>
+<p>At this point, many readers coming from a Rust background may be wondering what exactly a <a href="https://wiki.haskell.org/Monad">monad</a> is, and how it relates to implementing extensible visitors. In this section, we will break down the concept in simplified terms using familiar Rust patterns and constructs.</p>
+<p>A monad, often written as <code>M</code>, is a type that acts as a container for another value <code>T</code>, and it typically appears in the form <code>M&lt;T&gt;</code>. If you have worked with <code>Option&lt;T&gt;</code>, <code>Result&lt;T, E&gt;</code>, or asynchronous code using <code>impl Future&lt;Output = T&gt;</code>, then you have already used monadic types in Rust.</p>
+<p>Monads are not just containers. They also provide a way to operate on the values they contain, typically through an operation known as "bind." In Rust, this concept appears through the use of operators like <code>?</code>, <code>.await</code>, and <code>.await?</code>, all of which allow you to "extract" or "unwrap" the value inside a container and propagate control based on the result.</p>
+<p>With this understanding, we can think of <code>PipeMonadic</code> in CGP as a mechanism that automatically applies these unwrapping operations between steps in a pipeline. It takes the result from one handler and, using a monadic operator, unwraps it before passing it along as input to the next handler. This is how CGP builds a pipeline of computations where each step can short-circuit or continue depending on its output.</p>
+<p>The real strength of this approach is that it generalizes well. You are not limited to a specific type like <code>Result</code>; you can apply the same logic to any monad-like type, including more complex combinations such as <code>impl Future&lt;Output = Result&lt;Result&lt;Option&lt;T&gt;, E1&gt;, E2&gt;&gt;</code>. In principle, you could imagine applying something like <code>.await???</code> to extract the inner value, and with monads, this can be abstracted and automated.</p>
+<h3 id="okmonadic-monad-provider"><a class="zola-anchor" href="#okmonadic-monad-provider" aria-label="Anchor link for: okmonadic-monad-provider"><code>OkMonadic</code> Monad Provider</a></h3>
+<p>In the case of <code>DispatchMatchers</code>, the monad provider we use is called <code>OkMonadic</code>. This corresponds to the custom operator <code>⸮</code> we introduced in the pseudocode in the <a href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#short-circuiting-remainder"><code>compute_area</code> example</a>, which short-circuits on the <code>Ok</code> variant and passes along the changing <code>Err</code> remainder.</p>
+<p>When we say that <code>DispatchMatchers</code> is defined using <code>PipeMonadic&lt;OkMonadic, Providers&gt;</code>, we mean that CGP should build a handler pipeline where each step uses the <code>⸮</code> operator to either return early with <code>Ok(output)</code> or continue processing the <code>Err(remainder)</code> with the next handler.</p>
+<p>Because of <code>PipeMonadic</code> and <code>OkMonadic</code>, we do not need to write this logic ourselves. CGP handles the monadic control flow automatically, allowing us to focus on the behavior of each handler without worrying about wiring them together manually.</p>
+<p>If any of this still feels unclear, do not worry. We will walk through a concrete example next to clarify how it works in practice. We also plan to publish a separate blog post that dives deeper into how CGP implements monads in Rust, including the internals of <code>PipeMonadic</code> and related abstractions.</p>
+<h2 id="example-use-of-matchwithhandlers"><a class="zola-anchor" href="#example-use-of-matchwithhandlers" aria-label="Anchor link for: example-use-of-matchwithhandlers">Example Use of <code>MatchWithHandlers</code></a></h2>
+<p>To understand how to use <code>MatchWithHandlers</code> directly, let's revisit the example of computing the area of a <code>Shape</code>. We start by defining two separate <code>Computer</code> providers that calculate the area for the <code>Circle</code> and <code>Rectangle</code> variants:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_computer]
+</span><span style="color:#569cd6;">fn </span><span>circle_area(circle: Circle) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>    </span><span style="color:#b4cea8;">PI </span><span>* circle.radius * circle.radius
+</span><span>}
+</span><span>
+</span><span>#[cgp_computer]
+</span><span style="color:#569cd6;">fn </span><span>rectangle_area(rectangle: Rectangle) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>    rectangle.width * rectangle.height
+</span><span>}
+</span></code></pre>
+<h3 id="cgp-computer-macro"><a class="zola-anchor" href="#cgp-computer-macro" aria-label="Anchor link for: cgp-computer-macro"><code>#[cgp_computer]</code> Macro</a></h3>
+<p>The <code>#[cgp_computer]</code> macro allows us to transform these pure functions into context-generic providers that can be referenced as types. Behind the scenes, this macro generates <code>Computer</code> implementations similar to the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code&gt; Computer&lt;Context, Code, Circle&gt; </span><span style="color:#569cd6;">for </span><span>CircleArea {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(_context: </span><span style="color:#569cd6;">&amp;</span><span>Context, _code: PhantomData&lt;Code&gt;, input: Circle) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        circle_area(input)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This macro simplifies the process of defining <code>Computer</code> providers by letting us write them as plain functions. Because the macro ignores the <code>Context</code> and <code>Code</code> types, the generated provider works with any <code>Context</code> and <code>Code</code> you supply.</p>
+<h3 id="computeshapearea-handler"><a class="zola-anchor" href="#computeshapearea-handler" aria-label="Anchor link for: computeshapearea-handler"><code>ComputeShapeArea</code> Handler</a></h3>
+<p>With <code>CircleArea</code> and <code>RectangleArea</code> defined, we can create a <code>ComputeShapeArea</code> handler by using <code>MatchWithHandlers</code> as a type alias:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">ComputeShapeArea </span><span>= MatchWithHandlers::&lt;
+</span><span>    Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>        ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), HandleFieldValue&lt;CircleArea&gt;&gt;,
+</span><span>        ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), HandleFieldValue&lt;RectangleArea&gt;&gt;,
+</span><span>    ],
+</span><span>&gt;;
+</span></code></pre>
+<p>Rather than passing providers directly to <code>MatchWithHandlers</code>, we wrap them with helper handlers. The <code>ExtractFieldAndHandle</code> handler extracts the variant value associated with a specific tag, such as <code>Symbol!("Circle")</code>, and forwards it to the inner handler <code>HandleFieldValue&lt;CircleArea&gt;</code>.</p>
+<p>The inner handler <code>HandleFieldValue</code> receives the input as <code>Field&lt;Symbol!("Circle"), Circle&gt;</code>, extracts the <code>Circle</code> value, and passes it to <code>CircleArea</code>. We will explore the implementations of <code>ExtractFieldAndHandle</code> and <code>HandleFieldValue</code> shortly, but first, let's see how <code>ComputeShapeArea</code> is used.</p>
+<p>As a whole, the instantiated <code>MatchWithHandlers</code> implements the <code>Computer</code> trait. We can call <code>compute</code> on it using <code>()</code> for both the <code>Context</code> and <code>Code</code> types like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> shape = Shape::Circle(Circle { radius: </span><span style="color:#b5cea8;">5.0 </span><span>});
+</span><span style="color:#569cd6;">let</span><span> area = ComputeShapeArea::compute(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, shape);
+</span></code></pre>
+<p>This works because the <code>Computer</code> instances defined with <code>#[cgp_computer]</code> are generic over any <code>Context</code> and <code>Code</code>.</p>
+<p>Under the hood, <code>MatchWithHandlers</code> implements <code>ComputeShapeArea</code> roughly as the following pseudocode:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> remainder = shape.to_extractor();
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> remainder = remainder
+</span><span>    .extract_field(Symbol</span><span style="color:#569cd6;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>))
+</span><span>    .map(|circle| CircleArea::compute(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, circle))⸮;
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> remainder = remainder
+</span><span>    .extract_field(Symbol</span><span style="color:#569cd6;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>))
+</span><span>    .map(|rectangle| RectangleArea::compute(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, rectangle))⸮;
+</span><span>
+</span><span>remainder.finalize_extract();
+</span></code></pre>
+<p>Here, <code>MatchWithHandlers</code> performs the same <code>⸮</code> short-circuit operation described earlier in the <a href="https://www.contextgeneric.dev/blog/extensible-datatypes-part-4/#short-circuiting-remainder">short-circuiting remainder</a> section. For each <code>Ok</code> value returned by extraction, the corresponding <code>Computer</code> provider computes the area.</p>
+<p>This example highlights how much boilerplate <code>MatchWithHandlers</code> abstracts away for us. Its implementation is essentially a monadic pipeline built using <code>PipeMonadic</code>, where <code>OkMonadic</code> provides the behavior of the <code>⸮</code> operator used in this pseudocode.</p>
+<h2 id="extractfieldandhandle"><a class="zola-anchor" href="#extractfieldandhandle" aria-label="Anchor link for: extractfieldandhandle"><code>ExtractFieldAndHandle</code></a></h2>
+<p>To better understand how the earlier <code>MatchWithHandlers</code> example works, let's examine the implementation of the <code>ExtractFieldAndHandle</code> provider:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input, Tag, Value, Provider, Output, Remainder&gt;
+</span><span>    Computer&lt;Context, Code, Input&gt;
+</span><span>    for ExtractFieldAndHandle&lt;Tag, Provider&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Input: ExtractField&lt;Tag, Value = Value, Remainder = Remainder&gt;,
+</span><span>    Provider: Computer&lt;Context, Code, Field&lt;Tag, Value&gt;, Output = Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Result&lt;Output, Remainder&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(
+</span><span>        context: </span><span style="color:#569cd6;">&amp;</span><span>Context,
+</span><span>        tag: PhantomData&lt;Code&gt;,
+</span><span>        input: Input,
+</span><span>    ) -&gt; Result&lt;Output, Remainder&gt; {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> value = input.extract_field(PhantomData::&lt;Tag&gt;)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>        </span><span style="color:#569cd6;">let</span><span> output = Provider::compute(context, tag, value.into());
+</span><span>        Ok(output)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>While the type signature may seem complex, the behavior is straightforward. Given some partial variants <code>Input</code>, this handler attempts to extract a variant with the specified <code>Tag</code> using <code>ExtractField</code>. If extraction succeeds, it wraps the extracted variant as a tagged field <code>Field&lt;Tag, Value&gt;</code> and passes it to the inner <code>Provider</code> for processing. If extraction fails, it returns the remainder as an <code>Err</code>, allowing the next handler in the monadic pipeline to try.</p>
+<p>Note that the inner <code>Provider</code> receives a tagged <code>Field&lt;Tag, Value&gt;</code> rather than a bare <code>Value</code>. This allows the provider to differentiate variants that share the same <code>Value</code> type but differ in their variant <code>Tag</code>. For example, consider:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub enum </span><span>FooBar {
+</span><span>    Foo(</span><span style="color:#569cd6;">u64</span><span>),
+</span><span>    Bar(</span><span style="color:#569cd6;">u64</span><span>),
+</span><span>}
+</span></code></pre>
+<p>Here, both <code>Foo</code> and <code>Bar</code> hold <code>u64</code> values. <code>ExtractFieldAndHandle</code> will pass these as <code>Field&lt;Symbol!("Foo"), u64&gt;</code> and <code>Field&lt;Symbol!("Bar"), u64&gt;</code> respectively, so the provider can handle them differently by matching on the <code>Tag</code>.</p>
+<h3 id="handlefieldvalue"><a class="zola-anchor" href="#handlefieldvalue" aria-label="Anchor link for: handlefieldvalue"><code>HandleFieldValue</code></a></h3>
+<p>The tagged <code>Field</code> input from <code>ExtractFieldAndHandle</code> is useful when multiple variants share the same <code>Value</code> type. However, in simpler cases like our <code>Shape</code> example, we often just want to handle the contained value directly, ignoring the tag. The <code>HandleFieldValue</code> wrapper simplifies this by “peeling off” the <code>Field</code> wrapper and passing only the inner value to the inner provider:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Tag, Input, Output, Provider&gt; Computer&lt;Context, Code, Field&lt;Tag, Input&gt;&gt;
+</span><span>    for HandleFieldValue&lt;Provider&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Provider: Computer&lt;Context, Code, Input, Output = Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(
+</span><span>        context: </span><span style="color:#569cd6;">&amp;</span><span>Context,
+</span><span>        tag: PhantomData&lt;Code&gt;,
+</span><span>        input: Field&lt;Tag, Input&gt;,
+</span><span>    ) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        Provider::compute(context, tag, input.value)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As shown, <code>HandleFieldValue</code> simply unwraps the input from <code>Field&lt;Tag, Input&gt;</code> and forwards the contained <code>Input</code> value to the inner provider.</p>
+<h3 id="revisiting-computeshapearea"><a class="zola-anchor" href="#revisiting-computeshapearea" aria-label="Anchor link for: revisiting-computeshapearea">Revisiting <code>ComputeShapeArea</code></a></h3>
+<p>Now that we've understood <code>ExtractFieldAndHandle</code> and <code>HandleFieldValue</code>, let’s review what happens inside <code>ComputeShapeArea</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">ComputeShapeArea </span><span>= MatchWithHandlers::&lt;
+</span><span>    Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>        ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), HandleFieldValue&lt;CircleArea&gt;&gt;,
+</span><span>        ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), HandleFieldValue&lt;RectangleArea&gt;&gt;,
+</span><span>    ],
+</span><span>&gt;;
+</span></code></pre>
+<ul>
+<li><code>MatchWithHandlers</code> uses <code>HasExtractor</code> to convert <code>Shape</code> into <code>PartialShape&lt;IsPresent, IsPresent&gt;</code>, then passes it to <code>ExtractFieldAndHandle&lt;Symbol!("Circle"), HandleFieldValue&lt;CircleArea&gt;&gt;</code>.</li>
+<li><code>ExtractFieldAndHandle</code> attempts to extract the <code>Circle</code> variant from <code>PartialShape&lt;IsPresent, IsPresent&gt;</code>:
+<ul>
+<li>If successful, the extracted value is passed as <code>Field&lt;Symbol!("Circle"), Circle&gt;</code> to <code>HandleFieldValue&lt;CircleArea&gt;</code>.
+<ul>
+<li><code>HandleFieldValue&lt;CircleArea&gt;</code> unwraps the <code>Circle</code> value and passes it to <code>CircleArea</code>.</li>
+</ul>
+</li>
+<li>Otherwise, the remainder <code>PartialShape&lt;IsVoid, IsPresent&gt;</code> is returned as an error.</li>
+</ul>
+</li>
+<li>Next, <code>ExtractFieldAndHandle</code> tries to extract the <code>Rectangle</code> variant from <code>PartialShape&lt;IsVoid, IsPresent&gt;</code>:
+<ul>
+<li>If successful, the extracted value is passed as <code>Field&lt;Symbol!("Rectangle"), Rectangle&gt;</code> to <code>HandleFieldValue&lt;RectangleArea&gt;</code>.
+<ul>
+<li><code>HandleFieldValue&lt;RectangleArea&gt;</code> unwraps the <code>Rectangle</code> and passes it to <code>RectangleArea</code>.</li>
+</ul>
+</li>
+<li>Otherwise, the remainder <code>PartialShape&lt;IsVoid, IsVoid&gt;</code> is returned as an error.</li>
+</ul>
+</li>
+<li>Finally, <code>MatchWithHandlers</code> calls <code>FinalizeExtract</code> on <code>PartialShape&lt;IsVoid, IsVoid&gt;</code> to assert that the remainder is empty and discharge the impossible case.</li>
+</ul>
+<h2 id="unifying-variant-value-handlers"><a class="zola-anchor" href="#unifying-variant-value-handlers" aria-label="Anchor link for: unifying-variant-value-handlers">Unifying Variant Value Handlers</a></h2>
+<p>So far, we have seen how <code>MatchWithHandlers</code> can serve as a powerful low-level tool to implement extensible visitors. However, it requires explicitly listing a handler for each variant in the provided handler list. To make this process more ergonomic, we can build higher-level abstractions like <code>MatchWithValueHandlers</code>, which automatically derives the list of variant handlers passed to <code>MatchWithHandlers</code>.</p>
+<p>Before implementing <code>MatchWithValueHandlers</code>, we first need to unify the variant handlers used in <code>MatchWithHandlers</code>. Instead of specifying separate handlers for each variant, we modify the variant handlers so that the same handler is used for all variants. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">ComputeShapeArea </span><span>= MatchWithHandlers&lt;
+</span><span>    Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>        ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), HandleFieldValue&lt;ComputeArea&gt;&gt;,
+</span><span>        ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), HandleFieldValue&lt;ComputeArea&gt;&gt;,
+</span><span>    ],
+</span><span>&gt;;
+</span></code></pre>
+<p>Here, rather than using distinct <code>CircleArea</code> and <code>RectangleArea</code> handlers, we use a single handler, <code>ComputeArea</code>, for both variants. This creates a unified pattern of <code>ExtractFieldAndHandle&lt;Tag, HandleFieldValue&lt;ComputeArea&gt;&gt;</code> for each entry. Recognizing this repetition allows us to build further abstractions that simplify these common patterns.</p>
+<p>To understand this better, let's explore how <code>ComputeArea</code> itself can be implemented. For many extensible variants such as <code>Shape</code>, a straightforward approach is to define a regular Rust trait that computes the area for each variant:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasArea {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasArea </span><span style="color:#569cd6;">for </span><span>Circle {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        </span><span style="color:#b4cea8;">PI </span><span>* self.radius * self.radius
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasArea </span><span style="color:#569cd6;">for </span><span>Rectangle {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        self.width * self.height
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This <code>HasArea</code> trait is simple and intuitive. Each variant implements the <code>area</code> method in the usual Rust way. Notice that we do not hand-implement <code>HasArea</code> for the overall <code>Shape</code> type, we will do this later on, by using <code>MatchWithValueHandlers</code> to help us perform the dispatching.</p>
+<p>Although <code>HasArea</code> is a plain Rust trait, it is easy to wrap it as a <code>Computer</code> provider using the <code>#[cgp_computer]</code> macro:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_computer]
+</span><span style="color:#569cd6;">fn </span><span>compute_area&lt;T: HasArea&gt;(shape: T) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>    shape.area()
+</span><span>}
+</span></code></pre>
+<p>This generic function works for any type implementing <code>HasArea</code> and simply calls the <code>area</code> method. Applying <code>#[cgp_computer]</code> here generates the <code>ComputeArea</code> provider type that can then be used within <code>ComputeShapeArea</code>.</p>
+<h3 id="tofieldshandler"><a class="zola-anchor" href="#tofieldshandler" aria-label="Anchor link for: tofieldshandler"><code>ToFieldsHandler</code></a></h3>
+<p>To simplify <code>ComputeShapeArea</code> further, we need a way to automatically generate the list of extractors passed to <code>MatchWithHandlers</code>. Concretely, we want to generate this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Product</span><span style="color:#569cd6;">!</span><span>[
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), HandleFieldValue&lt;ComputeArea&gt;&gt;,
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), HandleFieldValue&lt;ComputeArea&gt;&gt;,
+</span><span>]
+</span></code></pre>
+<p>Recall that <code>Shape</code> implements the <code>HasFields</code> trait, which exposes its variants as a type-level sum:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Sum</span><span style="color:#569cd6;">!</span><span>[
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), Circle&gt;,
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), Rectangle&gt;,
+</span><span>]
+</span></code></pre>
+<p>This means we can programmatically extract the tags from <code>Shape::Fields</code> and replace each variant with an <code>ExtractFieldAndHandle</code> wrapper. We can perform this transformation entirely at the type level using a helper trait, <code>ToFieldHandlers</code>, defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>ToFieldHandlers&lt;Provider&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Handlers</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Tag, Value, RestFields, Provider&gt; ToFieldHandlers&lt;Provider&gt;
+</span><span>    for Either&lt;Field&lt;Tag, Value&gt;, RestFields&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    RestFields: ToFieldHandlers&lt;Provider&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Handlers </span><span>= Cons&lt;ExtractFieldAndHandle&lt;Tag, Provider&gt;, </span><span style="color:#569cd6;">RestFields::</span><span>Handlers&gt;;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Provider&gt; ToFieldHandlers&lt;Provider&gt; </span><span style="color:#569cd6;">for </span><span>Void {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Handlers </span><span>= Nil;
+</span><span>}
+</span></code></pre>
+<p>In essence, <code>ToFieldHandlers</code> recursively walks through each entry in a type-level sum, replacing <code>Field&lt;Tag, Value&gt;</code> with <code>ExtractFieldAndHandle&lt;Tag, Provider&gt;</code>, and converts the entire structure into a type-level list.</p>
+<p>Using <code>ToFieldHandlers</code>, we can now write the <code>ComputeShapeArea</code> type as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">ComputeShapeArea </span><span>= MatchWithHandlers&lt;
+</span><span>    &lt;&lt;Shape </span><span style="color:#569cd6;">as</span><span> HasFields&gt;::Fields </span><span style="color:#569cd6;">as
+</span><span>        ToFieldHandlers&lt;HandleFieldValue&lt;ComputeArea&gt;&gt;
+</span><span>    &gt;::Handlers
+</span><span>&gt;;
+</span></code></pre>
+<p>This definition may look complex at first glance. However, it demonstrates the powerful behind-the-scenes transformation that automatically generates the list of variant handlers from <code>Shape</code> to be passed to <code>MatchWithHandlers</code>.</p>
+<h3 id="hasfieldhandlers"><a class="zola-anchor" href="#hasfieldhandlers" aria-label="Anchor link for: hasfieldhandlers"><code>HasFieldHandlers</code></a></h3>
+<p>The process to generate variant handlers from <code>Shape</code> involves two steps: obtaining <code>Shape</code>’s fields from <code>HasFields</code>, and then applying <code>ToFieldHandlers</code> to those fields. To streamline this, we define another helper trait, <code>HasFieldHandlers</code>, that combines these steps:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasFieldHandlers&lt;Provider&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Handlers</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Fields, Provider&gt; HasFieldHandlers&lt;Provider&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasFields&lt;Fields = Fields&gt;,
+</span><span>    Fields: ToFieldHandlers&lt;Provider&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Handlers </span><span>= Fields::Handlers;
+</span><span>}
+</span></code></pre>
+<p><code>HasFieldHandlers</code> unifies the requirements of <code>HasFields</code> and <code>ToFieldHandlers</code> into a single, convenient trait. This lets us simplify the definition of <code>ComputeShapeArea</code> even further:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">ComputeShapeArea </span><span>= MatchWithHandlers&lt;
+</span><span>    &lt;Shape </span><span style="color:#569cd6;">as </span><span>HasFieldHandlers&lt;HandleFieldValue&lt;ComputeArea&gt;&gt;&gt;::Handlers
+</span><span>&gt;;
+</span></code></pre>
+<p>With <code>HasFieldHandlers</code>, the definition of <code>ComputeShapeArea</code> becomes much more concise. Instead of manually combining <code>HasFields</code> and <code>ToFieldHandlers</code>, we simply rely on <code>HasFieldHandlers</code> to generate them from <code>Shape</code> and pass the result to <code>MatchWithHandlers</code>.</p>
+<p>More importantly, this pattern is entirely general: it can be applied to any input type that implements <code>HasFields</code>, not just <code>Shape</code>, and to any <code>Computer</code> provider, not just <code>ComputeArea</code>.</p>
+<h2 id="matchwithvaluehandlers"><a class="zola-anchor" href="#matchwithvaluehandlers" aria-label="Anchor link for: matchwithvaluehandlers"><code>MatchWithValueHandlers</code></a></h2>
+<p>The traits <code>HasFieldHandlers</code> and <code>ToFieldHandlers</code> serve as the helpers for us to perform <em>type-level metaprogramming</em> for us to implement high-level visitor dispatchers such as <code>MatchWithValueHandlers</code>, which is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">MatchWithValueHandlers</span><span>&lt;Provider&gt; =
+</span><span>    UseInputDelegate&lt;MatchWithFieldHandlersInputs&lt;HandleFieldValue&lt;Provider&gt;&gt;&gt;;
+</span><span>
+</span><span>delegate_components! {
+</span><span>    &lt;Input: HasFieldHandlers&lt;Provider&gt;, Provider&gt;
+</span><span>    new MatchWithFieldHandlersInputs&lt;Provider&gt; {
+</span><span>        Input: MatchWithHandlers&lt;</span><span style="color:#569cd6;">Input::</span><span>Handlers&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The design of <code>MatchWithValueHandlers</code> is similar to how we implemented the builder dispatchers using <a href="/blog/extensible-datatypes-part-3/#type-level-cgp-metaprogramming">type-level metaprogramming in part 3</a>. In this case, <code>MatchWithValueHandlers</code> is parameterized by a <code>Provider</code> that is expected to implement <code>Computer</code>, such as <code>ComputeArea</code>. The implementation of <code>MatchWithValueHandlers</code> is simply a type alias to use <code>UseInputDelegate</code> to dispatch the <code>Input</code> type given through <code>Computer</code> to <code>MatchWithFieldHandlersInputs</code>.</p>
+<p>The implementation of <code>MatchWithFieldHandlersInputs</code> is defined through <code>delegate_components!</code>, with it having a generic mapping for any <code>Input</code> that implements <code>HasFieldHandlers&lt;Provider&gt;</code>. It then simply delegates the provider for that input to <code>MatchWithHandlers&lt;Input::Handlers&gt;</code>.</p>
+<h3 id="example-instantiation-of-matchwithvaluehandlers"><a class="zola-anchor" href="#example-instantiation-of-matchwithvaluehandlers" aria-label="Anchor link for: example-instantiation-of-matchwithvaluehandlers">Example Instantiation of <code>MatchWithValueHandlers</code></a></h3>
+<p>Because <code>MatchWithValueHandlers</code> and <code>MatchWithFieldHandlersInputs</code> rely on type-level metaprogramming, it can be difficult to grasp exactly how they work on first encounter. To make things more concrete, let’s walk through how this abstraction is applied to <code>Shape</code>. With the machinery we’ve built, the definition of <code>ComputeShapeArea</code> becomes as simple as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">ComputeShapeArea </span><span>= MatchWithValueHandlers&lt;ComputeArea&gt;;
+</span></code></pre>
+<p>This version of <code>ComputeShapeArea</code> is remarkably concise. It no longer mentions <code>Shape</code> directly, because it works with <em>any</em> compatible input type, including both <code>Shape</code> and extensions like <code>ShapePlus</code>.</p>
+<p>Under the hood, this type alias resolves to <code>MatchWithHandlers</code> through the following steps:</p>
+<ul>
+<li><code>MatchWithValueHandlers&lt;ComputeArea&gt;</code> expands to <code>UseInputDelegate&lt;MatchWithFieldHandlersInputs&lt;HandleFieldValue&lt;ComputeArea&gt;&gt;&gt;</code>.</li>
+<li>When the <code>Input</code> is <code>Shape</code>, <code>UseInputDelegate</code> locates the corresponding <code>DelegateComponent</code> mapping for <code>Shape</code> in <code>MatchWithFieldHandlersInputs&lt;HandleFieldValue&lt;ComputeArea&gt;&gt;</code>.</li>
+<li>That mapping exists because <code>Shape</code> implements <code>HasFieldHandlers&lt;HandleFieldValue&lt;ComputeArea&gt;&gt;</code>. As we saw earlier, this expands to:<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Product</span><span style="color:#569cd6;">!</span><span>[
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), HandleFieldValue&lt;ComputeArea&gt;&gt;,
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), HandleFieldValue&lt;ComputeArea&gt;&gt;,
+</span><span>]
+</span></code></pre>
+</li>
+<li>This type-level list is then passed to <code>MatchWithHandlers</code>, which performs the variant dispatch using the logic we’ve already explored.</li>
+</ul>
+<h2 id="implementing-hasarea-for-shape"><a class="zola-anchor" href="#implementing-hasarea-for-shape" aria-label="Anchor link for: implementing-hasarea-for-shape">Implementing <code>HasArea</code> for <code>Shape</code></a></h2>
+<p>With <code>MatchWithValueHandlers</code>, implementing the <code>HasArea</code> trait for <code>Shape</code> becomes straightforward:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasArea </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        MatchWithValueHandlers::&lt;ComputeArea&gt;::compute(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As in earlier examples, we use <code>()</code> for both the context and code parameters, since <code>ComputeArea</code> is generic over any <code>Context</code> and <code>Code</code>. Aside from this boilerplate, <code>MatchWithValueHandlers&lt;ComputeArea&gt;</code> takes care of automatically dispatching to the correct variant handler through <code>MatchWithHandlers</code>.</p>
+<p>While <code>Shape</code> only has two variants, one of the major advantages of <code>MatchWithValueHandlers</code> is that it scales effortlessly to enums with many variants and more complex computations. For example, implementing <code>HasArea</code> for <code>ShapePlus</code> is just as simple:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasArea </span><span style="color:#569cd6;">for </span><span>ShapePlus {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        MatchWithValueHandlers::&lt;ComputeArea&gt;::compute(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Although some boilerplate still remains, this approach is significantly simpler than manually matching each variant or relying on procedural macros. It also brings more flexibility and type safety. In the future, CGP may provide more ergonomic abstractions on top of this pattern, making common use cases like <code>HasArea</code> even easier to express.</p>
+<h2 id="dispatching-to-context"><a class="zola-anchor" href="#dispatching-to-context" aria-label="Anchor link for: dispatching-to-context">Dispatching to Context</a></h2>
+<p>In the earlier definition of <code>MatchWithValueHandlers</code>, we omitted one detail that it has a default type parameter for <code>Provider</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">MatchWithValueHandlers</span><span>&lt;Provider = UseContext&gt; =
+</span><span>    UseInputDelegate&lt;MatchWithFieldHandlersInputs&lt;HandleFieldValue&lt;Provider&gt;&gt;&gt;;
+</span></code></pre>
+<p>This means that if no generic parameter is specified, <code>MatchWithValueHandlers</code> will default to using <code>UseContext</code> as the provider for <code>Computer</code>. If you’ve read the earlier blog posts, you may recall that <code>UseContext</code> is a generic provider that delegates its behavior to the consumer trait implementation from the given context. For example, the implementation of <code>Computer</code> for <code>UseContext</code> looks like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input&gt; Computer&lt;Context, Code, Input&gt; </span><span style="color:#569cd6;">for </span><span>UseContext
+</span><span style="color:#569cd6;">where
+</span><span>    Context: CanCompute&lt;Code, Input&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Context::Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, input: Input) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        context.compute(code, input)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Using <code>UseContext</code> as the provider for dispatchers like <code>MatchWithValueHandlers</code> is especially useful because it enables the concrete context to define how each variant should be handled. For example, we can implement an <code>App</code> context that provides <code>Computer</code> implementations for various shapes like <code>Shape</code> and <code>ShapePlus</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span style="color:#569cd6;">pub struct </span><span>App;
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppComponents {
+</span><span>        ComputerComponent: UseInputDelegate&lt;new AreaComputers </span><span style="color:#ff3333;">{
+</span><span>            [
+</span><span>                Circle,
+</span><span>                Rectangle,
+</span><span>                Triangle,
+</span><span>            ]:
+</span><span>                ComputeArea,
+</span><span>            [
+</span><span>                Shape,
+</span><span>                ShapePlus,
+</span><span>            ]: MatchWithValueHandlers,
+</span><span>        }&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this example, the <code>App</code> context uses <code>UseInputDelegate</code> to define how to compute areas. Variants like <code>Circle</code>, <code>Rectangle</code>, and <code>Triangle</code> are directly handled by <code>ComputeArea</code>. For <code>Shape</code> and <code>ShapePlus</code>, we use <code>MatchWithValueHandlers</code> without specifying a <code>Provider</code>, which means it defaults to <code>UseContext</code>.</p>
+<p>With this setup, when <code>MatchWithValueHandlers</code> dispatches to the individual variants, it delegates to <code>App</code> itself instead of calling <code>ComputeArea</code> directly. This allows us to override the behavior of individual variants easily. For instance, if we want to replace the implementation for <code>Circle</code> with an optimized version, we can simply change the wiring in <code>AppComponents</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    AppComponents {
+</span><span>        ComputerComponent: UseInputDelegate&lt;new AreaComputers </span><span style="color:#ff3333;">{
+</span><span>            Circle: OptimizedCircleArea,
+</span><span>            </span><span style="color:#569cd6;">...
+</span><span>        }&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h3 id="the-flexibility-of-usecontext"><a class="zola-anchor" href="#the-flexibility-of-usecontext" aria-label="Anchor link for: the-flexibility-of-usecontext">The Flexibility of <code>UseContext</code></a></h3>
+<p>This kind of customization would be much harder to achieve if the dispatcher were tightly coupled to a concrete trait implementation, such as using <code>MatchWithValueHandlers&lt;ComputeArea&gt;</code> directly. In that case, the only way to change the behavior would be to modify the <code>HasArea</code> implementation for <code>Circle</code>, which would require ownership of either the <code>Circle</code> type or the <code>HasArea</code> trait.</p>
+<p>While this level of indirection may seem unnecessary for a simple example like computing the area of a shape, it becomes crucial in more complex scenarios, such as the modular interpreter design discussed in <a href="/blog/extensible-datatypes-part-2">part 2</a>.</p>
+<p>By routing the variant handling through <code>UseContext</code>, we also retain the flexibility to override the provider entirely. That means we can use <code>MatchWithValueHandlers&lt;ComputeArea&gt;</code> in cases where we don’t want to go through a <code>Context</code> at all, such as using <code>()</code> as the context. This optional <code>Provider</code> parameter gives us the best of both worlds: we can let the context provide the necessary wiring when needed, or directly specify a concrete provider when that makes more sense.</p>
+<p>This pattern of using a provider parameter that defaults to <code>UseContext</code> is a recurring design strategy in CGP. It offers a powerful level of control, letting developers customize behavior in a modular and extensible way depending on their use case.</p>
+<hr />
+<h1 id="visitor-dispatcher-by-reference"><a class="zola-anchor" href="#visitor-dispatcher-by-reference" aria-label="Anchor link for: visitor-dispatcher-by-reference">Visitor Dispatcher by Reference</a></h1>
+<p>In the earlier examples, some careful readers may have noticed a significant flaw in the function signatures for computing the area of shapes, such as in <code>HasArea::area</code>. These methods require <em>owned</em> values of the shape variants, meaning that each time we compute the area, we must consume the shape entirely. This is not ideal, especially when we only need a reference and want to preserve the original value.</p>
+<p>We started with the ownership-based visitor dispatcher because it is conceptually simpler. It avoids the need to reason about lifetimes, making it easier to understand the overall implementation of extensible visitor. However, in this section, we will show how a reference-based visitor dispatcher can be built <em>on top of</em> the ownership-based version. Rather than requiring a separate mechanism, the reference-based version is actually a <em>specialization</em> of the existing system.</p>
+<p>We will now walk through how to implement the reference-based visitor dispatcher in detail. By the end, you will see how Rust’s type system enables us to safely and cleanly extend the original approach to support references, without compromising lifetime safety or clarity.</p>
+<h2 id="reference-based-area-computation"><a class="zola-anchor" href="#reference-based-area-computation" aria-label="Anchor link for: reference-based-area-computation">Reference-Based Area Computation</a></h2>
+<p>To demonstrate how reference-based visitor dispatch works, let’s define a new trait <code>HasAreaRef</code> that computes the area using a shared reference:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasAreaRef {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasAreaRef </span><span style="color:#569cd6;">for </span><span>Circle {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        </span><span style="color:#b4cea8;">PI </span><span>* self.radius * self.radius
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasAreaRef </span><span style="color:#569cd6;">for </span><span>Rectangle { </span><span style="color:#569cd6;">... </span><span>}
+</span><span style="color:#569cd6;">impl </span><span>HasAreaRef </span><span style="color:#569cd6;">for </span><span>Triangle { </span><span style="color:#569cd6;">... </span><span>}
+</span></code></pre>
+<p>In practice, you probably wouldn’t need both <code>HasArea</code> and <code>HasAreaRef</code>, but for clarity we use a separate trait here to clearly distinguish between ownership-based and reference-based computations.</p>
+<p>Next, we define a new provider <code>ComputeAreaRef</code> using <code>#[cgp_computer]</code>, which implements <code>ComputerRef</code> by calling <code>HasAreaRef</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_computer]
+</span><span style="color:#569cd6;">fn </span><span>compute_area_ref&lt;T: HasAreaRef&gt;(shape: </span><span style="color:#569cd6;">&amp;</span><span>T) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>    shape.area()
+</span><span>}
+</span></code></pre>
+<p>With this in place, we can now implement <code>HasAreaRef</code> for <code>Shape</code> by using <code>MatchWithValueHandlersRef</code>, the reference-based counterpart to <code>MatchWithValueHandlers</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasAreaRef </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        MatchWithValueHandlersRef::&lt;ComputeAreaRef&gt;::compute_ref(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Likewise, the implementation for <code>ShapePlus</code> follows the same pattern:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasAreaRef </span><span style="color:#569cd6;">for </span><span>ShapePlus {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        MatchWithValueHandlersRef::&lt;ComputeAreaRef&gt;::compute_ref(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>At first glance, using <code>MatchWithValueHandlersRef</code> to enable reference-based dispatch may seem straightforward — and in many ways, it is. As we’ll see next, the core logic mirrors the ownership-based version closely, with only a few additional considerations around generic lifetimes.</p>
+<h2 id="partialref-variants"><a class="zola-anchor" href="#partialref-variants" aria-label="Anchor link for: partialref-variants"><code>PartialRef</code> Variants</a></h2>
+<p>Although most of the higher-level support for reference-based extensible visitors is relatively straightforward, we first need to generate reference-aware partial variants within <code>#[derive(ExtractField)]</code>. For example, for the <code>Shape</code> enum, the macro generates the following reference-based partial variants:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub enum </span><span>PartialRefShape&lt;&#39;a, F0: MapType, F1: MapType&gt; {
+</span><span>    Circle(</span><span style="color:#b4cea8;">F0</span><span>::Map&lt;</span><span style="color:#569cd6;">&amp;&#39;a</span><span> Circle&gt;),
+</span><span>    Rectangle(</span><span style="color:#b4cea8;">F1</span><span>::Map&lt;</span><span style="color:#569cd6;">&amp;&#39;a</span><span> Rectangle&gt;),
+</span><span>}
+</span></code></pre>
+<p>Compared to the owned version <code>PartialShape</code>, the <code>PartialRefShape</code> definition introduces a lifetime parameter <code>'a</code>, and each of its fields now contains a reference with that lifetime. This allows us to safely operate on borrowed variants without taking ownership.</p>
+<p>We need a distinct <code>PartialRefShape</code> type rather than reusing <code>PartialShape</code> because Rust currently has no native mechanism to generically express a value that is either owned or borrowed based on some type-level condition. For instance, if Rust had a concept like a special <code>'owned</code> lifetime where <code>&amp;'owned T</code> could be treated as just <code>T</code>, then it might be possible to unify the two representations. But such a feature does not exist, and arguably shouldn't.</p>
+<p>Given that limitation, the cleanest solution is to define a separate enum that introduces a lifetime parameter and holds references explicitly. Since these types are generated by macros and used internally within CGP's dispatching infrastructure, the added complexity is well-contained and does not burden the end user.</p>
+<h3 id="hasextractorref-trait"><a class="zola-anchor" href="#hasextractorref-trait" aria-label="Anchor link for: hasextractorref-trait"><code>HasExtractorRef</code> Trait</a></h3>
+<p>In addition to the partial-ref variants, we need a new trait called <code>HasExtractorRef</code> that extracts data from a reference to the full enum:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasExtractorRef {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">ExtractorRef</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        </span><span style="color:#569cd6;">Self</span><span>: </span><span style="color:#569cd6;">&#39;a</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extractor_ref&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt;(</span><span style="color:#569cd6;">&amp;&#39;a </span><span>self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>ExtractorRef&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt;;
+</span><span>}
+</span></code></pre>
+<p>Compared to the <code>HasExtractor</code> trait, <code>HasExtractorRef</code> introduces a generic associated type <code>ExtractorRef</code> that is parameterized by a lifetime <code>'a</code> and requires the constraint <code>Self: 'a</code>. It also defines an <code>extractor_ref</code> method that takes a <code>&amp;'a self</code> reference and returns the corresponding partial-ref variants as <code>ExtractorRef&lt;'a&gt;</code>.</p>
+<p>Other than the addition of the lifetime parameter, implementing <code>HasExtractorRef</code> for <code>Shape</code> is straightforward, as shown below:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasExtractorRef </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">ExtractorRef</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; = PartialRefShape&lt;</span><span style="color:#569cd6;">&#39;a</span><span>, IsPresent, IsPresent&gt;
+</span><span>    </span><span style="color:#569cd6;">where Self</span><span>: </span><span style="color:#569cd6;">&#39;a</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extractor_ref&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt;(</span><span style="color:#569cd6;">&amp;&#39;a </span><span>self) -&gt; </span><span style="color:#569cd6;">Self::</span><span>ExtractorRef&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; {
+</span><span>        </span><span style="color:#569cd6;">match </span><span>self {
+</span><span>            </span><span style="color:#569cd6;">Self</span><span>::Circle(value) </span><span style="color:#569cd6;">=&gt; </span><span>PartialRefShape::Circle(value),
+</span><span>            </span><span style="color:#569cd6;">Self</span><span>::Rectangle(value) </span><span style="color:#569cd6;">=&gt; </span><span>PartialRefShape::Rectangle(value),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With <code>extractor_ref</code>, it is now possible to extract data from a borrowed <code>Shape</code> without cloning each variant, enabling efficient reference-based dispatching.</p>
+<h3 id="extractfield-implementation"><a class="zola-anchor" href="#extractfield-implementation" aria-label="Anchor link for: extractfield-implementation"><code>ExtractField</code> Implementation</a></h3>
+<p>Fortunately, beyond the partial-ref variants and the <code>HasExtractorRef</code> trait, most other traits can be reused as if we were working with owned values. This works because <code>PartialRefShape</code> holds what are effectively "owned" variant values in the form of references like <code>&amp;'a Circle</code> and <code>&amp;'a Rectangle</code>. For example, we can implement <code>ExtractField</code> for <code>PartialRefShape</code> like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>, F1: MapType&gt; ExtractField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;)&gt; </span><span style="color:#569cd6;">for </span><span>PartialRefShape&lt;</span><span style="color:#569cd6;">&#39;a</span><span>, IsPresent, F1&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Circle;
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Remainder </span><span>= PartialShape&lt;</span><span style="color:#569cd6;">&#39;a</span><span>, IsVoid, F1&gt;;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>extract_field(
+</span><span>        self,
+</span><span>        _tag: PhantomData&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;)&gt;,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Value, </span><span style="color:#569cd6;">Self::</span><span>Remainder&gt; {
+</span><span>        </span><span style="color:#569cd6;">match </span><span>self {
+</span><span>            PartialRefShape::Circle(value) </span><span style="color:#569cd6;">=&gt; </span><span>Ok(value),
+</span><span>            PartialRefShape::Rectangle(value) </span><span style="color:#569cd6;">=&gt; </span><span>Err(PartialRefShape::Rectangle(value)),
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>We can reuse traits like <code>ExtractField</code> because the associated types such as <code>Value</code> do not need to be the owned values themselves — they can be references to those values instead. This lets us treat extensible variants as if they contain references to their fields, allowing us to manipulate them just like owned values.</p>
+<h2 id="matchwithhandlersref"><a class="zola-anchor" href="#matchwithhandlersref" aria-label="Anchor link for: matchwithhandlersref"><code>MatchWithHandlersRef</code></a></h2>
+<p>Because reference-based dispatching relies on <code>HasExtractorRef</code>, we also need to adapt downstream constructs like <code>MatchWithHandlers</code> to work with references instead of owned values. This adaptation is provided by <code>MatchWithHandlersRef</code>, which uses <code>HasExtractorRef</code> in place of <code>HasExtractor</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>, Context, Code, Input, Output, Remainder, Handlers&gt; Computer&lt;Context, Code, </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Input&gt;
+</span><span>    for MatchWithHandlersRef&lt;Handlers&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Input: HasExtractorRef,
+</span><span>    DispatchMatchers&lt;Handlers&gt;:
+</span><span>        Computer&lt;Context, Code, </span><span style="color:#569cd6;">Input::</span><span>ExtractorRef&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt;, Output = Result&lt;Output, Remainder&gt;&gt;,
+</span><span>    Remainder: FinalizeExtract,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, code: PhantomData&lt;Code&gt;, input: </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Input) -&gt; Output {
+</span><span>        DispatchMatchers::compute(context, code, input.extractor_ref()).finalize_extract_result()
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this implementation, <code>MatchWithHandlersRef</code> handles <code>Computer</code> over a borrowed input <code>&amp;'a Input</code>. It requires the input type to implement <code>HasExtractorRef</code> so it can extract the appropriate partial-ref variant. The extracted value, which is of type <code>Input::ExtractorRef&lt;'a&gt;</code>, is then passed to <code>DispatchMatchers</code>, which processes it using the same monadic pipeline as in the owned-value case. After dispatching to the handlers, the <code>Output</code> from <code>Result&lt;Output, Remainder&gt;</code> is extracted by calling <code>finalize_extract_result</code>, which relies on the <code>Remainder</code> type to implement <code>FinalizeExtract</code>.</p>
+<p>One subtle but important point is that <code>MatchWithHandlersRef</code> still implements <code>Computer</code> rather than <code>ComputerRef</code>. The same is true for the handlers invoked through <code>DispatchMatchers</code>, which also expect <code>Computer</code> implementations. As a result, reference-based visitor dispatching requires an intermediate conversion step. Variant handlers that originally implement <code>ComputerRef</code> must first be "lifted" into providers implementing <code>Computer</code>.</p>
+<p>After constructing the reference-based pipeline, <code>MatchWithHandlersRef</code> can then unlift the entire pipeline to implement <code>ComputerRef</code>. This layered approach ensures that reference-based dispatching reuses the same infrastructure as the ownership-based version, while preserving type safety and proper lifetime handling.</p>
+<h2 id="promoteref"><a class="zola-anchor" href="#promoteref" aria-label="Anchor link for: promoteref"><code>PromoteRef</code></a></h2>
+<p>In the same way that traits like <code>ExtractField</code> can operate on borrowed fields, the <code>Computer</code> trait can also work with borrowed inputs. In fact, the <code>#[cgp_computer]</code> macro expansion for the <code>compute_area_ref</code> function produces the following <code>Computer</code> implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, T: HasAreaRef&gt; Computer&lt;Context, Code, </span><span style="color:#569cd6;">&amp;</span><span>T&gt; </span><span style="color:#569cd6;">for </span><span>ComputeAreaRef {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(_context: </span><span style="color:#569cd6;">&amp;</span><span>Context, _code: PhantomData&lt;Code&gt;, shape: </span><span style="color:#569cd6;">&amp;</span><span>T) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        compute_area_ref(shape)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, the <code>Computer</code> implementation for <code>ComputeAreaRef</code> accepts any reference <code>&amp;T</code> as the input type, as long as <code>T</code> implements <code>HasAreaRef</code>. This demonstrates that the <code>Computer</code> trait itself is flexible enough to handle borrowed inputs directly, without the need for additional traits.</p>
+<p>However, to make development more ergonomic, CGP provides the <code>ComputerRef</code> trait. Using <code>ComputerRef</code> eliminates the need to explicitly write <code>&amp;T</code> in input type parameters and avoids the complexity of higher-ranked trait bounds in where clauses or input delegation. This makes <code>ComputerRef</code> better suited for working with borrowed inputs in a clean and consistent way.</p>
+<p>To bridge <code>Computer</code> and <code>ComputerRef</code>, CGP offers the <code>PromoteRef</code> adapter. This adapter converts a provider that implements <code>Computer</code> for borrowed inputs into a <code>ComputerRef</code> provider. For example, the <code>ComputerRef</code> implementation for <code>ComputeAreaRef</code> is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    ComputeAreaRef {
+</span><span>        ComputerRefComponent: PromoteRef&lt;</span><span style="color:#569cd6;">Self</span><span>&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This means that <code>ComputeAreaRef</code> implements <code>ComputerRef</code> through <code>PromoteRef&lt;ComputeAreaRef&gt;</code>, automatically lifting its <code>Computer</code> implementation for <code>&amp;T</code> into a <code>ComputerRef</code> implementation.</p>
+<h3 id="promotion-from-computer-to-computerref"><a class="zola-anchor" href="#promotion-from-computer-to-computerref" aria-label="Anchor link for: promotion-from-computer-to-computerref">Promotion from <code>Computer</code> to <code>ComputerRef</code></a></h3>
+<p>The <code>PromoteRef</code> adapter allows a provider that implements <code>Computer</code> for borrowed inputs to become a provider that implements <code>ComputerRef</code>. Its implementation is as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input, Provider, Output&gt; ComputerRef&lt;Context, Code, Input&gt;
+</span><span>    for PromoteRef&lt;Provider&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Provider: </span><span style="color:#569cd6;">for</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; Computer&lt;Context, Code, </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Input, Output = Output&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute_ref(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, tag: PhantomData&lt;Code&gt;, input: </span><span style="color:#569cd6;">&amp;</span><span>Input) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        Provider::compute(context, tag, input)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Here, <code>PromoteRef</code> implements <code>ComputerRef</code> as long as the inner <code>Provider</code> supports a higher-ranked trait bound, meaning it can implement <code>Computer</code> for all lifetimes <code>'a</code> of <code>&amp;'a Input</code>. This pattern hides the complexity of higher-ranked trait bounds, so end users do not need to think about them when using <code>ComputerRef</code>.</p>
+<p>One important detail is that <code>PromoteRef</code> requires the inner <code>Computer</code> provider to always produce the same <code>Output</code> type for any lifetime <code>'a</code>. This means that <code>PromoteRef</code> cannot be used if the <code>Output</code> type borrows from the input reference, because <code>ComputerRef</code> defines a single <code>Output</code> type that is independent of the lifetime of the input. This limitation follows naturally from the design of <code>ComputerRef</code>. When the output must borrow from the input, the user should implement <code>Computer</code> directly instead of using <code>ComputerRef</code>.</p>
+<h3 id="promotion-from-computerref-to-computer"><a class="zola-anchor" href="#promotion-from-computerref-to-computer" aria-label="Anchor link for: promotion-from-computerref-to-computer">Promotion from <code>ComputerRef</code> to <code>Computer</code></a></h3>
+<p><code>PromoteRef</code> also works in the opposite direction, allowing a provider that implements <code>ComputerRef</code> to become a provider that implements <code>Computer</code> for borrowed inputs:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, Input, Provider&gt; Computer&lt;Context, Code, </span><span style="color:#569cd6;">&amp;</span><span>Input&gt; </span><span style="color:#569cd6;">for </span><span>PromoteRef&lt;Provider&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Provider: ComputerRef&lt;Context, Code, Input&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Provider::Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, tag: PhantomData&lt;Code&gt;, input: </span><span style="color:#569cd6;">&amp;</span><span>Input) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        Provider::compute_ref(context, tag, input)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this implementation, <code>PromoteRef</code> wraps a <code>Provider</code> that implements <code>ComputerRef</code> and forwards the call to <code>compute_ref</code>. As a result, it produces a <code>Computer</code> implementation that works with <code>&amp;Input</code>.</p>
+<p>With these two implementations, <code>PromoteRef</code> provides a bidirectional bridge between <code>Computer</code> and <code>ComputerRef</code>. This flexibility allows a single provider to adapt to whichever trait is more convenient for the task, whether the interface expects <code>Computer</code> or <code>ComputerRef</code>.</p>
+<h2 id="matchwithvaluehandlersref"><a class="zola-anchor" href="#matchwithvaluehandlersref" aria-label="Anchor link for: matchwithvaluehandlersref"><code>MatchWithValueHandlersRef</code></a></h2>
+<p>To support reference-based dispatching in CGP, we only need to introduce a few reference-specific constructs while keeping most of the implementation very similar to the original <code>MatchWithValueHandlers</code>. The definition of <code>MatchWithValueHandlersRef</code> is shown below:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">MatchWithValueHandlersRef</span><span>&lt;Provider&gt; =
+</span><span>    UseInputDelegate&lt;MatchWithFieldHandlersInputsRef&lt;HandleFieldValue&lt;PromoteRef&lt;Provider&gt;&gt;&gt;&gt;;
+</span><span>
+</span><span>delegate_components! {
+</span><span>    &lt;Input: HasFieldHandlers&lt;Provider&gt;, Provider&gt;
+</span><span>    new MatchWithFieldHandlersInputsRef&lt;Provider&gt; {
+</span><span>        Input:
+</span><span>            PromoteRef&lt;MatchWithHandlersRef&lt;</span><span style="color:#569cd6;">Input::</span><span>Handlers&gt;&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>When comparing this definition to <code>MatchWithValueHandlers</code>, the most notable differences are the use of <code>MatchWithFieldHandlersInputsRef</code> and the additional wrapping with <code>PromoteRef</code> to facilitate conversions between <code>Computer</code> and <code>ComputerRef</code>.</p>
+<h3 id="example-use-of-matchwithvaluehandlersref"><a class="zola-anchor" href="#example-use-of-matchwithvaluehandlersref" aria-label="Anchor link for: example-use-of-matchwithvaluehandlersref">Example use of <code>MatchWithValueHandlersRef</code></a></h3>
+<p>To better understand how <code>MatchWithValueHandlersRef</code> works in practice, let us walk through what happens when we call <code>MatchWithValueHandlersRef&lt;ComputeAreaRef&gt;</code> on <code>Shape</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasAreaRef </span><span style="color:#569cd6;">for </span><span>Shape {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        MatchWithValueHandlersRef::&lt;ComputeAreaRef&gt;::compute_ref(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData::&lt;()&gt;, self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The <code>Provider</code> argument to <code>MatchWithHandlers</code> is <code>ComputeAreaRef</code>, which is expanded into <code>HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;</code> when passed to <code>MatchWithFieldHandlersInputsRef</code>. The <code>UseInputDelegate</code> type is expected to implement <code>ComputerRef</code> for <code>Input = Shape</code>, and it delegates the work to <code>MatchWithFieldHandlersInputsRef</code>.</p>
+<p>Next, <code>MatchWithFieldHandlersInputsRef</code> is invoked with <code>Input</code> as <code>Shape</code> and <code>Provider</code> as <code>HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;</code>. The <code>Shape</code> type must implement <code>HasFieldHandlers&lt;HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;&gt;</code>, and its <code>Handlers</code> expand to:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Product</span><span style="color:#569cd6;">!</span><span>[
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Circle&quot;</span><span>), HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;&gt;,
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;&gt;,
+</span><span>]
+</span></code></pre>
+<p>The delegate entry maps to <code>PromoteRef&lt;MatchWithHandlersRef&lt;Input::Handlers&gt;&gt;</code>, which becomes:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>PromoteRef&lt;MatchWithHandlersRef&lt;Product</span><span style="color:#ff3333;">!</span><span>[
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;Circle&quot;), HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;&gt;,
+</span><span>    ExtractFieldAndHandle&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;Rectangle&quot;</span><span>), HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;&gt;,
+</span><span>]&gt;&gt;
+</span></code></pre>
+<p>In order to implement <code>ComputerRef</code>, <code>PromoteRef&lt;MatchWithHandlersRef&lt;Input::Handlers&gt;&gt;</code> requires <code>MatchWithHandlersRef&lt;Input::Handlers&gt;</code> to implement <code>Computer</code>. For <code>MatchWithHandlersRef&lt;Input::Handlers&gt;</code> to implement <code>Computer</code>, its inner provider <code>HandleFieldValue&lt;PromoteRef&lt;ComputeAreaRef&gt;&gt;</code> must satisfy the following constraints:</p>
+<ul>
+<li><code>Computer&lt;(), (), Field&lt;Symbol!("Circle"), &amp;Circle&gt;&gt;</code></li>
+<li><code>Computer&lt;(), (), Field&lt;Symbol!("Rectangle"), &amp;Rectangle&gt;&gt;</code></li>
+</ul>
+<p>After <code>HandleFieldValue</code> unwraps the actual field values, the inner provider <code>PromoteRef&lt;ComputeAreaRef&gt;</code> must implement:</p>
+<ul>
+<li><code>Computer&lt;(), (), &amp;Circle&gt;</code></li>
+<li><code>Computer&lt;(), (), &amp;Rectangle&gt;</code></li>
+</ul>
+<p>Finally, <code>PromoteRef</code> requires <code>ComputeAreaRef</code> to implement:</p>
+<ul>
+<li><code>ComputerRef&lt;(), (), Circle&gt;</code></li>
+<li><code>ComputerRef&lt;(), (), Rectangle&gt;</code></li>
+</ul>
+<p>This example shows that the key to implementing <code>MatchWithValueHandlersRef</code> lies in understanding when to use <code>Computer</code> versus <code>ComputerRef</code>, and where to apply <code>PromoteRef</code> to bridge the two. While the type expansion can appear intimidating, most of the complexity is hidden behind these abstractions.</p>
+<p>In practice, the usage of <code>MatchWithValueHandlersRef</code> feels almost identical to the ownership-based version, and the underlying implementation shares the same structure aside from a few reference-specific details.</p>
+<hr />
+<h1 id="future-work"><a class="zola-anchor" href="#future-work" aria-label="Anchor link for: future-work">Future Work</a></h1>
+<p>The modular design of extensible variants makes it straightforward to extend the pattern for new use cases. There are several scenarios that are not yet supported in this initial version. While none of these are technically difficult to implement, the focus for this release has been on the core functionality and the writing of these blog posts. The following areas are planned for future work.</p>
+<h2 id="additional-arguments"><a class="zola-anchor" href="#additional-arguments" aria-label="Anchor link for: additional-arguments">Additional Arguments</a></h2>
+<p>At present, extensible visitors do not support forwarding additional arguments to individual visitor handlers. This limitation prevents traits that require extra arguments, such as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>HasArea {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self, scale_factor: </span><span style="color:#569cd6;">f64</span><span>) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span></code></pre>
+<p>Here, the <code>area</code> method needs a <code>scale_factor</code> argument that must be passed through the visitor dispatcher to the variant handlers. To support this, we can create adapters similar to <code>ExtractFieldAndHandle</code> that bundle the extra arguments into the <code>Input</code>. We would then define alternative dispatchers, similar to <code>MatchWithValueHandlers</code>, which operate on these bundled inputs.</p>
+<h2 id="mut-references"><a class="zola-anchor" href="#mut-references" aria-label="Anchor link for: mut-references"><code>&amp;mut</code> References</a></h2>
+<p>The current reference-based dispatch system is hard-coded to use shared references (<code>&amp;</code>). As a result, it does not support <code>&amp;mut</code> references for mutable operations such as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>CanScale {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>scale(</span><span style="color:#569cd6;">&amp;mut </span><span>self, factor: </span><span style="color:#569cd6;">f64</span><span>);
+</span><span>}
+</span></code></pre>
+<p>To support mutable references, the design of partial-ref variants needs to be generalized to work with both <code>&amp;</code> and <code>&amp;mut</code>. This likely requires an abstraction similar to <code>MapType</code>, but for mapping the type of reference used for each field.</p>
+<h3 id="simpler-dispatchers"><a class="zola-anchor" href="#simpler-dispatchers" aria-label="Anchor link for: simpler-dispatchers">Simpler Dispatchers</a></h3>
+<p>Although extensible visitors were designed with complex use cases like modular interpreters in mind, they are equally powerful for simpler needs, such as implementing plain Rust traits like <code>HasArea</code>. While this is already possible with the current infrastructure, the ergonomics leave much to be desired.</p>
+<p>Users must first understand and use the <code>#[cgp_computer]</code> macro to define helper providers like <code>ComputeArea</code>, and then manually implement the trait by invoking <code>MatchWithValueHandlers::&lt;ComputeArea&gt;::compute()</code> with dummy context and code. For those unfamiliar with CGP, these steps impose unnecessary friction and cognitive load.</p>
+<p>To improve usability, CGP could offer a procedural macro to automate this boilerplate. For instance, a trait could be annotated as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_dispatch]
+</span><span style="color:#569cd6;">pub trait </span><span>HasArea {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span></code></pre>
+<p>The <code>#[cgp_dispatch]</code> macro would parse the trait definition and generate the necessary code to integrate it with the extensible visitor framework. This includes generating a blanket implementation for the trait so that it is automatically implemented for compatible enums like <code>Shape</code> or <code>ShapePlus</code>.</p>
+<p>The generated implementation would resemble:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; HasArea </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasExtractorRef,
+</span><span>    MatchWithValueHandlersRef&lt;ComputeArea&gt;: ComputerRef&lt;(), (), Context, Output = </span><span style="color:#569cd6;">f64</span><span>&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        MatchWithValueHandlersRef::&lt;ComputeArea&gt;::compute_ref(</span><span style="color:#569cd6;">&amp;</span><span>(), PhantomData, self)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With such a macro in place, using extensible visitors to implement common traits would become as easy as annotating the trait with <code>#[cgp_dispatch]</code>, removing the need to understand the inner workings of CGP for simple use cases.</p>
+<h2 id="custom-partial-records-updater"><a class="zola-anchor" href="#custom-partial-records-updater" aria-label="Anchor link for: custom-partial-records-updater">Custom Partial Records Updater</a></h2>
+<p>Currently, partial records only support a small set of operations like <code>TakeField</code> and <code>BuildField</code>. This makes it difficult to customize behavior, such as overriding existing field values, filling empty fields with defaults, or taking a default value from an empty field.</p>
+<p>To support these scenarios, more generalized interfaces for interacting with partial records are needed. A promising approach is to use <em>natural transformations</em> to implement generic field transformers. For example, a builder transformer would convert <code>IsNothing</code> fields into <code>IsPresent</code> fields, while an overrider transformer would convert either <code>IsNothing</code> or <code>IsPresent</code> fields into <code>IsPresent</code> fields. This would allow for flexible and reusable field manipulation strategies.</p>
+<h2 id="explanation-for-computation-hierarchy"><a class="zola-anchor" href="#explanation-for-computation-hierarchy" aria-label="Anchor link for: explanation-for-computation-hierarchy">Explanation for Computation Hierarchy</a></h2>
+<p>Beyond <code>Computer</code>, <code>ComputerRef</code>, and <code>Handler</code>, CGP defines several other traits that represent different kinds of computations. For example, <code>TryComputer</code> supports computations that may fail, and <code>TryComputerRef</code> handles fallible computations that operate on reference inputs. These traits make it possible to model a wide range of behaviors, from straightforward value computations to error-aware or reference-based processing.</p>
+<p>CGP also provides constructs such as <code>Promote</code> that allow seamless conversion between different types of computation providers. In addition, it supports multiple ways to compose these providers. Two notable examples are <code>PipeHandlers</code> and <code>PipeMonadic</code>. Monadic composition in particular requires delicate explanation, because CGP’s approach to monads does not behave exactly like the familiar monads in Haskell. Understanding how these monadic pipelines operate is essential for developers who want to create more sophisticated and composable computation flows.</p>
+<p>My original plan was to dedicate a fifth part of this series to explain the complete hierarchy of computation traits in CGP. However, the implementation details for extensible data types have already required extensive coverage, and attempting to include computation hierarchy in the same series would make it overwhelming. As a result, I have decided to split that explanation into its own dedicated post, or potentially a separate series, to provide the depth and clarity it deserves.</p>
+<hr />
+<h1 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">Conclusion</a></h1>
+<p>We have now reached the end of our deep dive into the implementation details of extensible variants and extensible visitors. To recap the journey, we began by defining the <code>FromVariant</code> trait, which allows constructing an enum from one of its variants. We then introduced partial variants, which mirror the structure of partial records but use <code>IsVoid</code> to indicate the absence of a variant.</p>
+<p>From there, we defined the <code>HasExtractor</code> trait to convert an enum into its partial variants, followed by the <code>ExtractField</code> trait to extract a single variant from those partial variants. This led to the concept of remainders, representing what is left after a variant is extracted, and the <code>FinalizeExtract</code> trait, which finalizes a remainder once all its variants have been handled.</p>
+<p>We then examined how upcasting and downcasting for enums are implemented. We explored how the <code>HasFields</code> implementation for enums represents a type-level sum of fields and how <code>FieldExtractor</code> is used to move fields between source and target partial variants. The difference between <code>CanUpcast</code> and <code>CanDowncast</code> boils down to choosing whether the <code>HasFields</code> implementation comes from the source or the target enum.</p>
+<p>Next, we delved into the implementation of extensible visitors, beginning with <code>MatchWithHandlers</code> and <code>DispatchMatchers</code>. We saw that <code>DispatchMatchers</code> is structured as a monadic pipeline that short-circuits when it encounters an <code>Ok</code> value. We examined the role of field adapters like <code>ExtractFieldAndHandle</code> and <code>HandleFieldValue</code>, and we explored how <code>#[cgp_computer]</code> transforms a regular trait method into a <code>Computer</code> provider. We then discussed how <code>ToFieldsHandler</code> and <code>HasFieldHandlers</code> convert the tags in an enum’s <code>HasFields</code> implementation into the appropriate providers for use with <code>MatchWithHandlers</code>. Finally, we looked at how the top-level dispatcher <code>MatchWithValueHandlers</code> is assembled through type-level metaprogramming, combining all the earlier components into a cohesive system.</p>
+<p>We concluded with the reference-based implementation of extensible visitors. This introduced reference-specific constructs such as partial-ref variants and the <code>HasExtractorRef</code> trait. We examined how <code>MatchWithHandlersRef</code> uses <code>HasExtractorRef</code> to extract borrowed variants, and how <code>PromoteRef</code> bridges between <code>Computer</code> and <code>ComputerRef</code> providers. We then saw that <code>MatchWithValueHandlersRef</code> is implemented with only minimal differences from its ownership-based counterpart, relying on <code>MatchWithHandlersRef</code> and <code>PromoteRef</code> to interleave <code>Computer</code> and <code>ComputerRef</code> computations.</p>
+<h2 id="end-of-series"><a class="zola-anchor" href="#end-of-series" aria-label="Anchor link for: end-of-series">End of Series</a></h2>
+<p>We have reached the conclusion of this series on extensible data types. By now, you should have a clearer understanding of the design patterns that extensible data types make possible and how they can be applied to solve real-world problems in Rust.</p>
+<p>Although some of the implementation details can be challenging, I hope this series has given you a solid sense of how extensible data types are structured, and why a type-driven approach allows our system to remain both modular and flexible as it grows.</p>
+<p>More importantly, I hope these articles have helped you recognize the design patterns that underpin CGP. Learning to identify and apply these patterns will make your own CGP code more effective and give you tools you can use well beyond this particular topic.</p>
+<p>The design and implementation of extensible data types push the boundaries of what CGP can achieve. They show how CGP can model advanced language features that are often only possible through direct integration into the Rust compiler. In day-to-day development, you may not need to reach for every advanced technique demonstrated here, but understanding that these patterns exist will broaden your perspective on what is possible.</p>
+<p>Even if you have not fully absorbed every concept presented, I hope this series has inspired you to begin learning CGP from the fundamentals. It is important to realize that many of the basic CGP patterns may initially seem unnecessary or overengineered, yet they are the foundation that makes advanced patterns like extensible data types and <a href="/blog/hypershell-release/">Hypershell</a> achievable.</p>
+<p>Finally, you do not need to create entirely new language features or DSLs for CGP to prove valuable. In upcoming posts, we will explore more foundational and intermediate CGP patterns that can help you build practical and maintainable Rust applications. Thank you for following this series and for your support of the CGP project. Exciting developments are on the horizon, and I look forward to sharing them with you.</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

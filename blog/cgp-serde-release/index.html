@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Announcing cgp-serde: A modular serialization library for Serde powered by CGP | Context-Generic Programming</title>
+    <meta property="og:title" content="Announcing cgp-serde: A modular serialization library for Serde powered by CGP | Context-Generic Programming" />
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="Announcing cgp-serde: A modular serialization library for Serde powered by CGP | Context-Generic Programming">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#preface">Preface</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#overview">Overview</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#quick-intro-to-context-generic-programming"><small>- Quick intro to Context-Generic Programming</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#context-generic-serialization-traits">Context-Generic Serialization Traits</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#provider-traits"><small>- Provider Traits</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#usedelegate-provider"><small>- UseDelegate Provider</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#overlapping-provider-implementations">Overlapping Provider Implementations</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#serialize-with-serde"><small>- Serialize with Serde</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#serialize-with-display"><small>- Serialize with Display</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#serialize-bytes"><small>- Serialize Bytes</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#serialize-iterator"><small>- Serialize Iterator</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#modular-serialization-demo">Modular Serialization Demo</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#wiring-of-serializer-components"><small>- Wiring of serializer components</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#serialization-with-serde-json"><small>- Serialization with serde_json</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#derive-free-serialization-with-derive-cgpdata"><small>- Derive-free serialization with #[derive(CgpData)]</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#full-example"><small>- Full Example</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#capabilities-enabled-deserialization-demo">Capabilities-Enabled Deserialization Demo</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#coordinate-arena"><small>- Coordinate Arena</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#arena-deserializer"><small>- Arena Deserializer</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#deserialization-context"><small>- Deserialization Context</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#error-handling"><small>- Error Handling</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#deserializing-json"><small>- Deserializing JSON</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#full-example-1"><small>- Full Example</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#implementation-details">Implementation Details</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#provider-traits-1"><small>- Provider Traits</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#desugaring-of-cgp-impl"><small>- Desugaring of #[cgp_impl]</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#type-level-lookup-tables"><small>- Type-Level Lookup Tables</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#implementation-of-lookup-tables"><small>- Implementation of Lookup Tables</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#future-work">Future Work</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#serialization-providers-for-extensible-variants"><small>- Serialization providers for extensible variants</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#helpers-for-json-deserialization"><small>- Helpers for JSON deserialization</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#helpers-for-other-serialization-formats"><small>- Helpers for other serialization formats</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#documentation"><small>- Documentation</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#performance-benchmark"><small>- Performance benchmark</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/cgp-serde-release/#conclusion">Conclusion</a>
+                </div>
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">Announcing cgp-serde: A modular serialization library for Serde powered by CGP</div>
+<div style="text-align: right;"><i>Posted on 2025-11-03</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><h1 id="preface"><a class="zola-anchor" href="#preface" aria-label="Anchor link for: preface">Preface</a></h1>
+<p>This is a companion blog post for my <a href="https://rustlab.it/talks/how-to-stop-fighting-with-coherence-and-start-writing-context-generic-trait-impls">RustLab presentation</a> titled <strong>How to Stop Fighting with Coherence and Start Writing Context-Generic Trait Impls</strong>.</p>
+<h1 id="overview"><a class="zola-anchor" href="#overview" aria-label="Anchor link for: overview">Overview</a></h1>
+<p>I am excited to announce the release of <a href="https://github.com/contextgeneric/cgp-serde"><strong>cgp-serde</strong></a>, a modular serialization library for <a href="https://serde.rs/">Serde</a> that leverages the power of <a href="/"><strong>Context-Generic Programming</strong></a> (CGP).</p>
+<p>In short, <code>cgp-serde</code> extends Serde’s original <a href="https://docs.rs/serde/latest/serde/trait.Serialize.html"><code>Serialize</code></a> and <a href="https://docs.rs/serde/latest/serde/trait.Deserialize.html"><code>Deserialize</code></a> traits with CGP, making it possible to write <strong>overlapping</strong> or <strong>orphaned</strong> implementations of these traits and thus bypass the standard Rust <strong>coherence restrictions</strong>.</p>
+<p>Furthermore, <code>cgp-serde</code> allows us to leverage the powerful <a href="https://tmandry.gitlab.io/blog/posts/2021-12-21-context-capabilities/"><strong>context and capabilities</strong></a> concepts in stable Rust today. This unlocks the ability to write context-dependent implementations of <code>Deserialize</code>, such as one that uses an arena allocator to deserialize a <code>'a T</code> value, a concept detailed in the proposal article.</p>
+<h2 id="quick-intro-to-context-generic-programming"><a class="zola-anchor" href="#quick-intro-to-context-generic-programming" aria-label="Anchor link for: quick-intro-to-context-generic-programming">Quick intro to Context-Generic Programming</a></h2>
+<p>For those readers new to the project, here is a quick introduction: Context-Generic Programming (CGP) is a modular programming paradigm that enables you to bypass the <strong>coherence restrictions</strong> in Rust traits, allowing for <strong>overlapping</strong> and <strong>orphan</strong> implementations of any CGP trait.</p>
+<p>You can adapt almost any existing Rust trait to use CGP today by applying the <code>#[cgp_component]</code> macro to the trait definition. After this annotation, you can write <strong>named</strong> implementations of the trait using <code>#[cgp_impl]</code>, which can be defined without being constrained by the coherence rules. You can then selectively enable and reuse the named implementation for your type using the <code>delegate_components!</code> macro.</p>
+<p>For instance, we can, in principle, annotate the standard library’s <a href="https://doc.rust-lang.org/std/hash/trait.Hash.html"><code>Hash</code></a> trait with <code>#[cgp_component]</code> like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(HashProvider)]
+</span><span style="color:#569cd6;">pub trait </span><span>Hash { </span><span style="color:#569cd6;">... </span><span>}
+</span></code></pre>
+<p>This change does not affect existing code that uses or implements <code>Hash</code>, but it allows for new, potentially overlapping implementations, such as one that works for any type that also implements <code>Display</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(HashWithDisplay)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;T: Display&gt; HashProvider </span><span style="color:#569cd6;">for </span><span>T { </span><span style="color:#569cd6;">... </span><span>}
+</span></code></pre>
+<p>You can then apply and reuse this implementation on any type by using the <code>delegate_components!</code> macro:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>MyData { ... }
+</span><span style="color:#569cd6;">impl </span><span>Display </span><span style="color:#569cd6;">for </span><span>MyData { </span><span style="color:#569cd6;">... </span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    MyData {
+</span><span>        HashProviderComponent: HashWithDisplay,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In this example, <code>MyData</code> implements the <code>Hash</code> trait by using <code>delegate_components!</code> to delegate its implementation to the <code>HashWithDisplay</code> provider, identified by the key <code>HashProviderComponent</code>. Because <code>MyData</code> already implements <code>Display</code>, the <code>Hash</code> trait is now automatically implemented through CGP via this delegation.</p>
+<p>If you are eager to learn more about CGP, please check out the <a href="/">project homepage</a> for all the details. For now, let us return to examine the new features introduced in <code>cgp-serde</code>.</p>
+<hr />
+<h1 id="context-generic-serialization-traits"><a class="zola-anchor" href="#context-generic-serialization-traits" aria-label="Anchor link for: context-generic-serialization-traits">Context-Generic Serialization Traits</a></h1>
+<p>The key highlight of <code>cgp-serde</code> is its introduction of context-generic versions of the Serde traits. First, the <a href="https://docs.rs/serde/latest/serde/trait.Serialize.html"><code>Serialize</code></a> trait is redefined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: ValueSerializer,
+</span><span>    derive_delegate: UseDelegate&lt;Value&gt;,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanSerializeValue&lt;Value: ?Sized&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: serde::Serializer;
+</span><span>}
+</span></code></pre>
+<p>Compared to the original <code>Serialize</code> trait, <code>cgp-serde</code> provides the <code>CanSerializeValue</code> CGP trait, which moves the original <code>Self</code> type from <code>Serialize</code> to an explicit generic parameter called <code>Value</code>. The <code>Self</code> type in <code>CanSerializeValue</code> now represents a <strong>context</strong> type, which can be used for <strong>dependency injection</strong>. The <code>serialize</code> method also accepts an extra <code>&amp;self</code> value, making it possible to retrieve additional runtime dependencies from this context.</p>
+<p>In a similar manner, <code>cgp-serde</code> defines a context-generic version of the <a href="https://docs.rs/serde/latest/serde/trait.Deserialize.html"><code>Deserialize</code></a> trait as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: ValueDeserializer,
+</span><span>    derive_delegate: UseDelegate&lt;Value&gt;,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanDeserializeValue&lt;&#39;de, Value&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>deserialize&lt;D&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, deserializer: D) -&gt; Result&lt;Value, </span><span style="color:#569cd6;">D::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        D: serde::Deserializer&lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt;;
+</span><span>}
+</span></code></pre>
+<p>Analogous to <code>CanSerializeValue</code>, the <code>CanDeserializeValue</code> trait moves the original <code>Self</code> type in <code>Deserialize</code> to become the <code>Value</code> generic parameter. This <code>deserialize</code> method similarly accepts an additional <code>&amp;self</code> value, which can be utilized to supply runtime dependencies, such as an arena allocator.</p>
+<h2 id="provider-traits"><a class="zola-anchor" href="#provider-traits" aria-label="Anchor link for: provider-traits">Provider Traits</a></h2>
+<p>In addition to having the extra <code>Context</code> parameter as the <code>Self</code> type, both <code>CanSerializeValue</code> and <code>CanDeserializeValue</code> are annotated with the <code>#[cgp_component]</code> macro, which is the mechanism that unlocks additional CGP capabilities on these traits.</p>
+<p>The <code>provider</code> argument to <code>#[cgp_component]</code> automatically generates the <strong>provider traits</strong> called <code>ValueSerializer</code> and <code>ValueDeserializer</code>. These traits are the ones you will use for implementing <strong>named</strong> serialization implementations that can bypass the coherence restrictions.</p>
+<p>Conversely, in CGP, we refer to the original traits <code>CanSerializeValue</code> and <code>CanDeserializeValue</code> as the <strong>consumer traits</strong>. The general rule of thumb is that a CGP component is <strong>used</strong> through its consumer trait but <strong>implemented</strong> using its provider trait.</p>
+<h2 id="usedelegate-provider"><a class="zola-anchor" href="#usedelegate-provider" aria-label="Anchor link for: usedelegate-provider"><code>UseDelegate</code> Provider</a></h2>
+<p>Our CGP trait definitions also include a second <code>derive_delegate</code> entry within the <code>#[cgp_component]</code> macro. This entry generates a generic <code>UseDelegate</code> provider that enables <strong>static dispatch</strong> of provider implementations based on the specific <code>Value</code> type. The practical application and use of <code>UseDelegate</code> will be explained in greater detail later in this article.</p>
+<hr />
+<h1 id="overlapping-provider-implementations"><a class="zola-anchor" href="#overlapping-provider-implementations" aria-label="Anchor link for: overlapping-provider-implementations">Overlapping Provider Implementations</a></h1>
+<p>Compared to the original Serde definitions of <code>Serialize</code> and <code>Deserialize</code>, the greatest improvement offered by <code>CanSerializeValue</code> and <code>CanDeserializeValue</code> is the ability to define <strong>overlapping</strong> and <strong>orphan</strong> implementations of the trait. Let us now examine a few concrete examples of how this crucial feature works.</p>
+<h2 id="serialize-with-serde"><a class="zola-anchor" href="#serialize-with-serde" aria-label="Anchor link for: serialize-with-serde">Serialize with Serde</a></h2>
+<p>To maintain full backward compatibility with the existing Serde ecosystem, the most straightforward implementation of <code>ValueSerializer</code> utilizes Serde’s own <code>Serialize</code> trait to perform serialization. This is implemented within <code>cgp-serde</code> as shown below:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>UseSerde;
+</span><span>
+</span><span>#[cgp_impl(UseSerde)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Value&gt; ValueSerializer&lt;Value&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Value: Serialize,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: Serializer,
+</span><span>    {
+</span><span>        value.serialize(serializer)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>First, we define a unit struct named <code>UseSerde</code>, which acts as the <strong>name</strong> for our provider implementation. We then define a blanket trait implementation annotated with <code>#[cgp_impl]</code>, explicitly setting <code>UseSerde</code> as the provider type.</p>
+<p>Following this, we define our implementation on the <code>ValueSerializer</code> provider trait, rather than the <code>CanSerializeValue</code> consumer trait. This implementation is defined to work with any <code>Context</code> and <code>Value</code> types, provided that the target <code>Value</code> implements the original <code>Serialize</code> trait. Inside our <code>serialize</code> implementation, we ignore the <code>&amp;self</code> context and simply call <code>Serialize::serialize</code> on the value.</p>
+<p>While this implementation itself is not remarkable, it crucially highlights that <code>cgp-serde</code> is fully compatible with the standard Serde crate. Consequently, if we wish to reuse an existing <code>Serialize</code> implementation for a given value type, we can simply utilize <code>UseSerde</code> to serialize that type through <code>CanSerializeValue</code>.</p>
+<p>Another important detail to notice is that our blanket implementation for <code>UseSerde</code> works universally for <em>any</em> <code>Context</code> and <code>Value</code> types satisfying the bounds. As we will soon see, we can define <strong>more than one</strong> such blanket implementation using CGP.</p>
+<h2 id="serialize-with-display"><a class="zola-anchor" href="#serialize-with-display" aria-label="Anchor link for: serialize-with-display">Serialize with <code>Display</code></a></h2>
+<p>Just as we can implement <code>ValueSerializer</code> for any <code>Value</code> type that implements <code>Serialize</code>, we can also implement <code>ValueSerializer</code> for any <code>Value</code> type that implements the <code>Display</code> trait. This alternative behavior is implemented by <code>cgp-serde</code> as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(new SerializeWithDisplay)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Value&gt; ValueSerializer&lt;Value&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: CanSerializeValue&lt;String&gt;,
+</span><span>    Value: Display,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: Serializer,
+</span><span>    {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> str_value = value.to_string();
+</span><span>        self.serialize(</span><span style="color:#569cd6;">&amp;</span><span>str_value, serializer)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In the very first line, the inclusion of the <code>new</code> keyword in <code>#[cgp_impl]</code> instructs the macro to automatically generate the necessary provider struct definition for us, so that we don't have to define them manually:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">struct </span><span>SerializeWithDisplay;
+</span></code></pre>
+<p>Our blanket implementation for <code>SerializeWithDisplay</code> works with any <code>Value</code> type that implements <code>Display</code>. Crucially, this implementation also requires the <code>Context</code> type to implement <code>CanSerializeValue&lt;String&gt;</code>. This means we use the <code>Context</code> to <strong>look up</strong> the serialization implementation for <code>String</code> and then employ it within our current provider implementation.</p>
+<p>Inside the method body, we first use <code>to_string</code> to convert our value into a standard string, and then we call <code>self.serialize</code> to serialize that string value using the context's <code>CanSerializeValue&lt;String&gt;</code> implementation.</p>
+<p>To appreciate what is enabled by this implementation, consider how this might be implemented directly on Serde's <code>Serialize</code> trait:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Value&gt; Serialize </span><span style="color:#569cd6;">for </span><span>Value
+</span><span style="color:#569cd6;">where
+</span><span>    Value: Display,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: Serializer,
+</span><span>    {
+</span><span>        self.to_string().serialize(serializer)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>If you have any experience with Rust traits, you will immediately recognize that it is practically impossible to define this blanket <code>Serialize</code> implementation in Serde. More accurately, you are <strong>restricted</strong> to having <strong>at most one</strong> such blanket implementation of <code>Serialize</code>. Because of this restriction, it is extremely difficult to justify why this version, which uses the <code>Value: Display</code> bound, should be the <em>chosen</em> blanket implementation for <code>Serialize</code>.</p>
+<p>In stark contrast, both <code>UseSerde</code> and <code>SerializeWithDisplay</code> contain <strong>overlapping</strong> implementations of <code>ValueSerializer</code> across <em>both</em> the <code>Context</code> and <code>Value</code> types. In vanilla Rust, this would be outright rejected, as it is perfectly possible, for instance, to have a <code>Value</code> type that implements both <code>Serialize</code> and <code>Display</code>. However, this overlapping is seamlessly enabled in CGP by utilizing the provider trait <code>ValueSerializer</code> and the powerful <code>#[cgp_impl]</code> macro. We will elaborate on the underlying mechanism in later sections.</p>
+<p>Regarding the specific use case of string serialization, it might not seem remarkable that we must look up how to serialize <code>String</code> from the context, given that Serde already has an efficient <code>Serialize</code> implementation for <code>String</code>. Nevertheless, this successfully demonstrates the <em>potential</em> to replace the serialization implementation of <code>String</code> with a custom one. We will later see how this override capability is highly useful for serializing <code>Vec&lt;u8&gt;</code> bytes.</p>
+<h2 id="serialize-bytes"><a class="zola-anchor" href="#serialize-bytes" aria-label="Anchor link for: serialize-bytes">Serialize Bytes</a></h2>
+<p>Just as we can serialize any <code>Value</code> that implements <code>Display</code>, we can also define a way to serialize any <code>Value</code> that contains a byte slice directly into bytes. This behavior is implemented by <code>cgp-serde</code> as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(SerializeBytes)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Value&gt; ValueSerializer&lt;Value&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Value: AsRef&lt;[</span><span style="color:#569cd6;">u8</span><span>]&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: Serializer,
+</span><span>    {
+</span><span>        serializer.serialize_bytes(value.as_ref())
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Our <code>SerializeBytes</code> provider can successfully work with any <code>Value</code> type that implements <code>AsRef&lt;[u8]&gt;</code>. Crucially, this includes <code>Vec&lt;u8&gt;</code>, which also implements <code>AsRef&lt;[u8]&gt;</code>. This is significant because, unlike the constraints imposed by the standard <code>Serialize</code> trait, we can now potentially <strong>override</strong> the serialization implementation of <code>Vec&lt;u8&gt;</code> to explicitly use <code>SerializeBytes</code>, ensuring it is serialized as raw bytes instead of a list of <code>u8</code> values.</p>
+<h2 id="serialize-iterator"><a class="zola-anchor" href="#serialize-iterator" aria-label="Anchor link for: serialize-iterator">Serialize Iterator</a></h2>
+<p>Similar to how we implemented <code>SerializeWithDisplay</code>, we can define a <code>SerializeIterator</code> provider that works with any <code>Value</code> type that implements <a href="https://doc.rust-lang.org/std/iter/trait.IntoIterator.html"><code>IntoIterator</code></a>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(new SerializeIterator)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Value&gt; ValueSerializer&lt;Value&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    </span><span style="color:#569cd6;">for</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Value: IntoIterator,
+</span><span>    Context: </span><span style="color:#569cd6;">for</span><span>&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; CanSerializeValue&lt;&lt;</span><span style="color:#569cd6;">&amp;&#39;a</span><span> Value </span><span style="color:#569cd6;">as </span><span>IntoIterator&gt;::Item&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: serde::Serializer,
+</span><span>    { </span><span style="color:#569cd6;">... </span><span>}
+</span><span>}
+</span></code></pre>
+<p>Our implementation includes a <a href="https://doc.rust-lang.org/nomicon/hrtb.html"><em>higher-ranked trait bound</em></a> (HRTB) <code>for&lt;'a&gt; &amp;'a Value: IntoIterator</code>, which permits us to call <code>into_iter</code> on any reference <code>&amp;Value</code>. Likewise, we introduce a HRTB for <code>Context</code> to implement <code>CanSerializeValue</code> for the associated <code>Item</code> type yielded by the iterator produced from <code>&amp;Value</code>.</p>
+<p>We have omitted the method body of <code>SerializeIterator</code> for brevity. Behind the scenes, it utilizes <code>serialize_seq</code> to handle the serialization of each item.</p>
+<p>The key takeaway here is that the serialization of the iterator's <code>Item</code>s is performed via the consumer trait <code>CanSerializeValue</code> provided by <code>Context</code>. This grants us the ability to deeply customize how the <code>Item</code> itself is serialized, without being restricted to a fixed <code>Serialize</code> implementation.</p>
+<p>Another critical observation is that both <code>SerializeBytes</code> and <code>SerializeIterator</code> are inherently <strong>overlapping</strong> on the <code>Vec&lt;u8&gt;</code> type. This perfectly illustrates how the serialization behavior of <code>Vec&lt;u8&gt;</code> is determined entirely by which specific provider is wired into a particular CGP context. We will examine this topic further in later sections.</p>
+<hr />
+<h1 id="modular-serialization-demo"><a class="zola-anchor" href="#modular-serialization-demo" aria-label="Anchor link for: modular-serialization-demo">Modular Serialization Demo</a></h1>
+<p>To fully demonstrate the modular serialization capabilities provided by <code>cgp-serde</code>, we will set up a practical example involving the serialization of encrypted messages. This is where you see the power of CGP in action.</p>
+<p>Suppose we are developing a naive encrypted messaging library, defining the following core data types:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>EncryptedMessage {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>message_id: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>author_id: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>date: DateTime&lt;Utc&gt;,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>encrypted_data: Vec&lt;</span><span style="color:#569cd6;">u8</span><span>&gt;,
+</span><span>}
+</span><span>
+</span><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>MessagesByTopic {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>encrypted_topic: Vec&lt;</span><span style="color:#569cd6;">u8</span><span>&gt;,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>messages: Vec&lt;EncryptedMessage&gt;,
+</span><span>}
+</span><span>
+</span><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>MessagesArchive {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>decryption_key: Vec&lt;</span><span style="color:#569cd6;">u8</span><span>&gt;,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>messages_by_topics: Vec&lt;MessagesByTopic&gt;,
+</span><span>}
+</span></code></pre>
+<p>We start with an <code>EncryptedMessage</code> struct containing message metadata and encrypted data. These messages are grouped within a <code>MessagesByTopic</code> struct, which also includes an encrypted topic string. Finally, the <code>MessagesArchive</code> struct holds messages grouped by multiple topics, along with a password-protected decryption key.</p>
+<p>The key technical challenge we aim to solve is how to serialize this message archive into different JSON formats, depending on the specific application consuming the data. Specifically, we need to support the following two formats simultaneously:</p>
+<ul>
+<li>
+<p><strong>Application A:</strong> Serializes bytes as hexadecimal strings and dates using the RFC 3339 format.</p>
+<details>
+  <summary>Click here for example serialization for App A</summary>
+<pre data-lang="json" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-json "><code class="language-json" data-lang="json"><span>{
+</span><span>  </span><span style="color:#d69d85;">&quot;decryption_key&quot;</span><span>: </span><span style="color:#d69d85;">&quot;746f702d736563726574&quot;</span><span>,
+</span><span>  </span><span style="color:#d69d85;">&quot;messages_by_topics&quot;</span><span>: [
+</span><span>    {
+</span><span>      </span><span style="color:#d69d85;">&quot;encrypted_topic&quot;</span><span>: </span><span style="color:#d69d85;">&quot;416c6c2061626f757420434750&quot;</span><span>,
+</span><span>      </span><span style="color:#d69d85;">&quot;messages&quot;</span><span>: [
+</span><span>        {
+</span><span>          </span><span style="color:#d69d85;">&quot;message_id&quot;</span><span>: </span><span style="color:#b5cea8;">1</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;author_id&quot;</span><span>: </span><span style="color:#b5cea8;">2</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;date&quot;</span><span>: </span><span style="color:#d69d85;">&quot;2025-11-03T14:15:00+00:00&quot;</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;encrypted_data&quot;</span><span>: </span><span style="color:#d69d85;">&quot;48656c6c6f2066726f6d20527573744c616221&quot;
+</span><span>        },
+</span><span>        {
+</span><span>          </span><span style="color:#d69d85;">&quot;message_id&quot;</span><span>: </span><span style="color:#b5cea8;">4</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;author_id&quot;</span><span>: </span><span style="color:#b5cea8;">8</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;date&quot;</span><span>: </span><span style="color:#d69d85;">&quot;2025-12-19T23:45:00+00:00&quot;</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;encrypted_data&quot;</span><span>: </span><span style="color:#d69d85;">&quot;4f6e65207965617220616e6e697665727361727921&quot;
+</span><span>        }
+</span><span>      ]
+</span><span>    }
+</span><span>  ]
+</span><span>}
+</span></code></pre>
+</details>
+</li>
+<li>
+<p><strong>Application B:</strong> Serializes bytes as Base64 strings and dates using Unix timestamps.</p>
+<details>
+  <summary>Click here for example serialization for App B</summary>
+<pre data-lang="json" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-json "><code class="language-json" data-lang="json"><span>{
+</span><span>  </span><span style="color:#d69d85;">&quot;decryption_key&quot;</span><span>: </span><span style="color:#d69d85;">&quot;dG9wLXNlY3JldA==&quot;</span><span>,
+</span><span>  </span><span style="color:#d69d85;">&quot;messages_by_topics&quot;</span><span>: [
+</span><span>    {
+</span><span>      </span><span style="color:#d69d85;">&quot;encrypted_topic&quot;</span><span>: </span><span style="color:#d69d85;">&quot;QWxsIGFib3V0IENHUA==&quot;</span><span>,
+</span><span>      </span><span style="color:#d69d85;">&quot;messages&quot;</span><span>: [
+</span><span>        {
+</span><span>          </span><span style="color:#d69d85;">&quot;message_id&quot;</span><span>: </span><span style="color:#b5cea8;">1</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;author_id&quot;</span><span>: </span><span style="color:#b5cea8;">2</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;date&quot;</span><span>: </span><span style="color:#b5cea8;">1762179300</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;encrypted_data&quot;</span><span>: </span><span style="color:#d69d85;">&quot;SGVsbG8gZnJvbSBSdXN0TGFiIQ==&quot;
+</span><span>        },
+</span><span>        {
+</span><span>          </span><span style="color:#d69d85;">&quot;message_id&quot;</span><span>: </span><span style="color:#b5cea8;">4</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;author_id&quot;</span><span>: </span><span style="color:#b5cea8;">8</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;date&quot;</span><span>: </span><span style="color:#b5cea8;">1766187900</span><span>,
+</span><span>          </span><span style="color:#d69d85;">&quot;encrypted_data&quot;</span><span>: </span><span style="color:#d69d85;">&quot;T25lIHllYXIgYW5uaXZlcnNhcnkh&quot;
+</span><span>        }
+</span><span>      ]
+</span><span>    }
+</span><span>  ]
+</span><span>}
+</span></code></pre>
+</details>
+</li>
+</ul>
+<p>In a real-world scenario, you might have many more applications using your library, and your data types could have numerous fields requiring customization. With the original design of Serde, achieving this deep level of customization across nested data types would be quite challenging. Typically, a type like <code>EncryptedMessage</code> would have a single, fixed <code>Serialize</code> implementation. Even Serde’s powerful <a href="https://serde.rs/remote-derive.html">remote derive</a> feature would require defining ad-hoc serialization for every data type involved.</p>
+<h2 id="wiring-of-serializer-components"><a class="zola-anchor" href="#wiring-of-serializer-components" aria-label="Anchor link for: wiring-of-serializer-components">Wiring of serializer components</a></h2>
+<p>With <code>cgp-serde</code>, it is straightforward to define custom application contexts that can deeply customize how each field in our data structures is serialized. For instance, we can define an <code>AppA</code> context for Application A like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>AppA;
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppA {
+</span><span>        ValueSerializerComponent:
+</span><span>            UseDelegate&lt;new SerializerComponentsA </span><span style="color:#ff3333;">{
+</span><span>                &lt;</span><span style="color:#569cd6;">&#39;a</span><span>, T&gt; </span><span style="color:#569cd6;">&amp;&#39;a</span><span> T:
+</span><span>                    SerializeDeref,
+</span><span>                [
+</span><span>                    </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>                    String,
+</span><span>                ]:
+</span><span>                    UseSerde,
+</span><span>                Vec&lt;</span><span style="color:#569cd6;">u8</span><span>&gt;:
+</span><span>                    SerializeHex,
+</span><span>                DateTime&lt;Utc&gt;:
+</span><span>                    SerializeRfc3339Date,
+</span><span>                [
+</span><span>                    Vec&lt;EncryptedMessage&gt;,
+</span><span>                    Vec&lt;MessagesByTopic&gt;,
+</span><span>                ]:
+</span><span>                    SerializeIterator,
+</span><span>                [
+</span><span>                    MessagesArchive,
+</span><span>                    MessagesByTopic,
+</span><span>                    EncryptedMessage,
+</span><span>                ]:
+</span><span>                    SerializeFields,
+</span><span>            }&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In the code above, we use the <code>delegate_components!</code> macro to create effective <strong>type-level lookup tables</strong> that configure the specific provider implementations used by <code>AppA</code>. The <strong>component key</strong>, <code>ValueSerializerComponent</code>, tells the compiler that we are configuring the provider for the <code>CanSerializeValue</code> trait within <code>AppA</code>.</p>
+<p>The value assigned to this entry is <code>UseDelegate</code>, followed by an <em>inner</em> table named <code>SerializerComponentsA</code>. This inner table is used for <strong>static dispatch</strong> of the provider implementation based on the <code>Value</code> type being serialized. For example, the key <code>Vec&lt;u8&gt;</code> is mapped to the value <code>SerializeHex</code>, indicating that the <code>SerializeHex</code> provider is used whenever <code>Vec&lt;u8&gt;</code> needs to be serialized.</p>
+<p>The <code>delegate_components!</code> macro also includes shorthands for mapping multiple keys to the same value. For instance, both <code>u64</code> and <code>String</code> are dispatched to the generic <code>UseSerde</code> provider, which is neatly grouped using an array syntax. We can also set <strong>generic keys</strong> in the table, such as mapping all <code>&amp;'a T</code> references to the <code>SerializeDeref</code> provider.</p>
+<p>We will cover more details about the mechanics of this type-level lookup table in later sections. For now, let us look at how we implement <code>AppB</code> to perform the serialization required for Application B:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>AppB;
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppB {
+</span><span>        ValueSerializerComponent:
+</span><span>            UseDelegate&lt;new SerializerComponentsB </span><span style="color:#ff3333;">{
+</span><span>                &lt;</span><span style="color:#569cd6;">&#39;a</span><span>, T&gt; </span><span style="color:#569cd6;">&amp;&#39;a</span><span> T:
+</span><span>                    SerializeDeref,
+</span><span>                [
+</span><span>                    </span><span style="color:#569cd6;">i64</span><span>,
+</span><span>                    </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>                    String,
+</span><span>                ]:
+</span><span>                    UseSerde,
+</span><span>                Vec&lt;</span><span style="color:#569cd6;">u8</span><span>&gt;:
+</span><span>                    SerializeBase64,
+</span><span>                DateTime&lt;Utc&gt;:
+</span><span>                    SerializeTimestamp,
+</span><span>                [
+</span><span>                    Vec&lt;EncryptedMessage&gt;,
+</span><span>                    Vec&lt;MessagesByTopic&gt;,
+</span><span>                ]:
+</span><span>                    SerializeIterator,
+</span><span>                [
+</span><span>                    MessagesArchive,
+</span><span>                    MessagesByTopic,
+</span><span>                    EncryptedMessage,
+</span><span>                ]:
+</span><span>                    SerializeFields,
+</span><span>            }&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>If we meticulously compare the <code>delegate_components!</code> entries in both <code>AppA</code> and <code>AppB</code>, we discover that the only substantive differences are in the following entries:</p>
+<ul>
+<li>The serialization for <code>Vec&lt;u8&gt;</code> is handled by <code>SerializeHex</code> in <code>AppA</code>, but is switched to <code>SerializeBase64</code> in <code>AppB</code>.</li>
+<li>The serialization for <code>DateTime&lt;Utc&gt;</code> is handled by <code>SerializeRfc3339Date</code> in <code>AppA</code>, but is replaced by <code>SerializeTimestamp</code> in <code>AppB</code>.</li>
+<li>An additional serialization entry for <code>i64</code> is included for <code>AppB</code> to specifically handle the serialization of Unix timestamps in <code>i64</code> format.</li>
+</ul>
+<p>As we can clearly observe, changing the serialization format only required a <strong>few lines of configuration changes</strong> in the wiring. This dramatically demonstrates the flexibility of CGP to make application implementations highly configurable and easily adaptable.</p>
+<p>In practice, there are further CGP patterns available for <code>AppA</code> and <code>AppB</code> to share their <em>common</em> <code>delegate_components!</code> entries through a powerful <strong>preset</strong> mechanism. However, we will omit those details here for brevity.</p>
+<h2 id="serialization-with-serde-json"><a class="zola-anchor" href="#serialization-with-serde-json" aria-label="Anchor link for: serialization-with-serde-json">Serialization with <code>serde_json</code></a></h2>
+<p>A key feature of <code>cgp-serde</code> is its continued <strong>backward compatibility</strong> with the existing Serde ecosystem. This means we can effortlessly reuse established libraries like <code>serde_json</code> to serialize our encrypted message archive payloads into JSON.</p>
+<p>However, since <code>serde_json</code> strictly operates on types that implement the original <code>Serialize</code> trait, <code>cgp-serde</code> provides the <code>SerializeWithContext</code> wrapper. This wrapper wraps the value to be serialized together with the application context, providing a context-aware implementation of <code>Serialize</code>. Using it, we can serialize our data to JSON like this:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> app_a = AppA { </span><span style="color:#569cd6;">... </span><span>};
+</span><span style="color:#569cd6;">let</span><span> archive = MessagesArchive { </span><span style="color:#569cd6;">... </span><span>};
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> serialized_a = serde_json::to_string(
+</span><span>    </span><span style="color:#569cd6;">&amp;</span><span>SerializeWithContext::new(</span><span style="color:#569cd6;">&amp;</span><span>app_a, </span><span style="color:#569cd6;">&amp;</span><span>archive)
+</span><span>).unwrap()
+</span></code></pre>
+<p>We first use <code>SerializeWithContext::new</code> to wrap the application context and the target value together. We then pass this wrapper to <code>serde_json::to_string</code>, which accepts <code>SerializeWithContext</code> because it provides a wrapped <code>Serialize</code> implementation.</p>
+<p>Similarly, we can generate the entirely different JSON output simply by using <code>AppB</code> as the application context:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> app_b = AppB { </span><span style="color:#569cd6;">... </span><span>};
+</span><span>
+</span><span style="color:#569cd6;">let</span><span> serialized_b = serde_json::to_string(
+</span><span>    </span><span style="color:#569cd6;">&amp;</span><span>SerializeWithContext::new(</span><span style="color:#569cd6;">&amp;</span><span>app_b, </span><span style="color:#569cd6;">&amp;</span><span>archive)
+</span><span>).unwrap()
+</span></code></pre>
+<p>As illustrated, <code>cgp-serde</code> makes it remarkably easy to customize the serialization of <em>any</em> field, regardless of how deeply it is nested within other data types. By merely changing the application context, we are able to generate JSON output in fundamentally different formats with minimal effort.</p>
+<h2 id="derive-free-serialization-with-derive-cgpdata"><a class="zola-anchor" href="#derive-free-serialization-with-derive-cgpdata" aria-label="Anchor link for: derive-free-serialization-with-derive-cgpdata">Derive-free serialization with <code>#[derive(CgpData)]</code></a></h2>
+<p>Beyond the deep customization we have just explored, another critical feature to highlight is that there is virtually no need to use derive macros to generate any serialization-specific implementation for custom data types. If you look back at the definition of types like <code>EncryptedMessage</code>, you will notice that it only uses the general <code>#[derive(CgpData)]</code> macro provided by the base CGP library.</p>
+<p>Behind the scenes, <code>#[derive(CgpData)]</code> generates the necessary support traits for <a href="https://contextgeneric.dev/blog/extensible-datatypes-part-1/">extensible data types</a>, which enables our data types to naturally work with CGP traits like <code>CanSerializeValue</code> without requiring library-specific derivation. This is made possible, because CGP enables <code>cgp-serde</code> to implement a generic <code>SerializeFields</code> provider that can work with any struct that derives <code>CgpData</code>, without being restricted by the overlapping constraints.</p>
+<p>This mechanism shows how <code>cgp-serde</code> fundamentally solves the orphan implementation problem: it avoids requiring library authors to derive library-specific implementations on their data types at all. For instance, our encrypted messaging library does not even need to include <code>cgp-serde</code> or <code>serde</code> as a dependency. As long as the library uses the base <code>cgp</code> crate to derive <code>CgpData</code>, we can serialize its data types using the <code>SerializeFields</code> provider.</p>
+<p>Furthermore, the use of extensible data types applies not only to the traits in <code>cgp-serde</code>. A general derivation of <code>CgpData</code> will automatically enable the library’s data types to work with <em>other</em> CGP traits in the same way they work with <code>cgp-serde</code>. Because of this universal applicability, CGP can shield library authors from endless external requests to apply derive macros for every popular trait on their data types, simply to work around the archaic orphan rules in Rust.</p>
+<h2 id="full-example"><a class="zola-anchor" href="#full-example" aria-label="Anchor link for: full-example">Full Example</a></h2>
+<p>The complete working example of this customized serialization is available on <a href="https://github.com/contextgeneric/cgp-serde/blob/main/crates/cgp-serde-tests/src/tests/messages.rs">GitHub</a>.</p>
+<hr />
+<h1 id="capabilities-enabled-deserialization-demo"><a class="zola-anchor" href="#capabilities-enabled-deserialization-demo" aria-label="Anchor link for: capabilities-enabled-deserialization-demo">Capabilities-Enabled Deserialization Demo</a></h1>
+<p>Now that we have demonstrated how <code>cgp-serde</code> enables highly modular serialization, let us turn our attention to how it unlocks new use cases for deserialization. Specifically, we will show how <code>cgp-serde</code> enables the use case explained in the <a href="https://tmandry.gitlab.io/blog/posts/2021-12-21-context-capabilities/"><strong>context and capabilities</strong></a> proposal. We will demonstrate implementing a deserializer for the borrowed type <code>&amp;'a T</code> using an arena allocator that is retrieved via <strong>dependency injection</strong> from the context itself.</p>
+<h2 id="coordinate-arena"><a class="zola-anchor" href="#coordinate-arena" aria-label="Anchor link for: coordinate-arena">Coordinate Arena</a></h2>
+<p>To illustrate the use of an arena deserializer, let us devise an example application: storing a massive quantity of 3D coordinates, perhaps for rendering complex 3D graphics. We can define our basic coordinate structure as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>Coord {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>x: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>y: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>z: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>}
+</span></code></pre>
+<p>In this demo, the <code>Coord</code> struct is minimal, but imagine its actual size is much larger. If we were to use <code>Box&lt;Coord&gt;</code> to allocate every coordinate on the heap, the frequent calls to <code>Box::new(coord)</code> could lead to severe memory pressure and fragmentation. Instead, we want to employ an <a href="https://manishearth.github.io/blog/2021/03/15/arenas-in-rust/"><strong>arena allocator</strong></a> to allocate all coordinates into a single, fixed memory region. This setup allows all coordinates to be easily deallocated with a single operation when the function scope exits.</p>
+<p>When using arena allocators, our base coordinate value will be <code>&amp;'a Coord</code>, a borrowed type with a specific lifetime. We can then store these borrowed coordinates in other data structures, such as a cluster:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>Cluster&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>id: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>coords: Vec&lt;</span><span style="color:#569cd6;">&amp;&#39;a</span><span> Coord&gt;,
+</span><span>}
+</span></code></pre>
+<p>With our data structures defined, a major challenge emerges: how do we deserialize a cluster of coordinates from a format like JSON and ensure the coordinates are allocated using a custom arena allocator provided by us?</p>
+<h2 id="arena-deserializer"><a class="zola-anchor" href="#arena-deserializer" aria-label="Anchor link for: arena-deserializer">Arena Deserializer</a></h2>
+<p>To tackle the arena allocator use case, we will utilize the popular <a href="https://docs.rs/typed-arena/latest/typed_arena/"><code>typed-arena</code></a> crate, specifically leveraging its <a href="https://docs.rs/typed-arena/latest/typed_arena/struct.Arena.html"><code>Arena</code></a> type for memory allocation.</p>
+<p>First, we define an <em>auto getter</em> trait to retrieve an <code>Arena</code> from our context:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasArena&lt;&#39;a, T: &#39;a&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>arena(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;&amp;&#39;a </span><span>Arena&lt;T&gt;;
+</span><span>}
+</span></code></pre>
+<p>The <code>HasArena</code> trait is automatically implemented for any <code>Context</code> type, provided it derives <code>HasField</code> and contains an <code>arena</code> field of the type <code>&amp;'a Arena&lt;T&gt;</code>. The nested reference (<code>&amp;&amp;'a</code>) is required here, since <code>#[cgp_auto_getter]</code> by default returns a reference to a field value in the context, but our field value itself is an explicit reference <code>&amp;'a Arena&lt;T&gt;</code>.</p>
+<p>Next, we leverage <code>HasArena</code> to retrieve the arena allocator from a generic context within our <code>ValueDeserializer</code> implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(new DeserializeAndAllocate)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;</span><span style="color:#569cd6;">&#39;de</span><span>, </span><span style="color:#569cd6;">&#39;a</span><span>, Context, Value&gt; ValueDeserializer&lt;</span><span style="color:#569cd6;">&#39;de</span><span>, </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Value&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasArena&lt;</span><span style="color:#569cd6;">&#39;a</span><span>, Value&gt; + CanDeserializeValue&lt;</span><span style="color:#569cd6;">&#39;de</span><span>, Value&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>deserialize&lt;D&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, deserializer: D) -&gt; Result&lt;</span><span style="color:#569cd6;">&amp;&#39;a</span><span> Value, </span><span style="color:#569cd6;">D::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        D: serde::Deserializer&lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt;,
+</span><span>    {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> owned_value = self.deserialize(deserializer)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>        </span><span style="color:#569cd6;">let</span><span> borrowed_value = self.arena().alloc(owned_value);
+</span><span>
+</span><span>        Ok(borrowed_value)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>We define a new provider, <code>DeserializeAndAllocate</code>, which implements <code>ValueDeserializer</code> specifically for the borrowed <code>&amp;'a Value</code> type. To support this, it requires the <code>Context</code> to implement <code>HasArena&lt;'a, Value&gt;</code> to get the allocator <code>&amp;'a Arena</code>. Additionally, it also requires <code>Context</code> to implement <code>CanDeserializeValue</code> for the <em>owned</em> <code>Value</code> type, to perform the initial deserialization on the stack before moving it into the arena.</p>
+<p>Inside the method body, we first use the context to deserialize an owned version of the value on the stack. We then call <code>self.arena()</code> to retrieve the arena allocator and use its <code>alloc</code> method to move and allocate the value onto the arena.</p>
+<p>As you can see, with the generalized dependency injection capability provided by CGP, we are able to retrieve any necessary value or type from the context during deserialization. This effectively allows us to emulate the <code>with</code> clause in the seminal <a href="https://tmandry.gitlab.io/blog/posts/2021-12-21-context-capabilities/">Context and Capabilities</a> proposal and provide any required capability during the deserialization process.</p>
+<h2 id="deserialization-context"><a class="zola-anchor" href="#deserialization-context" aria-label="Anchor link for: deserialization-context">Deserialization Context</a></h2>
+<p>Using <code>cgp-serde</code>, defining a deserializer context that includes an arena allocator is refreshingly straightforward. We begin by defining the context structure as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>App&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>arena: </span><span style="color:#569cd6;">&amp;&#39;a </span><span>Arena&lt;Coord&gt;,
+</span><span>}
+</span></code></pre>
+<p>Our <code>App</code> context is explicitly parameterized by a lifetime <code>'a</code>. It contains an <code>arena</code> field that holds a reference to an <a href="https://docs.rs/typed-arena/latest/typed_arena/struct.Arena.html"><code>Arena</code></a> that lives for the duration of <code>'a</code>, and is specialized for the object type <code>Coord</code>.</p>
+<p>The explicit lifetime <code>'a</code> is necessary here because the <code>alloc</code> method returns a <code>&amp;'a Coord</code> value that shares this same lifetime. By being explicit, we accurately inform the Rust compiler that the allocated coordinates will live exactly as long as <code>'a</code>, which may outlive <code>App</code> itself.</p>
+<p>We also derive <code>HasField</code> on <code>App</code>, which enables <code>App</code> to automatically implement <code>HasArena&lt;'a, Coord&gt;</code>. This is made possible, because the <code>arena</code> field in <code>App</code> matches the format expected by the blanket implementation generated by <code>#[cgp_auto_getter]</code>.</p>
+<p>With the <code>App</code> context defined, let us examine the component wiring for the <code>ValueDeserializer</code> providers:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    &lt;</span><span style="color:#569cd6;">&#39;s</span><span>&gt; App&lt;</span><span style="color:#569cd6;">&#39;s</span><span>&gt; {
+</span><span>        ValueDeserializerComponent:
+</span><span>            UseDelegate&lt;new DeserializeComponents </span><span style="color:#ff3333;">{
+</span><span>                </span><span style="color:#569cd6;">u64</span><span>: UseSerde,
+</span><span>                [
+</span><span>                    Coord,
+</span><span>                    &lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; Cluster&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt;,
+</span><span>                ]:
+</span><span>                    DeserializeRecordFields,
+</span><span>                &lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Coord:
+</span><span>                    DeserializeAndAllocate,
+</span><span>                &lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; Vec&lt;</span><span style="color:#569cd6;">&amp;&#39;a</span><span> Coord&gt;:
+</span><span>                    DeserializeExtend,
+</span><span>            }&gt;,
+</span><span>        ErrorTypeProviderComponent:
+</span><span>            UseAnyhowError,
+</span><span>        ErrorRaiserComponent:
+</span><span>            RaiseAnyhowError,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Similar to the serialization lookup tables, here we are configuring the <code>ValueDeserializer</code> providers for <code>App</code> via the <code>ValueDeserializerComponent</code> key and the <code>UseDelegate</code> dispatcher. Notice that this table contains several keys with generic lifetimes, <code>&lt;'a&gt;</code>, reflecting the use of structs with explicit lifetimes.</p>
+<p>As evident in the table, for the value types <code>Coord</code> and <code>Cluster&lt;'a&gt;</code>, we use a special provider called <code>DeserializeRecordFields</code> to deserialize the structs using the <strong>extensible data types</strong> facility derived from <code>#[derive(CgpData)]</code>. Crucially, for <code>&amp;'a Coord</code>, we select the <code>DeserializeAndAllocate</code> provider we defined earlier.</p>
+<h2 id="error-handling"><a class="zola-anchor" href="#error-handling" aria-label="Anchor link for: error-handling">Error Handling</a></h2>
+<p>Besides the <code>ValueDeserializerComponent</code>, our <code>App</code> context is also configured with <strong>error handling</strong> components provided by CGP. This is essential because we plan to use <code>serde_json</code> to deserialize the value, which may naturally return errors.</p>
+<p>For simplicity, we choose to use the <code>cgp-error-anyhow</code> crate to handle errors using the highly flexible <a href="https://crates.io/crates/anyhow"><code>anyhow</code></a> crate. In the entry for <code>ErrorTypeProviderComponent</code>, we use the <code>UseAnyhowError</code> provider to select the type <a href="https://docs.rs/anyhow/latest/anyhow/struct.Error.html"><code>anyhow::Error</code></a> as the primary error type for <code>App</code>.</p>
+<p>Subsequently, in the entry for <code>ErrorRaiserComponent</code>, we use <code>RaiseAnyhowError</code> to correctly promote source errors, like <a href="https://docs.rs/serde_json/latest/serde_json/struct.Error.html"><code>serde_json::Error</code></a>, into <code>anyhow::Error</code> using its standard <code>From</code> implementation.</p>
+<p>This clearly demonstrates the flexibility afforded by CGP in error handling: the concrete error type is chosen by the application context, and it can also customize how each source error is gracefully handled.</p>
+<h2 id="deserializing-json"><a class="zola-anchor" href="#deserializing-json" aria-label="Anchor link for: deserializing-json">Deserializing JSON</a></h2>
+<p>Now that the component wiring for <code>App</code> is complete, let us attempt to use <code>serde_json</code> to deserialize a JSON string. First, we create a mock JSON string representing a cluster of coordinates:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> serialized = </span><span style="color:#569cd6;">r</span><span style="color:#d69d85;">#&quot;
+</span><span style="color:#d69d85;">{
+</span><span style="color:#d69d85;">    &quot;id&quot;: 8,
+</span><span style="color:#d69d85;">    &quot;coords&quot;: [
+</span><span style="color:#d69d85;">        { &quot;x&quot;: 1, &quot;y&quot;: 2, &quot;z&quot;: 3 },
+</span><span style="color:#d69d85;">        { &quot;x&quot;: 4, &quot;y&quot;: 5, &quot;z&quot;: 6 }
+</span><span style="color:#d69d85;">    ]
+</span><span style="color:#d69d85;">}
+</span><span style="color:#d69d85;">&quot;#</span><span>;
+</span></code></pre>
+<p>Next, we instantiate our arena and the application context:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> arena = Arena::new();
+</span><span style="color:#569cd6;">let</span><span> app = App { arena: </span><span style="color:#569cd6;">&amp;</span><span>arena };
+</span></code></pre>
+<p>In the case of deserialization, there is a minor complication: we cannot directly use the simple <a href="https://docs.rs/serde_json/latest/serde_json/fn.from_str.html"><code>serde_json::from_str</code></a> with our <code>App</code> context. This is because unlike serialization, <code>serde_json::from_str</code> doesn't accept additional parameters that we can use to "pass" around the <code>app</code> value. Instead, <code>cgp-serde</code> works with the lower-level <a href="https://docs.rs/serde_json/latest/serde_json/de/struct.Deserializer.html"><code>Deserializer</code></a> implementation in <code>serde_json</code>, allowing us to pass <code>serde_json</code>'s deserializer directly to the <code>CanDeserializeValue::deserialize</code> method, together with the <code>app</code> context.</p>
+<p>Fortunately, these low-level implementation details are neatly abstracted away by <code>cgp-serde</code>, and all we need to do is call the convenient <code>deserialize_json_string</code> method on our <code>App</code> context:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> deserialized: Cluster&lt;&#39;</span><span style="color:#569cd6;">_</span><span>&gt; = app
+</span><span>    .deserialize_json_string(</span><span style="color:#569cd6;">&amp;</span><span>serialized)
+</span><span>    .unwrap();
+</span></code></pre>
+<p>As we can see, we have successfully utilized the custom arena allocator provided by our <code>App</code> context to perform the deserialization, resulting in a borrowed <code>Cluster</code> where the coordinates live in the arena.</p>
+<h2 id="full-example-1"><a class="zola-anchor" href="#full-example-1" aria-label="Anchor link for: full-example-1">Full Example</a></h2>
+<p>The full working example of the arena allocator deserialization is available on <a href="https://github.com/contextgeneric/cgp-serde/blob/main/crates/cgp-serde-tests/src/tests/arena_simplified.rs">GitHub</a>.</p>
+<hr />
+<h1 id="implementation-details"><a class="zola-anchor" href="#implementation-details" aria-label="Anchor link for: implementation-details">Implementation Details</a></h1>
+<p>In this section, we will delve into the underlying implementation details of CGP that make the impressive level of modularity in <code>cgp-serde</code> possible. For audiences who are new to Context-Generic Programming, this is your chance to quickly grasp the essential concepts of CGP required to confidently use <code>cgp-serde</code>.</p>
+<h2 id="provider-traits-1"><a class="zola-anchor" href="#provider-traits-1" aria-label="Anchor link for: provider-traits-1">Provider Traits</a></h2>
+<p>When the <code>#[cgp_component]</code> macro is applied to a consumer trait, such as <code>CanSerializeValue</code>, it automatically generates a companion <strong>provider trait</strong> called <code>ValueSerializer</code>. This generated trait looks like the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>ValueSerializer&lt;Context, Value: ?Sized&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(
+</span><span>        context: </span><span style="color:#569cd6;">&amp;</span><span>Context,
+</span><span>        value: </span><span style="color:#569cd6;">&amp;</span><span>Value,
+</span><span>        serializer: S,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: serde::Serializer;
+</span><span>}
+</span></code></pre>
+<p>Compared to the consumer trait <code>CanSerializeValue</code>, the provider trait <code>ValueSerializer</code> shifts the original <code>Self</code> type into a new <code>Context</code> generic parameter. Consequently, all references to <code>self</code> and <code>Self</code> are appropriately replaced with <code>context</code> and <code>Context</code>. The <code>Self</code> type in a provider trait is instead used as the <strong>provider name</strong>, which are the unique, dummy structs - like <code>UseSerde</code> or <code>SerializeHex</code> - that are defined and owned by the library module. This is the core trick: CGP circumvents Rust’s coherence restrictions by guaranteeing that we always own a unique provider type when implementing a provider trait.</p>
+<h2 id="desugaring-of-cgp-impl"><a class="zola-anchor" href="#desugaring-of-cgp-impl" aria-label="Anchor link for: desugaring-of-cgp-impl">Desugaring of <code>#[cgp_impl]</code></a></h2>
+<p>The ability to define overlapping provider implementations, such as <code>UseSerde</code> and <code>SerializeWithDisplay</code>, is achieved through the clever use of the <code>ValueSerializer</code> provider trait. While these implementations look like forbidden blanket implementations, a provider implementation like <code>SerializeWithDisplay</code> is actually <strong>desugared</strong> by the <code>#[cgp_impl]</code> macro into this form:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context, Value&gt; ValueSerializer&lt;Context, Value&gt; </span><span style="color:#569cd6;">for </span><span>SerializeWithDisplay
+</span><span style="color:#569cd6;">where
+</span><span>    Context: CanSerializeValue&lt;String&gt;,
+</span><span>    Value: Display,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(
+</span><span>        context: </span><span style="color:#569cd6;">&amp;</span><span>Context,
+</span><span>        value: </span><span style="color:#569cd6;">&amp;</span><span>Value,
+</span><span>        serializer: S,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: Serializer,
+</span><span>    {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> str_value = value.to_string();
+</span><span>        context.serialize(</span><span style="color:#569cd6;">&amp;</span><span>str_value, serializer)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As clearly shown, <code>#[cgp_impl]</code> shifts the <code>Context</code> parameter away from the <code>Self</code> position to become the first generic parameter of <code>ValueSerializer</code>. The <code>Self</code> type for the implementation instead becomes <code>SerializeWithDisplay</code>, the unique dummy struct that we defined. Because the implementing library owns <code>SerializeWithDisplay</code>, the Rust compiler permits the trait implementation even if it is otherwise overlapping on the <code>Context</code> and <code>Value</code> types. This is the central mechanism that allows CGP to define both overlapping and orphan implementations. Next, we will examine how these provider implementations are statically <em>wired</em> to a concrete application context.</p>
+<h2 id="type-level-lookup-tables"><a class="zola-anchor" href="#type-level-lookup-tables" aria-label="Anchor link for: type-level-lookup-tables">Type-Level Lookup Tables</a></h2>
+<p>In the <a href="https://www.contextgeneric.dev/blog/cgp-serde-release/#wiring-of-serializer-components">serialization example</a> for <code>AppA</code>, when the <code>delegate_components!</code> macro is invoked, it is conceptually equivalent to building a <strong>type-level lookup table</strong> for that context. This table effectively configures the dispatch mechanism at compile time:</p>
+<table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>
+<tr><td><code>ValueSerializerComponent</code></td><td><code>UseDelegate&lt;SerializerComponentsA&gt;</code></td></tr>
+</tbody></table>
+<p>In the example, the type-level table for <code>AppA</code> only contains one entry, with <code>ValueSerializerComponent</code> as the key. This entry is used by the <code>CanSerializeValue</code> trait to look up for the provider implementation.</p>
+<p>In the entry value, the use of the <code>new SerializerComponentsA { ... }</code> constructs an <strong>inner table</strong>, <code>SerializerComponentsA</code>, which holds further mapping of providers based on the serialization value type:</p>
+<table><thead><tr><th>Name</th><th>Value</th></tr></thead><tbody>
+<tr><td><code>&amp;'a T</code></td><td><code>SerializeDeref</code></td></tr>
+<tr><td><code>u64</code></td><td><code>UseSerde</code></td></tr>
+<tr><td><code>String</code></td><td><code>UseSerde</code></td></tr>
+<tr><td><code>Vec&lt;u8&gt;</code></td><td><code>SerializeHex</code></td></tr>
+<tr><td><code>DateTime&lt;Utc&gt;</code></td><td><code>SerializeRfc3339Date</code></td></tr>
+<tr><td><code>Vec&lt;EncryptedMessage&gt;</code></td><td><code>SerializeIterator</code></td></tr>
+<tr><td><code>Vec&lt;MessagesByTopic&gt;</code></td><td><code>SerializeIterator</code></td></tr>
+<tr><td><code>MessagesArchive</code></td><td><code>SerializeFields</code></td></tr>
+<tr><td><code>MessagesByTopic</code></td><td><code>SerializeFields</code></td></tr>
+<tr><td><code>EncryptedMessage</code></td><td><code>SerializeFields</code></td></tr>
+</tbody></table>
+<p>This table is passed as the <code>SerializerComponentsA</code> type to <code>UseDelegate</code>, which performs the actual dispatch based on the value type.</p>
+<p>When the trait system must look up an implementation, such as for serializing <code>Vec&lt;EncryptedMessage&gt;</code>, it follows a precise, recursive path:</p>
+<ul>
+<li>The system begins by checking if <code>AppA</code> implements <code>CanSerializeValue&lt;Vec&lt;EncryptedMessage&gt;&gt;</code>. This requires looking up the <code>ValueSerializerComponent</code> key in the <code>AppA</code> table.</li>
+<li><code>AppA</code>'s table returns <code>UseDelegate&lt;SerializerComponentsA&gt;</code>. This value must now implement <code>ValueSerializer&lt;AppA, Vec&lt;EncryptedMessage&gt;&gt;</code>.</li>
+<li><code>UseDelegate</code> implements <code>ValueSerializer</code> by performing a secondary lookup on the <code>SerializerComponentsA</code> table, using <code>Vec&lt;EncryptedMessage&gt;</code> as the key.</li>
+<li><code>SerializerComponentsA</code> returns the value <code>SerializeIterator</code>. This means <code>SerializeIterator</code> must now implement <code>ValueSerializer&lt;AppA, Vec&lt;EncryptedMessage&gt;&gt;</code>.</li>
+<li>For <code>SerializeIterator</code> to satisfy this requirement, it requests a new constraint: that <code>AppA</code> must implement <code>CanSerializeValue&lt;EncryptedMessage&gt;</code>.</li>
+<li>The entire lookup process is repeated from the beginning for the inner type, <code>EncryptedMessage</code>, until it eventually points to the concrete provider <code>SerializeFields</code>.</li>
+</ul>
+<p>This table lookup process, while seem complicated, works conceptually similarly to how <a href="https://en.wikipedia.org/wiki/Virtual_method_table">vtable lookups</a> are performed for <a href="https://www.youtube.com/watch?v=pNA-XAIrDTk"><code>dyn</code> traits in Rust</a> and in object-oriented languages like Java. The fundamental difference, and a major selling point, is that CGP’s lookup tables are fully implemented at the <strong>type level</strong>. This means the tables are resolved entirely at compile time, resulting in <strong>zero runtime overhead</strong>.</p>
+<h2 id="implementation-of-lookup-tables"><a class="zola-anchor" href="#implementation-of-lookup-tables" aria-label="Anchor link for: implementation-of-lookup-tables">Implementation of Lookup Tables</a></h2>
+<p>Behind the scenes, the <code>delegate_components!</code> macro constructs these type-level lookup tables using the <code>DelegateComponent</code> trait, which is defined by the base <code>cgp</code> crate as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>DelegateComponent&lt;Name: ?Sized&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Delegate</span><span>;
+</span><span>}
+</span></code></pre>
+<p>In essence, <code>DelegateComponent</code> allows any type to serve as a table. By implementing the trait, we effectively set a "value" (<code>Delegate</code>) for a specific "key" (<code>Name</code>) in that table. For instance, the <code>ValueSerializerComponent</code> entry in <code>AppA</code> is set through this implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>DelegateComponent&lt;ValueSerializerComponent&gt; </span><span style="color:#569cd6;">for </span><span>AppA {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Delegate </span><span>= UseDelegate&lt;SerializerComponentsA&gt;;
+</span><span>}
+</span></code></pre>
+<p>Similarly, the <code>Vec&lt;EncryptedMessage&gt;</code> entry in the <code>SerializerComponentsA</code> table is defined through the following implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>DelegateComponent&lt;Vec&lt;EncryptedMessage&gt;&gt; </span><span style="color:#569cd6;">for </span><span>SerializerComponentsA {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Delegate </span><span>= SerializeIterator;
+</span><span>}
+</span></code></pre>
+<p>CGP then generates essential <strong>blanket implementations</strong> on the consumer and provider traits. These implementations utilize the <code>DelegateComponent</code> entries to resolve the correct provider implementation at compile time.</p>
+<p>For example, the initial lookup mechanism for the consumer trait <code>CanSerializeValue</code> is implemented via this blanket implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context, Value: </span><span style="color:#ff3333;">?</span><span>Sized&gt; CanSerializeValue&lt;Value&gt; for Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: DelegateComponent&lt;ValueSerializerComponent&gt;,
+</span><span>    </span><span style="color:#569cd6;">Context::</span><span>Delegate: ValueSerializer&lt;Context, Value&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: serde::Serializer,
+</span><span>    {
+</span><span>        Context::Delegate::serialize(self, value, serializer)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The consumer trait <code>CanSerializeValue</code> is thus implemented for a context like <code>AppA</code> if <code>AppA</code> contains a lookup table entry where <code>ValueSerializerComponent</code> is the key and the resulting <code>Delegate</code> "value" successfully implements <code>ValueSerializer</code>.</p>
+<p>Similarly, a blanket implementation is generated for <code>ValueSerializer</code> as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(Provider)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Value: </span><span style="color:#ff3333;">?</span><span>Sized, Provider&gt; ValueSerializer&lt;Value&gt; for Context
+</span><span style="color:#569cd6;">where
+</span><span>    Provider: DelegateComponent&lt;ValueSerializerComponent&gt;,
+</span><span>    </span><span style="color:#569cd6;">Provider::</span><span>Delegate: ValueSerializer&lt;Context, Value&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: serde::Serializer,
+</span><span>    {
+</span><span>        Provider::Delegate::serialize(self, value, serializer)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The blanket implementation above looks almost identical as before, except that the delegation lookup is done on the <code>Provider</code> type. This essentially allows a provider to delegate its provider implementation to <em>another</em> provider.</p>
+<p>Following that, the special provider <code>UseDelegate</code> has the following blanket implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_impl(UseDelegate&lt;Components&gt;)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Value&gt; ValueSerializer&lt;Value&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Components: DelegateComponent&lt;Value&gt;,
+</span><span>    </span><span style="color:#569cd6;">Components::</span><span>Delegate: ValueSerializer&lt;Context, Value&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: serde::Serializer,
+</span><span>    {
+</span><span>        Components::Delegate::serialize(self, value, serializer)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This implementation shows that <code>UseDelegate</code> uses the <code>Value</code> type as the lookup "key" in a given components table, such as <code>SerializerComponentsA</code>.</p>
+<p>If we carefully compare the three versions of the blanket implementations, we would observe that the key differences lie in which type is used as the type-level lookup table, and which type is used as the key for the lookup.</p>
+<hr />
+<h1 id="future-work"><a class="zola-anchor" href="#future-work" aria-label="Anchor link for: future-work">Future Work</a></h1>
+<p>The initial release of <code>cgp-serde</code> serves as a compelling proof of concept, demonstrating how CGP can be used to solve the coherence problem in Rust. While you can certainly begin experimenting with <code>cgp-serde</code> today for modular serialization in your applications, there are still a few rough edges that need polishing before it reaches the quality level suitable for mission-critical production use.</p>
+<p>This section highlights the areas we plan to address, and what you might want to wait for before fully committing to <code>cgp-serde</code> for your main projects.</p>
+<h2 id="serialization-providers-for-extensible-variants"><a class="zola-anchor" href="#serialization-providers-for-extensible-variants" aria-label="Anchor link for: serialization-providers-for-extensible-variants">Serialization providers for extensible variants</a></h2>
+<p>Currently, <code>cgp-serde</code> has implemented providers like <code>SerializeFields</code> and <code>DeserializeRecordFields</code> to enable datatype-generic serialization for any struct that uses <code>#[derive(CgpData)]</code>. This decoupling of serialization logic from data type definitions is key to reducing the derive bloat caused by orphan rule restrictions.</p>
+<p>However, the equivalent providers for Rust <em>enums</em> and <em>extensible variants</em> have not yet been implemented. This means that you cannot currently use the modular serialization features of <code>cgp-serde</code> to serialize enum types in your application. This limitation is purely due to time constraints; I was unable to dedicate enough time to finish the implementation for extensible variants before this initial release.</p>
+<h2 id="helpers-for-json-deserialization"><a class="zola-anchor" href="#helpers-for-json-deserialization" aria-label="Anchor link for: helpers-for-json-deserialization">Helpers for JSON deserialization</a></h2>
+<p>At the moment, <code>cgp-serde</code> only provides the <code>deserialize_json_string</code> helper method to deserialize a JSON string using a context. Crucially, I have not yet implemented other common helper methods, such as <code>from_slice</code> and <code>from_value</code>. If you need the functionality equivalent to these methods, you would currently have to study the internals of <code>deserialize_json_string</code> and write your own deserialization wrappers.</p>
+<p>The need for additional wrappers during deserialization arises because functions like <code>serde_json::from_str</code> do not accept any argument where we can "pass" around the deserialization context. Therefore we must explicitly work around this by constructing library-specific deserializers like <a href="https://docs.rs/serde_json/latest/serde_json/struct.Deserializer.html"><code>serde_json::Deserializer</code></a> and then passing it along with the context to the <code>CanDeserializeValue::deserialize</code> method.</p>
+<p>Fortunately, library functions like <code>serde::from_str</code> are generally lightweight wrappers around library-specific deserializers. This makes re-creating similar, easy-to-use helpers for <code>cgp-serde</code> a relatively straightforward task. The challenge here is simply a matter of time: I need to properly survey the common deserialization methods used in the wild and aim to support as many as possible. On the plus side, these wrapper implementations are low-hanging fruit and represent simple tasks for newcomers to contribute to the project. If you are interested in helping, please do submit a <a href="https://github.com/contextgeneric/cgp-serde/pulls">pull request</a>!</p>
+<h2 id="helpers-for-other-serialization-formats"><a class="zola-anchor" href="#helpers-for-other-serialization-formats" aria-label="Anchor link for: helpers-for-other-serialization-formats">Helpers for other serialization formats</a></h2>
+<p>Just as custom deserialization wrappers are required for <code>serde_json</code>, we will likely need similar wrappers for other popular serialization formats, such as <a href="https://docs.rs/toml/latest/toml/"><code>toml</code></a>.</p>
+<p>In principle, serialization <em>from</em> <code>cgp-serde</code> should work almost immediately. If you use the <code>SerializeWithContext</code> wrapper with any serialization format, it should, theoretically, integrate seamlessly. However, this has not yet been thoroughly tested, so more verification is required. Assuming serialization works out of the box, the main task needed to support other formats will be implementing deserialization wrappers similar to what we have done for <code>serde_json</code>.</p>
+<h2 id="documentation"><a class="zola-anchor" href="#documentation" aria-label="Anchor link for: documentation">Documentation</a></h2>
+<p>A significant area for improvement is documentation. Both CGP and <code>cgp-serde</code> are currently severely lacking in comprehensive documentation. To make <code>cgp-serde</code> truly usable for the broader community, we will need to write far more documentation and tutorials explaining how to effectively use it for modular serialization.</p>
+<p>With my time being extremely limited, I will likely only prioritize documenting <code>cgp-serde</code> over further developing CGP if there is real, demonstrable demand from developers wanting to use it for their applications. While I strongly believe the modular serialization provided by <code>cgp-serde</code> will be incredibly useful, my experience with developing CGP suggests that the community may not yet fully grasp or care about modular serialization as much as I do. Therefore, if the use cases presented by <code>cgp-serde</code> are important to you, please communicate your feedback so I can properly prioritize my development efforts!</p>
+<h2 id="performance-benchmark"><a class="zola-anchor" href="#performance-benchmark" aria-label="Anchor link for: performance-benchmark">Performance benchmark</a></h2>
+<p>Since <code>cgp-serde</code> exclusively employs static dispatch, I am highly confident that the serialization performance should align closely with the original <code>serde</code> implementation. However, I have not yet had the time to conduct a proper benchmark, so we currently lack concrete evidence of <code>cgp-serde</code>'s performance characteristics.</p>
+<p>In addition to validation, there are potential optimizations that could further boost <code>cgp-serde</code>'s speed. Once proper benchmarking is done, I can apply targeted optimizations if any performance bottlenecks are clearly identified.</p>
+<p>The primary point of contention in benchmarking will likely be the serialization and deserialization performance of struct fields. This is because <code>cgp-serde</code> uses extensible data types to provide a <strong>generic</strong> implementation of serialize and deserialize for any struct. In contrast, <code>serde</code> uses derive macros to generate <strong>specific</strong> implementations of <code>Serialize</code> and <code>Deserialize</code> tailored to each struct. The critical question, then, is whether our generic implementation can run as fast as the macro-generated, highly specific implementations.</p>
+<p>There are a few reasons why the macro-generated implementation by <code>serde</code> might be faster, particularly during deserialization. <code>serde</code> generates a <code>match</code> statement on <em>string literals</em> to determine which field it needs to deserialize. Conversely, <code>cgp-serde</code> must perform a sequential string comparison of an incoming field key against each field's string tag and then choose the correct branch if a match is found. The Rust compiler can likely generate much more efficient, string-based pattern matching for <code>serde</code>.</p>
+<p>We can only confirm if this gap exists by conducting a proper benchmark, specifically comparing scenarios like deserializing structs with many fields or fields with similar prefixes, to see if <code>cgp-serde</code>'s performance significantly worsens. If the performance difference is substantial, I will dedicate time to optimizing it. But if the difference is negligible, the current implementation is likely good enough.</p>
+<p>One potential optimization I have considered is building a similar fast string matching table lazily using <code>LazyLock</code> when the first deserialization call occurs. We would need to build this table at runtime because our generic code can only inspect one field at a time, making it impossible to generate the same multi-string-literal <code>match</code> statement as a macro.</p>
+<p>In any case, if you are interested in benchmarking or optimizing <code>cgp-serde</code>, your contributions to the project are highly welcome!</p>
+<hr />
+<h1 id="conclusion"><a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">Conclusion</a></h1>
+<p>In this article, we have provided a comprehensive preview of the powerful modular serialization features unlocked by <code>cgp-serde</code>. The most exciting part of this entire design is that almost nothing in <code>cgp-serde</code> is specifically engineered just for Serde or for serialization. Instead, everything you have learned here — from custom overlapping implementations to capabilities-enabled deserialization — is a direct result of the general design patterns offered by Context-Generic Programming for building any kind of application or library. This means you can easily take the same patterns used in <code>cgp-serde</code> and re-apply them to other traits and challenges within your own projects.</p>
+<p>If this deep dive has piqued your interest in learning more about the fundamental concepts of CGP, please be sure to check out our <a href="/">project homepage</a>. In particular, we encourage you to read our articles on how CGP can be used to solve the famous <a href="https://en.wikipedia.org/wiki/Expression_problem"><strong>Expression Problem</strong></a> and how it enables the use of <a href="/blog/extensible-datatypes-part-1/"><strong>extensible records and variants</strong></a> in stable Rust. You can also explore how CGP is utilized to implement <a href="/blog/hypershell-release/"><strong>type-level DSLs</strong></a>, using shell scripting as a practical example domain-specific language.</p>
+<p>CGP is still in the early stages of development, so keep a close eye on the project's updates and progress. We are just getting started on redefining modularity in Rust!</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

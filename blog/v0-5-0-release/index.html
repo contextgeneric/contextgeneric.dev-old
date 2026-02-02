@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CGP v0.5.0 Release - Auto dispatchers, extensible datatype improvements, monadic computation, RTN emulation, modular serde, and more | Context-Generic Programming</title>
+    <meta property="og:title" content="CGP v0.5.0 Release - Auto dispatchers, extensible datatype improvements, monadic computation, RTN emulation, modular serde, and more | Context-Generic Programming" />
+    <meta property="og:description" content="">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="CGP v0.5.0 Release - Auto dispatchers, extensible datatype improvements, monadic computation, RTN emulation, modular serde, and more | Context-Generic Programming">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#overview">Overview</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#new-features">New Features</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#derive-cgpdata-macro"><small>- #[derive(CgpData)] Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#cgp-auto-dispatch-macro"><small>- #[cgp_auto_dispatch] Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#updatefield-trait"><small>- UpdateField Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#finalize-extensible-builder-with-default-values"><small>- Finalize extensible builder with default values</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#extensible-builder-with-optional-field-status"><small>- Extensible builder with optional field status</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#extensible-visitor-dispatchers"><small>- Extensible visitor dispatchers</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#asynccomputer-trait"><small>- AsyncComputer Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#monadic-computation-pipeline"><small>- Monadic computation pipeline</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#generate-static-str-from-symbols"><small>- Generate &amp;&#x27;static str from symbols</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#breaking-changes">Breaking Changes</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#removal-of-async-and-send-bounds-for-async-constructs"><small>- Removal of Async and Send bounds for async constructs</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#desugaring-of-symbols"><small>- Desugaring of Symbols!</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#reorganize-exports-in-cgp-field"><small>- Reorganize exports in cgp-field</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#add-partial-prefix-to-derived-partial-data-types"><small>- Add __Partial prefix to derived partial data types</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#add-code-parameter-to-canrun"><small>- Add Code parameter to CanRun</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#removal-of-hasinner-trait"><small>- Removal of HasInner trait</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#improvements">Improvements</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#allow-non-self-argument-in-getter-methods"><small>- Allow non-self argument in getter methods</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#support-use-of-lifetime-parameters-inside-cgp-traits"><small>- Support use of lifetime parameters inside CGP traits</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#shortcut-for-overriding-provider-names-in-cgp-type-and-cgp-getter"><small>- Shortcut for overriding provider names in #[cgp_type] and #[cgp_getter]</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#bug-fixes">Bug Fixes</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#fix-use-of-new-in-delegate-components-when-keys-array-is-used"><small>- Fix use of new in delegate_components! when keys array is used</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#other-updates">Other Updates</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#rustlab-presentation"><small>- RustLab Presentation</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#cgp-serde"><small>- cgp-serde</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-5-0-release/#acknowledgement">Acknowledgement</a>
+                </div>
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">CGP v0.5.0 Release - Auto dispatchers, extensible datatype improvements, monadic computation, RTN emulation, modular serde, and more</div>
+<div style="text-align: right;"><i>Posted on 2025-10-12</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><h1 id="overview"><a class="zola-anchor" href="#overview" aria-label="Anchor link for: overview">Overview</a></h1>
+<p><a href="https://crates.io/crates/cgp/0.5.0">CGP v0.5.0</a> has been released, bringing a range of new features and some breaking changes as part of the ongoing effort toward stabilization. This version introduces several improvements to make CGP more practical, expressive, and easier to use in real-world Rust projects.</p>
+<p>The highlights of this major release are summarized below. Also check out the <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.5.0">changelog</a> for the full list of changes.</p>
+<hr />
+<h1 id="new-features"><a class="zola-anchor" href="#new-features" aria-label="Anchor link for: new-features">New Features</a></h1>
+<h2 id="derive-cgpdata-macro"><a class="zola-anchor" href="#derive-cgpdata-macro" aria-label="Anchor link for: derive-cgpdata-macro"><code>#[derive(CgpData)]</code> Macro</a></h2>
+<p>The new <code>#[derive(CgpData)]</code> macro provides a unified way to turn any struct or enum into an extensible data type.</p>
+<p>For example, given:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>age: </span><span style="color:#569cd6;">u8</span><span>,
+</span><span>}
+</span><span>
+</span><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub enum </span><span>User {
+</span><span>    Known(Person),
+</span><span>    Anonymous(</span><span style="color:#569cd6;">u64</span><span>),
+</span><span>}
+</span></code></pre>
+<p>This macro automatically derives all the extensible data traits for you, including <code>HasField</code>, <code>FromVariant</code>, <code>HasFields</code>, <code>BuildField</code>, and <code>ExtractField</code>.</p>
+<p>Before v0.5.0, you had to derive these traits separately, as shown below:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasField, HasFields, BuildField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>age: </span><span style="color:#569cd6;">u8</span><span>,
+</span><span>}
+</span><span>
+</span><span>#[derive(FromVariant, HasFields, ExtractField)]
+</span><span style="color:#569cd6;">pub enum </span><span>User {
+</span><span>    Known(Person),
+</span><span>    Anonymous(</span><span style="color:#569cd6;">u64</span><span>),
+</span><span>}
+</span></code></pre>
+<p>With <code>#[derive(CgpData)]</code>, the process is now simpler, cleaner, and less tedious.</p>
+<h2 id="cgp-auto-dispatch-macro"><a class="zola-anchor" href="#cgp-auto-dispatch-macro" aria-label="Anchor link for: cgp-auto-dispatch-macro"><code>#[cgp_auto_dispatch]</code> Macro</a></h2>
+<p>The new <code>#[cgp_auto_dispatch]</code> macro allows automatic dispatch of trait implementations for enums when all their variants implement the same trait.</p>
+<p>Consider the following example with a <code>Shape</code> enum:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub enum </span><span>Shape {
+</span><span>    Circle(Circle),
+</span><span>    Rectangle(Rectangle),
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">pub struct </span><span>Circle {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>radius: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">pub struct </span><span>Rectangle {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>width: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>height: </span><span style="color:#569cd6;">f64</span><span>,
+</span><span>}
+</span></code></pre>
+<p>Suppose we want to define a trait <code>HasArea</code> for computing the area of shapes. We can define and implement it as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_auto_dispatch]
+</span><span style="color:#569cd6;">pub trait </span><span>HasArea {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasArea </span><span style="color:#569cd6;">for </span><span>Circle {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        </span><span style="color:#b4cea8;">PI </span><span>* self.radius * self.radius
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasArea </span><span style="color:#569cd6;">for </span><span>Rectangle {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>area(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">f64 </span><span>{
+</span><span>        self.width * self.height
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>With this setup, <code>HasArea</code> is now automatically implemented for <code>Shape</code> without the need to manually write any additional <code>impl</code> blocks.</p>
+<p>Behind the scenes, the <code>#[cgp_auto_dispatch]</code> macro generates a blanket implementation of <code>HasArea</code> using <a href="/blog/extensible-datatypes-part-4/">extensible visitors</a> to dispatch calls to the appropriate variant. Because <code>Shape</code> uses <code>#[derive(CgpData)]</code>, it already includes the extensible variant constructs needed for the blanket implementation.</p>
+<p>An important detail is that <code>#[derive(CgpData)]</code> and <code>#[cgp_auto_dispatch]</code> work seamlessly across crate boundaries. The trait and the enum do not need to know about each other for the blanket implementation to take effect. Everything just works.</p>
+<p>A deeper explanation of how <code>#[cgp_auto_dispatch]</code> operates will be covered in a future blog post. For now, you can experiment with it directly in your projects. Even if you are not yet using the rest of CGP, this macro can simplify your code right away.</p>
+<h2 id="updatefield-trait"><a class="zola-anchor" href="#updatefield-trait" aria-label="Anchor link for: updatefield-trait"><code>UpdateField</code> Trait</a></h2>
+<p>A new <code>UpdateField</code> trait has been introduced to generalize the process of updating extensible records:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>UpdateField&lt;Tag, M: MapType&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Mapper</span><span>: MapType;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>update_field(
+</span><span>        self,
+</span><span>        _tag: PhantomData&lt;Tag&gt;,
+</span><span>        value: </span><span style="color:#569cd6;">M::</span><span>Map&lt;</span><span style="color:#569cd6;">Self::</span><span>Value&gt;,
+</span><span>    ) -&gt; (&lt;</span><span style="color:#569cd6;">Self::</span><span>Mapper </span><span style="color:#569cd6;">as</span><span> MapType&gt;::Map&lt;</span><span style="color:#569cd6;">Self::</span><span>Value&gt;, </span><span style="color:#569cd6;">Self::</span><span>Output);
+</span><span>}
+</span></code></pre>
+<p>The <code>UpdateField</code> trait allows you to replace a <em>wrapped</em> value within a partial record with another wrapped value. It is automatically derived by <code>#[derive(CgpData)]</code>, which means that field update operations can rely on <code>UpdateField</code> without requiring any manual derivation.</p>
+<p>For instance, the <a href="/blog/extensible-datatypes-part-3/#buildfield-trait"><code>BuildField</code></a> trait is now implemented as a blanket implementation that builds upon <code>UpdateField</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>BuildField&lt;Tag&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_field(self, _tag: PhantomData&lt;Tag&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Tag&gt; BuildField&lt;Tag&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: UpdateField&lt;Tag, IsPresent, Mapper = IsNothing&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= Context::Value;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output </span><span>= Context::Output;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>build_field(self, tag: PhantomData&lt;Tag&gt;, value: </span><span style="color:#569cd6;">Self::</span><span>Value) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output {
+</span><span>        self.update_field(tag, value).</span><span style="color:#b5cea8;">1
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>In essence, <code>BuildField</code> is implemented by transforming a field that is initially <code>IsNothing</code> in a partial record into an <code>IsPresent</code> field, using <code>UpdateField</code> as the underlying mechanism.</p>
+<h2 id="finalize-extensible-builder-with-default-values"><a class="zola-anchor" href="#finalize-extensible-builder-with-default-values" aria-label="Anchor link for: finalize-extensible-builder-with-default-values">Finalize extensible builder with default values</a></h2>
+<p>The <a href="/blog/extensible-datatypes-part-1/">extensible builder pattern</a> now supports finalizing a partial record by filling in any uninitialized fields using their <code>Default</code> values. This functionality is provided by the new <code>finalize_with_default</code> method.</p>
+<p>For example, consider the following extensible record:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>FooBar {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>foo: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>bar: </span><span style="color:#569cd6;">u64</span><span>,
+</span><span>}
+</span></code></pre>
+<p>You can now construct a <code>FooBar</code> instance while letting the <code>bar</code> field fall back to its default value of <code>0</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> foo_bar = FooBar::builder() </span><span style="color:#608b4e;">// __PartialFooBar&lt;IsNothing, IsNothing&gt;
+</span><span>    .build_field(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;foo&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;foo&quot;</span><span>.to_owned()) </span><span style="color:#608b4e;">// __PartialFooBar&lt;IsPresent, IsNothing&gt;
+</span><span>    .finalize_with_default(); </span><span style="color:#608b4e;">// FooBar
+</span></code></pre>
+<p>Behind the scene, <code>finalize_with_default</code> works by using the <code>UpdateField</code> trait to perform a <em>natural transformation</em> on each field modifier. It applies the <code>Default</code> implementation to convert <code>IsNothing</code> fields into <code>IsPresent</code>, completing the record automatically.</p>
+<h2 id="extensible-builder-with-optional-field-status"><a class="zola-anchor" href="#extensible-builder-with-optional-field-status" aria-label="Anchor link for: extensible-builder-with-optional-field-status">Extensible builder with optional field status</a></h2>
+<p>The original design of the extensible builder uses the <strong>typestate pattern</strong> to track whether each field in a partial record has been set. In this pattern, <code>IsPresent</code> indicates that a field has been assigned a value, while <code>IsNothing</code> indicates that it has not.</p>
+<p>Although this approach provides strong compile-time guarantees, it also means that each state of the partial record has a distinct type. For example, <code>__PartialFooBar&lt;IsPresent, IsNothing&gt;</code> and <code>__PartialFooBar&lt;IsNothing, IsPresent&gt;</code> are considered different types. This can be inconvenient in scenarios where the builder needs to maintain a single type throughout the build process, such as when dynamically deserializing JSON data into a partial record.</p>
+<p>To address this limitation, a new <code>IsOptional</code> field state has been introduced. It allows a partial record to retain the same type even as fields are updated. This is achieved by mapping field values to <code>Option</code>, so that the status of each field is determined at runtime. Using this approach, a partial record like <code>__PartialFooBar&lt;IsOptional, IsOptional&gt;</code> can serve as an optional builder.</p>
+<p>You can create and use an optional builder with the <code>optional_builder</code>, <code>set</code>, and <code>finalize_optional</code> methods as shown below:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> foo_bar = FooBar::optional_builder() </span><span style="color:#608b4e;">// __PartialFooBar&lt;IsOptional, IsOptional&gt;
+</span><span>    .set(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;foo&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;foo&quot;</span><span>.to_owned()) </span><span style="color:#608b4e;">// __PartialFooBar&lt;IsOptional, IsOptional&gt;
+</span><span>    .set(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;bar&quot;</span><span>)&gt;, </span><span style="color:#b5cea8;">42</span><span>) </span><span style="color:#608b4e;">// __PartialFooBar&lt;IsOptional, IsOptional&gt;
+</span><span>    .finalize_optional() </span><span style="color:#608b4e;">// Result&lt;FooBar, String&gt;
+</span><span>    .unwrap() </span><span style="color:#608b4e;">// FooBar
+</span></code></pre>
+<p>Unlike the original typestate builder, the type of the builder remains <code>__PartialFooBar&lt;IsOptional, IsOptional&gt;</code> after each call to <code>set</code>. The <code>finalize_optional</code> method returns a <code>Result</code>, producing an error if any field contains a <code>None</code> value. This check is necessary because, without the typestate guarantees, the compiler cannot ensure at compile time that all fields are initialized.</p>
+<p>You can also use the optional builder with <code>finalize_with_default</code> if all fields in the extensible record implement <code>Default</code>. In that case, you can safely finalize the record without handling a potential error:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">let</span><span> foo_bar = FooBar::optional_builder() </span><span style="color:#608b4e;">// __PartialFooBar&lt;IsOptional, IsOptional&gt;
+</span><span>    .set(PhantomData::&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;foo&quot;</span><span>)&gt;, </span><span style="color:#d69d85;">&quot;foo&quot;</span><span>.to_owned()) </span><span style="color:#608b4e;">// __PartialFooBar&lt;IsOptional, IsOptional&gt;
+</span><span>    .finalize_with_default(); </span><span style="color:#608b4e;">// FooBar
+</span></code></pre>
+<p>The optional builder is used by <a href="https://github.com/contextgeneric/cgp-serde/blob/46ff47fce3aa3e57700340a05833b404b9d59ddf/crates/cgp-serde/src/providers/record.rs#L49-L65"><code>cgp-serde</code></a> to implement generic deserialization for extensible records.</p>
+<h2 id="extensible-visitor-dispatchers"><a class="zola-anchor" href="#extensible-visitor-dispatchers" aria-label="Anchor link for: extensible-visitor-dispatchers">Extensible visitor dispatchers</a></h2>
+<p>The extensible visitor providers have been redesigned to support a wider range of use cases. The library now includes the following dispatchers:</p>
+<ul>
+<li><code>MatchWithValueHandlers</code> – matches and dispatches on an owned input <code>Value</code>.</li>
+<li><code>MatchWithValueHandlersRef</code> – matches and dispatches on a borrowed input <code>&amp;Value</code>.</li>
+<li><code>MatchWithValueHandlersMut</code> – matches and dispatches on a mutably borrowed input <code>&amp;mut Value</code>.</li>
+</ul>
+<p>These dispatchers are compatible with both the owned and borrowed variants of the handler traits, such as <code>Computer</code> and <code>ComputerRef</code>. Within <code>Computer</code>, the borrowed value, including the reference, is used as the <code>Input</code> parameter. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>MatchWithValueHandlersRef: Computer&lt;Context, </span><span style="color:#569cd6;">&amp;</span><span>Value&gt;
+</span></code></pre>
+<p>and also:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>MatchWithValueHandlersRef: ComputerRef&lt;Context, Value&gt;
+</span></code></pre>
+<p>In addition, tuple variants of the matchers have been introduced to handle input values alongside additional arguments:</p>
+<ul>
+<li><code>MatchFirstWithValueHandlers</code> – matches and dispatches on an owned <code>Value</code> within an input <code>(Value, Args)</code>.</li>
+<li><code>MatchFirstWithValueHandlersRef</code> – matches and dispatches on a borrowed <code>&amp;Value</code> within an input <code>(&amp;Value, Args)</code>.</li>
+<li><code>MatchFirstWithValueHandlersMut</code> – matches and dispatches on a mutably borrowed <code>&amp;mut Value</code> within an input <code>(&amp;mut Value, Args)</code>.</li>
+</ul>
+<p>These matchers are designed to support the implementation of <code>#[cgp_auto_dispatch]</code>, enabling extra arguments to be passed through the dispatchers without being directly matched on. They can also be used in advanced extensible visitor scenarios where additional arguments need to be forwarded to the visitors.</p>
+<p>It is important to note that the handlers do not implement the reference variants of the handler traits. For instance:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>MatchFirstWithValueHandlersRef: Computer&lt;Context, (</span><span style="color:#569cd6;">&amp;</span><span>Value, Args)&gt;
+</span></code></pre>
+<p>is implemented, but <strong>not</strong>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>MatchFirstWithValueHandlersRef: ComputerRef&lt;Context, (Value, Args)&gt;
+</span></code></pre>
+<p>This is because <code>ComputerRef</code> converts the entire input type into a reference, making it difficult to pass an owned value within <code>Args</code>.</p>
+<p>This distinction highlights that the <code>Computer</code> trait is more flexible than <code>ComputerRef</code>, since it can work with borrowed values as input types. By contrast, <code>ComputerRef</code> is simpler for developers who are new to the framework, as it allows working with borrowed values without needing to understand higher-ranked trait bounds. For more advanced use cases that involve extra arguments, it is generally more straightforward to use <code>Computer</code> directly rather than extending <code>ComputerRef</code> to accommodate those patterns.</p>
+<p>Internally, all dispatchers share the same core abstraction that powers extensible visitors. This means the library does not reimplement the same logic multiple times for each of the six dispatchers. It also allows advanced users to build on these abstractions to define custom dispatchers for specialized use cases.</p>
+<p>For a detailed explanation of how these dispatchers are implemented, see the section on <a href="/blog/extensible-datatypes-part-4/#implementation-of-visitor-dispatcher">extensible visitors</a>. Additional blog posts will follow to explore these extended features in greater depth.</p>
+<h2 id="asynccomputer-trait"><a class="zola-anchor" href="#asynccomputer-trait" aria-label="Anchor link for: asynccomputer-trait"><code>AsyncComputer</code> Trait</a></h2>
+<p>A new <code>AsyncComputer</code> trait has been introduced as the asynchronous counterpart to <code>Computer</code>. It is defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: AsyncComputer,
+</span><span>    derive_delegate: [
+</span><span>        UseDelegate&lt;Code&gt;,
+</span><span>        UseInputDelegate&lt;Input&gt;,
+</span><span>    ],
+</span><span>}]
+</span><span>#[async_trait]
+</span><span style="color:#569cd6;">pub trait </span><span>CanComputeAsync&lt;Code, Input&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>compute_async(</span><span style="color:#569cd6;">&amp;</span><span>self, _code: PhantomData&lt;Code&gt;, input: Input) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span></code></pre>
+<p>The <code>AsyncComputer</code> trait is more general than <code>Handler</code> because it does not require the function to return a <code>Result</code>. This design creates a clearer symmetry between the synchronous and asynchronous variants of the computation traits: <code>AsyncComputer</code> serves as the async version of <code>Computer</code>, while <code>Handler</code> serves as the async version of <code>TryComputer</code>.</p>
+<p>With this addition, abstractions such as extensible visitors and monadic computations now implement their asynchronous logic using <code>AsyncComputer</code> rather than <code>Handler</code>. The same promotion pattern used in the synchronous counterparts is then applied to lift these implementations to <code>TryComputer</code> and <code>Handler</code>, maintaining consistency across both sync and async components.</p>
+<h2 id="monadic-computation-pipeline"><a class="zola-anchor" href="#monadic-computation-pipeline" aria-label="Anchor link for: monadic-computation-pipeline">Monadic computation pipeline</a></h2>
+<p>The <code>cgp-monad</code> crate has been introduced to provide foundational support for monadic computation. This functionality simplifies the implementation of <a href="/blog/extensible-datatypes-part-4/#what-is-a-monad">extensible visitors</a> by introducing a structured yet flexible way to handle composable computations.</p>
+<p>Unlike the standard definition of monads in languages such as Haskell, the monadic implementation in CGP is <em>retroactive</em>. This means that existing Rust types like <code>Result</code> and <code>Option</code> can be treated as monads without requiring direct trait implementations on those types.</p>
+<p>For example, instead of defining a monad as a higher-kinded type, CGP allows the extraction of inner value types from a monadic type using a monadic provider:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>ContainsValue&lt;Output&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;T, E&gt; ContainsValue&lt;Result&lt;T, E&gt;&gt; </span><span style="color:#569cd6;">for </span><span>ErrMonadic {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Value </span><span>= T;
+</span><span>}
+</span></code></pre>
+<p>In this example, the <code>ContainsValue</code> trait matches on an <code>Output</code> type and yields its underlying <code>Value</code> type. The <code>ErrMonadic</code> provider implements <code>ContainsValue</code> by extracting the value type <code>T</code> from a <code>Result&lt;T, E&gt;</code>.</p>
+<p>Instead of relying on the standard monadic <code>bind</code> operation, CGP introduces a <em>lifting</em> mechanism that wraps the input of a <code>Computer</code> provider:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context, Code, T1, T2, E, M, Cont&gt; Computer&lt;Context, Code, Result&lt;T1, E&gt;&gt; </span><span style="color:#569cd6;">for </span><span>BindErr&lt;M, Cont&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Cont: Computer&lt;Context, Code, T1&gt;,
+</span><span>    M: ContainsValue&lt;</span><span style="color:#569cd6;">Cont::</span><span>Output, Value = Result&lt;T2, E&gt;&gt; + ...,
+</span><span>{ </span><span style="color:#569cd6;">... </span><span>}
+</span></code></pre>
+<p>In this case, the provider <code>BindErr&lt;ErrMonadic, Cont&gt;</code> wraps a provider <code>Cont</code> that implements <code>Computer</code> with an input type of <code>T1</code> and an output type of <code>Result&lt;T2, E&gt;</code>. It transforms it into a <code>Computer</code> provider that accepts <code>Result&lt;T1, E&gt;</code> as input and produces <code>Result&lt;T2, E&gt;</code> as output.</p>
+<p>Conceptually, this corresponds to the following Haskell signature:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>bind :: (a -&gt; m b) -&gt; m a -&gt; m b
+</span></code></pre>
+<p>which reverses the argument order of the standard bind operator <code>(&gt;&gt;=)</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>(&gt;&gt;=) :: m a -&gt; (a -&gt; m b) -&gt; m b
+</span></code></pre>
+<p>By reversing the argument order, CGP effectively turns the bind operator into a higher-order function that <em>lifts</em> monadic functions, allowing them to be composed afterward through ordinary function composition.</p>
+<p>At present, CGP’s monadic implementation requires separate bind implementations for synchronous and asynchronous computations. This limitation exists because stable Rust does not yet support <a href="https://rust-lang.github.io/impl-trait-initiative/explainer/tait.html">impl trait in type aliases</a>, which prevents us to name anonymous <code>impl Future</code> as the <code>Output</code> type in <code>Computer</code>. Once this feature becomes stable, CGP will be able to extend monadic support to opaque types behind <code>impl Trait</code>, including <code>Future</code>, <code>Stream</code>, and <code>Iterator</code>.</p>
+<p>A complete introduction to monadic computation within CGP deserves its own dedicated article. For now, the key takeaway is that CGP v0.5.0 establishes a foundational monadic layer that enables the development of more advanced abstractions, such as those seen in extensible visitors, and paves the way for future extensions of the framework.</p>
+<h2 id="generate-static-str-from-symbols"><a class="zola-anchor" href="#generate-static-str-from-symbols" aria-label="Anchor link for: generate-static-str-from-symbols">Generate <code>&amp;'static str</code> from symbols</a></h2>
+<p>The type produced by the <code>Symbol!</code> macro can now generically produce a <code>&amp;'static str</code> value that can be used within generic code. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">const </span><span style="color:#b4cea8;">HELLO</span><span>: </span><span style="color:#569cd6;">&amp;&#39;static str </span><span>= &lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;hello&quot;</span><span>) </span><span style="color:#569cd6;">as</span><span> StaticString&gt;::</span><span style="color:#b4cea8;">VALUE</span><span>;
+</span></code></pre>
+<p>This functionality is provided through the <code>StaticString</code> trait along with a blanket implementation, defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>StaticString {
+</span><span>    </span><span style="color:#569cd6;">const </span><span style="color:#b4cea8;">VALUE</span><span>: </span><span style="color:#569cd6;">&amp;&#39;static str</span><span>;
+</span><span>}
+</span></code></pre>
+<p>This represents a major breakthrough, as it allows actual <code>&amp;'static str</code> values to be “passed” as types through generic parameters by encapsulating them in CGP symbol types, without requiring ad hoc implementations to be written.</p>
+<p>Internally, a symbol such as <code>Symbol!("abc")</code> is expanded into:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>ψ&lt;3, ζ&lt;&#39;a&#39;, ζ&lt;&#39;b&#39;, ζ&lt;&#39;c&#39;, ε&gt;&gt;&gt;&gt;
+</span></code></pre>
+<p>or, in a more human-readable form:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Symbol&lt;3, Chars&lt;&#39;a&#39;, Chars&lt;&#39;b&#39;, Chars&lt;&#39;c&#39;, Nil&gt;&gt;&gt;&gt;
+</span></code></pre>
+<p>The value <code>3</code> in the first position represents the length of the symbol. This metadata is generated by the <code>Symbol!</code> macro starting from v0.5.0, enabling the reconstruction of the corresponding <code>&amp;'static str</code> value during const evaluation.</p>
+<p>This approach is necessary because, without it, full const generics support would be required to “count” the number of characters in a type, which is not yet available in stable Rust. By precomputing the length inside the <code>Symbol!</code> macro, it becomes possible to construct an array of the correct size and iterate within const evaluation to recreate the string value.</p>
+<p>The ability to produce static strings is particularly valuable in generic code that needs to pass <code>&amp;str</code> values to other functions, such as in <a href="https://github.com/contextgeneric/cgp-serde/blob/d7a08cf99f3a741e6eb16ae58f61af5fb5e5253c/crates/cgp-serde/src/providers/fields.rs#L33-L59"><code>cgp-serde</code></a>. Without this feature, a new <code>String</code> value would have to be reconstructed every time a function is called, which would significantly impact the performance of using symbols as string values.</p>
+<hr />
+<h1 id="breaking-changes"><a class="zola-anchor" href="#breaking-changes" aria-label="Anchor link for: breaking-changes">Breaking Changes</a></h1>
+<p>Alongside the new features, v0.5.0 introduces several breaking changes. These updates are part of the ongoing effort to prepare for eventual v1 stabilization, ensuring that any necessary breaking changes are made early rather than later.</p>
+<h2 id="removal-of-async-and-send-bounds-for-async-constructs"><a class="zola-anchor" href="#removal-of-async-and-send-bounds-for-async-constructs" aria-label="Anchor link for: removal-of-async-and-send-bounds-for-async-constructs">Removal of <code>Async</code> and <code>Send</code> bounds for async constructs</a></h2>
+<p>The most significant breaking change in this release is the removal of the <code>Async</code> trait, which was previously defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>Async: Send + Sync {}
+</span><span style="color:#569cd6;">impl</span><span>&lt;T: Send </span><span style="color:#569cd6;">+ </span><span>Sync&gt; Async </span><span style="color:#569cd6;">for </span><span>T {}
+</span></code></pre>
+<p>In earlier versions of CGP, the <code>Async</code> trait served as an alias for <code>Send + Sync</code>. It was used in trait bounds for abstract types and generic parameters to ensure that the <code>Future</code> returned by generic async functions could implement <code>Send</code>. This requirement is common in functions such as <a href="https://docs.rs/tokio/latest/tokio/task/fn.spawn.html"><code>tokio::spawn</code></a>, and it has traditionally been one of the main reasons Rust developers annotate <code>Send + Sync</code> throughout their code.</p>
+<p>In order to support Send-able futures, CGP code used to be full of boilerplate of the use of Async. It also makes it more complicated to support both async and sync use cases in CGP.</p>
+<p>Prior to v0.5.0, CGP’s codebase relied heavily on <code>Async</code> bounds to helps ensure that generic async functions can be called within <code>tokio::spawn</code>, but it also introduced considerable boilerplate. It also made it cumbersome for CGP to support both synchronous and asynchronous use cases, requiring traits such as <code>HasAsyncErrorType</code> to act as aliases for <code>HasErrorType&lt;Error: Async&gt; + Async</code>. Maintaining both async and sync versions of similar traits was necessary so that non-async users could instantiate abstract types like <code>Error</code> with values that were not <code>Send</code>.</p>
+<p>To improve ergonomics around <code>Send</code>-able futures, the Rust compiler team has been developing <a href="https://github.com/rust-lang/rust/issues/109417">Return Type Notation (RTN)</a>. RTN will allow developers to impose the <code>Send</code> bound on a <code>Future</code> retroactively, at the point where it is actually needed, such as when passing it to <code>tokio::spawn</code>. With RTN, async code using CGP could avoid the need for pervasive <code>Send + Sync</code> annotations.</p>
+<p>However, RTN does not appear to be close to stabilization. As a result, CGP originally planned to keep the <code>Async</code> constructs for compatibility in the short term. The good news is that an alternative approach has been found to retroactively add the <code>Send</code> bound to futures <em>without</em> relying on RTN. This allows CGP to simplify its design and remove the redundant <code>Async</code> abstractions entirely, while still maintaining compatibility with common async workflows.</p>
+<h3 id="emulating-rtn"><a class="zola-anchor" href="#emulating-rtn" aria-label="Anchor link for: emulating-rtn">Emulating RTN</a></h3>
+<p>The key idea is to introduce a second proxy trait that provides the same method as the original, but with the returned <code>Future</code> implementing <code>Send</code>. This proxy trait must be implemented manually by a concrete context, outside of CGP, but the implementation can forward to the original trait, which can still be implemented using CGP.</p>
+<p>A complete example demonstrating the use of <code>tokio::spawn</code> is available <a href="https://github.com/contextgeneric/cgp/blob/a4878587d221af141bc238fb34e08e373239b4d3/crates/cgp-tests/src/tests/async/spawn.rs">here</a> and <a href="https://github.com/contextgeneric/cgp-examples/blob/4469aa38fce125c0c50f2bf05ac5502f820076e7/transfer/src/contexts/app.rs#L125-L133">here</a>. The example uses the <code>CanRun</code> trait, defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(Runner)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanRun: HasErrorType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>run(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; impl Future&lt;Output = Result&lt;(), </span><span style="color:#569cd6;">Self::</span><span>Error&gt;&gt;;
+</span><span>}
+</span></code></pre>
+<p>To use <code>run</code> inside <code>tokio::spawn</code>, we define a proxy trait that adds the <code>Send</code> bound to the returned <code>Future</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(SendRunner)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanSendRun: Send + HasErrorType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>send_run(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; impl Future&lt;Output = Result&lt;(), </span><span style="color:#569cd6;">Self::</span><span>Error&gt;&gt; + Send;
+</span><span>}
+</span></code></pre>
+<p>The <code>Runner</code> trait can still be used to implement context-generic providers, so we do not need to require <code>Send</code> on generic types. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; Runner&lt;Context&gt; </span><span style="color:#569cd6;">for </span><span>RunWithFooBar
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasFooBar, </span><span style="color:#608b4e;">// don&#39;t need to require Context::FooBar:Send
+</span><span>{
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>run(</span><span style="color:#569cd6;">&amp;</span><span>self) { </span><span style="color:#569cd6;">... </span><span>}
+</span><span>}
+</span></code></pre>
+<p>If we need to call <code>CanRun</code> inside <code>tokio::spawn</code> within generic code, we can instead use <code>CanSendRun</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">fn </span><span>spawn_and_run_foo_bar&lt;
+</span><span>    Context: </span><span style="color:#569cd6;">&#39;static + </span><span>CanSendRun&lt;RunFooBar&gt;,
+</span><span>&gt;(context: Context) {
+</span><span>    tokio::spawn(async </span><span style="color:#569cd6;">move </span><span>{
+</span><span>        </span><span style="color:#569cd6;">let _ </span><span>= context.send_run(PhantomData).await;
+</span><span>    })
+</span><span>}
+</span></code></pre>
+<p>When implementing a concrete context, we delegate <code>Runner</code> to <code>RunWithFooBar</code> and manually implement <code>SendRunner</code> by forwarding to <code>Runner</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span style="color:#569cd6;">pub struct </span><span>App { ... }
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppComponents {
+</span><span>        RunnerComponent:
+</span><span>            RunWithFooBar,
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>#[cgp_provider]
+</span><span style="color:#569cd6;">impl </span><span>SendRunner&lt;App&gt; </span><span style="color:#569cd6;">for </span><span>AppComponents {
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>send_run(context: </span><span style="color:#569cd6;">&amp;</span><span>App) -&gt; Result&lt;(), Error&gt; {
+</span><span>        context.run(code).await
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>By directly implementing <code>SendRunner</code> for <code>App</code>, the trait system can access the concrete type and its associated types, allowing it to retroactively determine that the future returned by <code>run</code> implements <code>Send</code>. This effectively emulates RTN by implementing the proxy trait at the top level.</p>
+<p>Using this approach, CGP is able remove all uses of <code>Async</code> without waiting for RTN to stabilize. Meanwhile, users who need <code>Send</code>-bound futures can rely on the proxy trait technique to recover the <code>Send</code> bound through the concrete context.</p>
+<p>This hack is expected to be temporary. Once RTN is stabilized, the proxy traits can be eliminated entirely. Migrating to the proxy trait approach now is simpler than retaining <code>Async</code> long-term, and it avoids a potentially painful migration in the future if CGP becomes widely adopted.</p>
+<h3 id="migration-advice"><a class="zola-anchor" href="#migration-advice" aria-label="Anchor link for: migration-advice">Migration Advice</a></h3>
+<p>For existing codebases that still rely on <code>Async</code> and the <code>Send</code>-safe variants such as <code>HasAsyncErrorType</code>, you can copy these definitions locally to continue using them in your projects.</p>
+<p>Although CGP has removed the <code>Async</code> constructs, this does not prevent developers from enforcing <code>Send</code> bounds in their own code. The main impact is that all async traits officially defined by the <code>cgp</code> crate no longer impose a <code>Send</code> bound on the returned <code>Future</code>. If your project defines traits that require returned futures to implement <code>Send</code>, you may encounter issues when calling CGP’s async traits. In other words, the split between <code>Send</code> and non-<code>Send</code> only becomes an issue if your project aims to interop with the remaining CGP ecosystem.</p>
+<p>In the short term, the easiest way to address this is to remove all <code>Send</code> bounds of async functions in your own codebase. If that is not practical, the simplest workaround is to define your own versions of the relevant CGP traits that explicitly include <code>Send</code> in the returned <code>Future</code>.</p>
+<p>Currently, there are only a small number of async traits in CGP, such as <code>CanRun</code>, <code>CanComputeAsync</code>, and <code>CanHandle</code>. Unless your project heavily relies on these abstractions, redefining these traits locally to include <code>Send</code> should be straightforward and require minimal effort.</p>
+<h2 id="desugaring-of-symbols"><a class="zola-anchor" href="#desugaring-of-symbols" aria-label="Anchor link for: desugaring-of-symbols">Desugaring of <code>Symbols!</code></a></h2>
+<p>The <code>symbol!</code> macro has been renamed to <code>Symbol!</code> to better indicate that it desugars to a type rather than a value. In addition to the renaming, the macro now desugars to a different form.</p>
+<p>Before v0.5.0, <code>symbol!("abc")</code> desugared to:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>ι&lt;&#39;a&#39;, ι&lt;&#39;b&#39;, ι&lt;&#39;c&#39;, ε&gt;&gt;&gt;
+</span></code></pre>
+<p>Starting from v0.5.0, it desugars to:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>ψ&lt;3, ζ&lt;&#39;a&#39;, ζ&lt;&#39;b&#39;, ζ&lt;&#39;c&#39;, ε&gt;&gt;&gt;&gt;
+</span></code></pre>
+<p>The <code>ι</code> identifier has been replaced with <code>ζ</code> because using <code>ι</code> could trigger Rust’s <code>confusable_idents</code> warning if the variable <code>i</code> appears elsewhere in the code. Choosing <code>ζ</code> reduces the likelihood of such warnings.</p>
+<p>Additionally, <code>ψ</code> is added at the head of the symbol type along with the length metadata. This enables the implementation of <code>StaticString</code>, allowing the construction of a <code>&amp;'static str</code> without waiting for full const-generic support in Rust.</p>
+<p>Finally, the <code>Char</code> type, previously an alias for <code>ζ</code>, has been renamed to <code>Chars</code> to better reflect that it represents a list of characters rather than a single character.</p>
+<h2 id="reorganize-exports-in-cgp-field"><a class="zola-anchor" href="#reorganize-exports-in-cgp-field" aria-label="Anchor link for: reorganize-exports-in-cgp-field">Reorganize exports in <code>cgp-field</code></a></h2>
+<p>The <code>cgp-field</code> crate has grown significantly, so the exports have been reorganized into several submodules. For example, the <code>HasField</code> trait is now exported from <code>cgp::fields::traits::HasField</code> instead of the top-level path <code>cgp::fields::HasField</code>.</p>
+<h2 id="add-partial-prefix-to-derived-partial-data-types"><a class="zola-anchor" href="#add-partial-prefix-to-derived-partial-data-types" aria-label="Anchor link for: add-partial-prefix-to-derived-partial-data-types">Add <code>__Partial</code> prefix to derived partial data types</a></h2>
+<p>Partial data types generated by extensible data type macros now receive a <code>__Partial</code> prefix. This makes them effectively hidden and reduces the likelihood of name conflicts with user-defined structs.</p>
+<p>For example, given:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>age: </span><span style="color:#569cd6;">u8</span><span>,
+</span><span>}
+</span></code></pre>
+<p>The derived partial data type is now named <code>__PartialPerson</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>__PartialPerson&lt;F0: MapType, F1: MapType&gt; {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: F0::Map&lt;String&gt;,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>age: F1::Map&lt;</span><span style="color:#569cd6;">u8</span><span>&gt;,
+</span><span>}
+</span></code></pre>
+<p>Prior to v0.5.0, the partial type was named <code>PartialPerson</code>, which could easily conflict with a user-defined struct of the same name in the same module.</p>
+<p>This breaking change should not affect most existing code, as partial data types are not intended to be used directly by end users.</p>
+<h2 id="add-code-parameter-to-canrun"><a class="zola-anchor" href="#add-code-parameter-to-canrun" aria-label="Anchor link for: add-code-parameter-to-canrun">Add <code>Code</code> parameter to <code>CanRun</code></a></h2>
+<p>The <code>CanRun</code> trait has been updated to include a <code>Code</code> parameter:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: Runner,
+</span><span>    derive_delegate: UseDelegate&lt;Code&gt;,
+</span><span>}]
+</span><span>#[async_trait]
+</span><span style="color:#569cd6;">pub trait </span><span>CanRun&lt;Code&gt;: HasErrorType {
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>run(</span><span style="color:#569cd6;">&amp;</span><span>self, _code: PhantomData&lt;Code&gt;) -&gt; Result&lt;(), </span><span style="color:#569cd6;">Self::</span><span>Error&gt;;
+</span><span>}
+</span></code></pre>
+<p>Prior to v0.5.0, the trait was defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(Runner)]
+</span><span>#[async_trait]
+</span><span style="color:#569cd6;">pub trait </span><span>CanRun: HasErrorType {
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>run(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; Result&lt;(), </span><span style="color:#569cd6;">Self::</span><span>Error&gt;;
+</span><span>}
+</span></code></pre>
+<p>The <code>Code</code> parameter allows embedding type-level DSLs for running top-level functions, similar to how <code>Code</code> is used in <code>Computer</code> and <code>Handler</code> for DSLs like <a href="/blog/hypershell-release/">Hypershell</a>.</p>
+<p>For existing users who wish to continue using the original <code>CanRun</code> trait without migrating, you can copy the previous definition into your project and continue using it locally.</p>
+<h2 id="removal-of-hasinner-trait"><a class="zola-anchor" href="#removal-of-hasinner-trait" aria-label="Anchor link for: removal-of-hasinner-trait">Removal of <code>HasInner</code> trait</a></h2>
+<p>The <code>HasInner</code> trait has been removed, along with the <code>cgp-inner</code> crate. It was previously defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    name: InnerComponent,
+</span><span>    provider: ProvideInner,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>HasInner {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Inner</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>inner(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Inner;
+</span><span>}
+</span></code></pre>
+<p>The functionality provided by <code>HasInner</code> has largely been superseded by the <code>UseField</code> pattern, which enables more flexible composition of multiple contexts.</p>
+<p>For existing users who wish to continue using the original <code>HasInner</code> trait without migrating, you can copy its previous definition into your project and use it locally.</p>
+<h1 id="improvements"><a class="zola-anchor" href="#improvements" aria-label="Anchor link for: improvements">Improvements</a></h1>
+<p>Several improvements have been made to existing constructs in CGP. Here are some highlights.</p>
+<h2 id="allow-non-self-argument-in-getter-methods"><a class="zola-anchor" href="#allow-non-self-argument-in-getter-methods" aria-label="Anchor link for: allow-non-self-argument-in-getter-methods">Allow non-self argument in getter methods</a></h2>
+<p>It is now possible to use <code>#[cgp_getter]</code> and <code>#[cgp_auto_getter]</code> with target types other than <code>Self</code>. For example, you can now define a trait like:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasFooBar: HasFooType + HasBarType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>foo_bar(foo: </span><span style="color:#569cd6;">&amp;Self::</span><span>Foo) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Bar;
+</span><span>}
+</span></code></pre>
+<p>With this, the provider <code>UseField&lt;Symbol!("bar")&gt;</code> would implement <code>FooBarGetter&lt;Context&gt;</code> if <code>Context::Foo</code> implements <code>HasField&lt;Symbol!("bar"), Value = Context::Bar&gt;</code>.</p>
+<h2 id="support-use-of-lifetime-parameters-inside-cgp-traits"><a class="zola-anchor" href="#support-use-of-lifetime-parameters-inside-cgp-traits" aria-label="Anchor link for: support-use-of-lifetime-parameters-inside-cgp-traits">Support use of lifetime parameters inside CGP traits</a></h2>
+<p>Lifetimes can now be included inside component trait parameters. For instance, <code>cgp-serde</code> defines a component corresponding to <code>serde</code>'s <code>Deserialize</code> as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: ValueDeserializer,
+</span><span>    derive_delegate: UseDelegate&lt;Value&gt;,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanDeserializeValue&lt;&#39;de, Value&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>deserialize&lt;D&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, deserializer: D) -&gt; Result&lt;Value, </span><span style="color:#569cd6;">D::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        D: serde::Deserializer&lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt;;
+</span><span>}
+</span></code></pre>
+<p>Within the type parameters of <code>IsProviderFor</code>, the lifetime <code>'de</code> is captured as <code>Life&lt;'de&gt;</code>, which is defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>Life&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt;(pub PhantomData&lt;</span><span style="color:#569cd6;">*mut &amp;&#39;a </span><span>()&gt;);
+</span></code></pre>
+<p>Using <code>Life</code>, the lifetime can be referred to inside <code>check_components!</code>, as in the following example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>check_components! {
+</span><span>    &lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt; CanDeserializeApp </span><span style="color:#569cd6;">for</span><span> App {
+</span><span>        ValueDeserializerComponent: [
+</span><span>            (Life&lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt;, </span><span style="color:#569cd6;">u64</span><span>),
+</span><span>            (Life&lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt;, String),
+</span><span>        ]
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="shortcut-for-overriding-provider-names-in-cgp-type-and-cgp-getter"><a class="zola-anchor" href="#shortcut-for-overriding-provider-names-in-cgp-type-and-cgp-getter" aria-label="Anchor link for: shortcut-for-overriding-provider-names-in-cgp-type-and-cgp-getter">Shortcut for overriding provider names in <code>#[cgp_type]</code> and <code>#[cgp_getter]</code></a></h2>
+<p>You can now customize only the name of the provider trait in <code>#[cgp_type]</code> and <code>#[cgp_getter]</code> without using the fully qualified key-value syntax.</p>
+<p>For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_type(FooTypeProviderComponent)]
+</span><span style="color:#569cd6;">pub trait </span><span>HasFooType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Foo</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[cgp_getter(FooGettterComponent)]
+</span><span style="color:#569cd6;">pub trait </span><span>HasFoo: HasFooType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>foo(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Foo;
+</span><span>}
+</span></code></pre>
+<p>is equivalent to:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_type {
+</span><span>    provider: FooTypeProviderComponent,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>HasFooType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Foo</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[cgp_getter {
+</span><span>    provider: FooGettterComponent,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>HasFoo: HasFooType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>foo(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Foo;
+</span><span>}
+</span></code></pre>
+<hr />
+<h1 id="bug-fixes"><a class="zola-anchor" href="#bug-fixes" aria-label="Anchor link for: bug-fixes">Bug Fixes</a></h1>
+<h2 id="fix-use-of-new-in-delegate-components-when-keys-array-is-used"><a class="zola-anchor" href="#fix-use-of-new-in-delegate-components-when-keys-array-is-used" aria-label="Anchor link for: fix-use-of-new-in-delegate-components-when-keys-array-is-used">Fix use of <code>new</code> in <code>delegate_components!</code> when keys array is used</a></h2>
+<p>A bug in <code>delegate_components!</code> has been fixed that occurred when value expressions like <code>UseDelegate&lt;new InnerComponents { ... }&gt;</code> were used with multiple keys in a list.</p>
+<p>For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    MyAppComponents {
+</span><span>        [
+</span><span>            FooComponent,
+</span><span>            BarComponent,
+</span><span>        ]:
+</span><span>            UseDelegate&lt;new InnerComponents </span><span style="color:#ff3333;">{
+</span><span>                </span><span style="color:#569cd6;">u64</span><span>: HandleNumber,
+</span><span>                String: HandleString,
+</span><span>            }&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>Previously, the inner struct <code>InnerComponents</code> would be expanded twice. With this fix, <code>InnerComponents</code> is expanded only once, regardless of the number of keys in the delegate entry.</p>
+<h1 id="other-updates"><a class="zola-anchor" href="#other-updates" aria-label="Anchor link for: other-updates">Other Updates</a></h1>
+<h2 id="rustlab-presentation"><a class="zola-anchor" href="#rustlab-presentation" aria-label="Anchor link for: rustlab-presentation">RustLab Presentation</a></h2>
+<p>Next month in November, I will be presenting about CGP at <a href="https://rustlab.it/talks/how-to-stop-fighting-with-coherence-and-start-writing-context-generic-trait-impls">RustLab</a> in Florence. The presentation is titled <a href="https://rustlab.it/talks/how-to-stop-fighting-with-coherence-and-start-writing-context-generic-trait-impls">How to Stop Fighting with Coherence and Start Writing Context-Generic Trait Impls</a>.</p>
+<p>If you are interested in attending, you can use the discount code <code>SP20FR</code> for a 20% discount.</p>
+<h2 id="cgp-serde"><a class="zola-anchor" href="#cgp-serde" aria-label="Anchor link for: cgp-serde"><code>cgp-serde</code></a></h2>
+<p>Alongside the RustLab presentation, I am working on <a href="https://github.com/contextgeneric/cgp-serde"><code>cgp-serde</code></a>, which provides an extensible version of the popular <code>serde</code> crate. Here is a sneak preview of its capabilities.</p>
+<p>The crate offers context-generic versions of the <code>Serialize</code> and <code>Deserialize</code> traits:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: ValueSerializer,
+</span><span>    derive_delegate: UseDelegate&lt;Value&gt;,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanSerializeValue&lt;Value: ?Sized&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>serialize&lt;S&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, value: </span><span style="color:#569cd6;">&amp;</span><span>Value, serializer: S) -&gt; Result&lt;</span><span style="color:#569cd6;">S::</span><span>Ok, </span><span style="color:#569cd6;">S::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        S: serde::Serializer;
+</span><span>}
+</span><span>
+</span><span>#[cgp_component {
+</span><span>    provider: ValueDeserializer,
+</span><span>    derive_delegate: UseDelegate&lt;Value&gt;,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanDeserializeValue&lt;&#39;de, Value&gt; {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>deserialize&lt;D&gt;(</span><span style="color:#569cd6;">&amp;</span><span>self, deserializer: D) -&gt; Result&lt;Value, </span><span style="color:#569cd6;">D::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        D: serde::Deserializer&lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt;;
+</span><span>}
+</span></code></pre>
+<p>The <code>cgp-serde</code> traits remain compatible with the original <code>serde</code> traits. This allows reuse of existing <code>serde</code> implementations without reimplementing them for <code>cgp-serde</code>.</p>
+<p>In addition, <code>cgp-serde</code> allows customizing how specific field types are serialized. For example, <code>Vec&lt;u8&gt;</code> or <code>Datetime</code> can be serialized in a custom manner without being restricted by trait coherence rules.</p>
+<p>Another key feature of <code>cgp-serde</code> is that it enables the use of <a href="https://tmandry.gitlab.io/blog/posts/2021-12-21-context-capabilities/">context and capabilities</a> patterns with <code>serde</code>. For instance, here is a provider implementation that allocates memory for a value type using an arena allocator provided by the context:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;</span><span style="color:#569cd6;">&#39;de</span><span>, </span><span style="color:#569cd6;">&#39;a</span><span>, Context, Value&gt; ValueDeserializer&lt;</span><span style="color:#569cd6;">&#39;de</span><span>, Context, </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Value&gt;
+</span><span>    for DeserializeAndAllocate
+</span><span style="color:#569cd6;">where
+</span><span>    Context: CanAlloc&lt;</span><span style="color:#569cd6;">&#39;a</span><span>, Value&gt; + CanDeserializeValue&lt;</span><span style="color:#569cd6;">&#39;de</span><span>, Value&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>deserialize&lt;D&gt;(context: </span><span style="color:#569cd6;">&amp;</span><span>Context, deserializer: D) -&gt; Result&lt;</span><span style="color:#569cd6;">&amp;&#39;a</span><span> Value, </span><span style="color:#569cd6;">D::</span><span>Error&gt;
+</span><span>    </span><span style="color:#569cd6;">where
+</span><span>        D: serde::Deserializer&lt;</span><span style="color:#569cd6;">&#39;de</span><span>&gt;,
+</span><span>    {
+</span><span>        </span><span style="color:#569cd6;">let</span><span> value = context.deserialize(deserializer)</span><span style="color:#569cd6;">?</span><span>;
+</span><span>        </span><span style="color:#569cd6;">let</span><span> value = context.alloc(value);
+</span><span>
+</span><span>        Ok(value)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>This allows the implementation of a deserialization context that provides an arena allocator and uses it to deserialize into a <code>&amp;'a Value</code>.</p>
+<p>An example of a deserializer context with custom deserializer providers is shown below:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(CgpData)]
+</span><span style="color:#569cd6;">pub struct </span><span>Payload { ... }
+</span><span>
+</span><span>#[cgp_context]
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>App&lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>arena: </span><span style="color:#569cd6;">&amp;&#39;a </span><span>Arena&lt;Payload&gt;,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    AppComponents {
+</span><span>        </span><span style="color:#569cd6;">...</span><span>,
+</span><span>        ValueDeserializerComponent:
+</span><span>            UseDelegate&lt;new DeserializeComponents </span><span style="color:#ff3333;">{
+</span><span>                </span><span style="color:#569cd6;">u64</span><span>:
+</span><span>                    UseSerde,
+</span><span>                Vec&lt;</span><span style="color:#569cd6;">u8</span><span>&gt;:
+</span><span>                    DeserializeHex,
+</span><span>                Payload:
+</span><span>                    DeserializeRecordFields,
+</span><span>                &lt;</span><span style="color:#569cd6;">&#39;a</span><span>&gt; </span><span style="color:#569cd6;">&amp;&#39;a</span><span> Payload:
+</span><span>                    DeserializeAndAllocate,
+</span><span>                </span><span style="color:#569cd6;">...
+</span><span>            }&gt;,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As we can see in the above example, within the wiring for <code>ValueDeserializerComponent</code>, we use <code>UseDelegate</code> to create a table lookup for deserialization implementations corresponding to different value types. First, <code>UseSerde</code> is used to implement deserialization via the original <code>Deserialize</code> trait from <code>serde</code>. After that, <code>DeserializeHex</code> handles the conversion of a hex string into a <code>Vec&lt;u8&gt;</code>.</p>
+<p>Next, <code>DeserializeRecordFields</code> is applied to deserialize each field in the <code>Payload</code> struct using their respective value deserializers. This functionality is enabled by the <code>#[derive(CgpData)]</code> attribute on <code>Payload</code>. The example also illustrates that it is not necessary to derive any serialization traits on <code>Payload</code> to make it work with <code>cgp-serde</code>.</p>
+<p>Finally, <code>DeserializeAndAllocate</code> is used to deserialize a <code>&amp;'a Payload</code> value by allocating the payload in the arena allocator provided by the context.</p>
+<p>There are many additional details that will be explained further with the official release of <code>cgp-serde</code>. The crate is nearly ready, with the remaining work focused on documentation. I will also demonstrate <code>cgp-serde</code> at <a href="https://rustlab.it/talks/how-to-stop-fighting-with-coherence-and-start-writing-context-generic-trait-impls">RustLab</a>. If you are interested in learning more, join the conference to see it in action.</p>
+<h1 id="acknowledgement"><a class="zola-anchor" href="#acknowledgement" aria-label="Anchor link for: acknowledgement">Acknowledgement</a></h1>
+<p>Thank you April Gonçalves, Abhishek Tripathi and Dzmitry Lahoda for <a href="https://github.com/sponsors/soareschen">sponsoring</a> the development of CGP!</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

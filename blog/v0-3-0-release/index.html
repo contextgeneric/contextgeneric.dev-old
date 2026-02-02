@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CGP Updates: v0.3.0 Release and New Chapters | Context-Generic Programming</title>
+    <meta property="og:title" content="CGP Updates: v0.3.0 Release and New Chapters | Context-Generic Programming" />
+    <meta property="og:description" content="I&#x27;m excited to announce the release of v0.3.0 of the cgp crate, along with several new chapters of the CGP Patterns book!">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="CGP Updates: v0.3.0 Release and New Chapters | Context-Generic Programming">
+    <meta name="twitter:description" content="I&#x27;m excited to announce the release of v0.3.0 of the cgp crate, along with several new chapters of the CGP Patterns book!">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#summary">Summary</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#new-book-chapters">New Book Chapters</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#associated-types"><small>- Associated Types</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#error-handling"><small>- Error Handling</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#field-accessors"><small>- Field Accessors</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#cgp-v0-3-0-release">cgp v0.3.0 Release</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#cgp-type-macro"><small>- cgp_type! Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#cgp-auto-getter-macro"><small>- #[cgp_auto_getter] Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#cgp-getter-macro"><small>- #[cgp_getter] Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#canwraperror-trait"><small>- CanWrapError Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#cgp-error-anyhow-crate"><small>- cgp-error-anyhow Crate</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#cgp-runtime-crate"><small>- cgp-runtime Crate</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#future-work">Future Work</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#documenting-the-cgp-crate"><small>- Documenting the cgp Crate</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#tutorials-with-more-complex-use-cases"><small>- Tutorials with More Complex Use Cases</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-3-0-release/#acknowledgement">Acknowledgement</a>
+                </div>
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">CGP Updates: v0.3.0 Release and New Chapters</div>
+<div style="text-align: right;"><i>Posted on 2025-01-09</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><h1 id="summary"><a class="zola-anchor" href="#summary" aria-label="Anchor link for: summary">Summary</a></h1>
+<p>I'm excited to announce the release of <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.3.0">v0.3.0</a> of the <a href="https://docs.rs/cgp/0.3.0/cgp/"><code>cgp</code></a> crate, along with several <a href="https://patterns.contextgeneric.dev/error-handling.html">new</a> <a href="https://patterns.contextgeneric.dev/field-accessors.html">chapters</a> of the <a href="https://patterns.contextgeneric.dev/">CGP Patterns</a> book! This post highlights some of the key features and updates included in this release.</p>
+<h1 id="new-book-chapters"><a class="zola-anchor" href="#new-book-chapters" aria-label="Anchor link for: new-book-chapters">New Book Chapters</a></h1>
+<p>We’ve added a few new chapters to the <a href="https://patterns.contextgeneric.dev/">CGP Patterns</a> book. Below is a brief summary of the newly published content.</p>
+<h2 id="associated-types"><a class="zola-anchor" href="#associated-types" aria-label="Anchor link for: associated-types">Associated Types</a></h2>
+<p>In the <a href="/blog/early-preview-announcement/">launch announcement</a> for CGP, some readers remarked that CGP seemed to be primarily a dependency injection framework in Rust. While this observation captured part of its functionality, a key feature not yet covered was CGP's ability to use <em>abstract types</em> in conjunction with the dependency injection of <em>types</em>.</p>
+<p>In the <a href="https://patterns.contextgeneric.dev/associated-types.html">new chapter</a> of the book, we explore this powerful feature with a motivating example: implementing a context-generic authentication token validator that is not only generic over the <code>Context</code> but also over abstract <code>Time</code> and <code>AuthToken</code> types. The chapter also demonstrates how to use the <code>cgp_type!</code> macro to streamline the declaration of abstract type traits and how to employ <code>UseType</code> in component wiring to instantiate abstract types.</p>
+<h2 id="error-handling"><a class="zola-anchor" href="#error-handling" aria-label="Anchor link for: error-handling">Error Handling</a></h2>
+<p>CGP introduces a novel approach to error handling that differs significantly from the conventional patterns used in Rust today. In the <a href="https://patterns.contextgeneric.dev/error-handling.html">new chapter</a> of the book, we begin by leveraging an abstract <code>Error</code> type from <code>HasErrorType</code> to define error-returning method signatures. The chapter then delves into how <code>CanRaiseError</code> and <code>CanWrapError</code> can be used to produce abstract errors within context-generic provider implementations. Further, the chapter discusses how to define context-generic error raisers and leverage the <code>UseDelegate</code> pattern for static dispatching of error handling to various providers.</p>
+<h2 id="field-accessors"><a class="zola-anchor" href="#field-accessors" aria-label="Anchor link for: field-accessors">Field Accessors</a></h2>
+<p>CGP provides a robust mechanism for dependency injection using <a href="https://patterns.contextgeneric.dev/impl-side-dependencies.html">impl-side dependencies</a>. However, since these dependencies are expressed through traits and constraints, we need to define <em>accessor traits</em> to retrieve field values from a generic context.</p>
+<p>In the <a href="https://patterns.contextgeneric.dev/field-accessors.html">new chapter</a>, we explore different approaches for defining, using, and implementing accessor traits in CGP. This chapter explains how the <code>#[derive(HasField)]</code> macro operates and dives into the internal workings of <code>HasField</code> and <code>Symbol!</code>. It also introduces the<code> #[cgp_auto_getter]</code> and <code>#[cgp_getter]</code> macros, which automatically generate accessor provider implementations that work with <code>HasField</code>.</p>
+<h1 id="cgp-v0-3-0-release"><a class="zola-anchor" href="#cgp-v0-3-0-release" aria-label="Anchor link for: cgp-v0-3-0-release"><code>cgp</code> v0.3.0 Release</a></h1>
+<p>The <code>cgp</code> crate has been upgraded from <code>v0.2.0</code> to <code>v0.3.0</code>, introducing new features that significantly enhance usability and include minor breaking changes. You can view the full <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.3.0">release notes here</a>. Additionally, the <a href="/#hello-world-example">Hello World example</a> on the project homepage has been updated to showcase a simplified implementation using the latest CGP constructs.</p>
+<p>Below is a summary of key updates in this release.</p>
+<h2 id="cgp-type-macro"><a class="zola-anchor" href="#cgp-type-macro" aria-label="Anchor link for: cgp-type-macro"><code>cgp_type!</code> Macro</a></h2>
+<p>The new <code>cgp_type!</code> macro streamlines the process of declaring abstract type traits, enabling you to define them in a single line of code. For instance, the <code>HasErrorType</code> trait in <code>cgp</code> is now defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>cgp_type!( Error: Debug );
+</span></code></pre>
+<p>The <code>cgp_type!</code> macro expands this short declaration into the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    name: ErrorTypeComponent,
+</span><span>    provider: ProvideErrorType,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>HasErrorType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Error</span><span>: Debug;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Error&gt; ProvideErrorType&lt;Context&gt; </span><span style="color:#569cd6;">for </span><span>UseType&lt;Error&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Error: Debug,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Error </span><span>= Error;
+</span><span>}
+</span></code></pre>
+<p>For a detailed explanation of cgp_type! and its usage, check out the new <a href="https://patterns.contextgeneric.dev/associated-types.html#defining-abstract-type-traits-with-cgp_type">Associated Types</a> chapter in the CGP Patterns book.</p>
+<h2 id="cgp-auto-getter-macro"><a class="zola-anchor" href="#cgp-auto-getter-macro" aria-label="Anchor link for: cgp-auto-getter-macro"><code>#[cgp_auto_getter]</code> Macro</a></h2>
+<p>The <code>#[cgp_auto_getter]</code> macro simplifies the process of defining accessor traits with blanket implementations based on <code>HasField</code>. When a trait is marked with <code>#[cgp_auto_getter]</code>, any context deriving <code>HasField</code> that has the required fields and types will automatically implement the specified trait without additional boilerplate.</p>
+<p>Here’s an example illustrating how it works:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">use </span><span>cgp::prelude::*;
+</span><span>
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;</span><span>String;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">fn </span><span>main() {
+</span><span>    </span><span style="color:#569cd6;">let</span><span> person = Person {
+</span><span>        name: </span><span style="color:#d69d85;">&quot;Alice&quot;</span><span>.into(),
+</span><span>    };
+</span><span>
+</span><span>    println!(</span><span style="color:#d69d85;">&quot;Hello, </span><span style="color:#b4cea8;">{}</span><span style="color:#d69d85;">&quot;</span><span>, person.name());
+</span><span>}
+</span></code></pre>
+<p>In this example, the <code>Person</code> struct derives the <code>HasField</code> trait, which automatically implements the <code>HasName</code> trait without any additional code. This means that an accessor trait like <code>HasName</code> can be defined in separate crates or modules, and it will still be automatically implemented for all structs that derive <code>HasField</code> with the necessary fields.</p>
+<p>For more details on <code>#[cgp_auto_getter]</code>, refer to the <a href="https://patterns.contextgeneric.dev/generic-accessor-providers.html#the-cgp_auto_getter-macro">Generic Accessor Providers</a> chapter in the CGP Patterns book.</p>
+<h2 id="cgp-getter-macro"><a class="zola-anchor" href="#cgp-getter-macro" aria-label="Anchor link for: cgp-getter-macro"><code>#[cgp_getter]</code> Macro</a></h2>
+<p>The <code>#[cgp_getter]</code> macro, like <code>#[cgp_auto_getter]</code>, generates blanket implementations that make use of <code>HasField</code>. However, <code>#[cgp_getter]</code> extends functionality by also creating full CGP constructs for the trait, similar to <code>#[cgp_component]</code>. This requires explicit wiring in the context using <code>delegate_components!</code>. Additionally, <code>#[cgp_getter]</code> derives a blanket implementation for the <code>UseFields</code> provider, so that it can be used inside the component wiring as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">use </span><span>cgp::prelude::*;
+</span><span>
+</span><span>#[cgp_getter {
+</span><span>    provider: NameGetter,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;</span><span>String;
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String,
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">pub struct </span><span>PersonComponents;
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasComponents </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Components </span><span>= PersonComponents;
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    PersonComponents {
+</span><span>        NameGetterComponent: UseFields,
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">fn </span><span>main() {
+</span><span>    </span><span style="color:#569cd6;">let</span><span> person = Person {
+</span><span>        name: </span><span style="color:#d69d85;">&quot;Alice&quot;</span><span>.into(),
+</span><span>    };
+</span><span>
+</span><span>    println!(</span><span style="color:#d69d85;">&quot;Hello, </span><span style="color:#b4cea8;">{}</span><span style="color:#d69d85;">&quot;</span><span>, person.name());
+</span><span>}
+</span></code></pre>
+<p>For additional information on <code>#[cgp_getter]</code>, refer to the <a href="https://patterns.contextgeneric.dev/generic-accessor-providers.html#the-cgp_getter-macro">Generic Accessor Providers</a> chapter of the CGP Patterns book.</p>
+<h2 id="canwraperror-trait"><a class="zola-anchor" href="#canwraperror-trait" aria-label="Anchor link for: canwraperror-trait"><code>CanWrapError</code> Trait</a></h2>
+<p>The <code>CanWrapError</code> trait has been introduced to streamline the process of wrapping existing errors. Its definition is as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: ErrorWrapper,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanWrapError&lt;Detail&gt;: HasErrorType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>wrap_error(error: </span><span style="color:#569cd6;">Self::</span><span>Error, detail: Detail) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Error;
+</span><span>}
+</span></code></pre>
+<p>Previously, error wrapping relied on using <code>CanRaiseError</code> with a tuple, such as <code>CanRaiseError&lt;(Self::Error, Detail)&gt;</code>. However, this approach was cumbersome and less intuitive. The <code>CanWrapError</code> trait addresses this issue by providing a cleaner and more straightforward way to raise wrapped errors.</p>
+<p>For more details about the usage of <code>CanWrapError</code>, refer to the <a href="https://patterns.contextgeneric.dev/error-wrapping.html">Error Wrapping</a> chapter in the CGP Patterns book.</p>
+<h2 id="cgp-error-anyhow-crate"><a class="zola-anchor" href="#cgp-error-anyhow-crate" aria-label="Anchor link for: cgp-error-anyhow-crate"><code>cgp-error-anyhow</code> Crate</a></h2>
+<p>We have published a new <a href="https://docs.rs/cgp-error-anyhow/0.3.0/cgp_error_anyhow/index.html"><code>cgp-error-anyhow</code></a> crate, which provides context-generic error raisers for <code>anyhow::Error</code>. This addition complements the previously published <a href="https://docs.rs/cgp-error-eyre/0.3.0/cgp_error_eyre/index.html"><code>cgp-error-eyre</code></a> and <a href="https://docs.rs/cgp-error-std/0.3.0/cgp_error_std/index.html"><code>cgp-error-std</code></a> crates, which support CGP error handling with <code>eyre::Error</code> and <code>Box&lt;dyn core::error::Error + Send + Sync + 'static&gt;</code>. Given the popularity of <code>anyhow::Error</code>, this crate extends support for its usage.</p>
+<p>Details on using <code>cgp-error-anyhow</code> for error handling can be found in the <a href="https://patterns.contextgeneric.dev/error-handling.html#the-cgp-error-anyhow-crate">Error Handling</a> chapter of the CGP Patterns book.</p>
+<h2 id="cgp-runtime-crate"><a class="zola-anchor" href="#cgp-runtime-crate" aria-label="Anchor link for: cgp-runtime-crate"><code>cgp-runtime</code> Crate</a></h2>
+<p>The new <a href="https://docs.rs/cgp-runtime/0.3.0/cgp_runtime/index.html"><code>cgp-runtime</code></a> crate introduces standardized interfaces for runtimes, paving the way for future discussions on asynchronous programming in the CGP Patterns book.</p>
+<p>The constructs provided by <code>cgp-runtime</code>, which are re-exported by <code>cgp</code>, include:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>cgp_type!( Runtime );
+</span><span>
+</span><span>#[cgp_getter {
+</span><span>    provider: RuntimeGetter,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>HasRuntime: HasRuntimeType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>runtime(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;Self::</span><span>Runtime;
+</span><span>}
+</span></code></pre>
+<p>Stay tuned for updates to the CGP Patterns book for more information on using pluggable async runtimes with CGP.</p>
+<h1 id="future-work"><a class="zola-anchor" href="#future-work" aria-label="Anchor link for: future-work">Future Work</a></h1>
+<p>There are several additional features and improvements I had hoped to include in this update. However, with my New Year vacation coming to an end, I need to wrap up the current progress. Below are some of the tasks deferred to future updates.</p>
+<h2 id="documenting-the-cgp-crate"><a class="zola-anchor" href="#documenting-the-cgp-crate" aria-label="Anchor link for: documenting-the-cgp-crate">Documenting the <code>cgp</code> Crate</a></h2>
+<p>While the CGP Patterns book offers extensive conceptual coverage, the <code>cgp</code> crate currently lacks comprehensive Rustdoc documentation. Many constructs remain undocumented, and users must rely on the CGP Patterns book or this website for detailed guidance.</p>
+<p>In future updates, I plan to add concise Rustdoc comments to these constructs and include links to relevant chapters in the CGP Patterns book. This will help bridge the gap and provide in-crate documentation to enhance usability. For now, all detailed information about CGP is accessible only through the book and website.</p>
+<h2 id="tutorials-with-more-complex-use-cases"><a class="zola-anchor" href="#tutorials-with-more-complex-use-cases" aria-label="Anchor link for: tutorials-with-more-complex-use-cases">Tutorials with More Complex Use Cases</a></h2>
+<p>During the <a href="/blog/early-preview-announcement/">launch announcement</a>, many readers noted the lack of practical examples demonstrating how CGP can address more complex, real-world problems. While I had planned to create such tutorials, much of my time was spent completing relevant chapters and updating the <code>cgp</code> crate. I ask for your patience as I work on delivering concise, compelling examples to better illustrate CGP's utility.</p>
+<p>In the meantime, the simplified examples in the recently added <a href="https://patterns.contextgeneric.dev/associated-types.html">Associated Types</a>, <a href="https://patterns.contextgeneric.dev/error-handling.html">Error Handling</a>, and <a href="https://patterns.contextgeneric.dev/field-accessors.html">Field Accessors</a> chapters provide a glimpse into CGP's practical applications. These include examples like validating whether an authentication token has expired and making HTTP API calls to fetch messages. While not exhaustive, these examples go beyond the basic "Hello World" tutorial on the homepage and offer a clearer picture of how CGP can be applied to your projects.</p>
+<h1 id="acknowledgement"><a class="zola-anchor" href="#acknowledgement" aria-label="Anchor link for: acknowledgement">Acknowledgement</a></h1>
+<p>A big thank you to <a href="https://github.com/marvin-hansen">@marvin-hansen</a> for his enthusiastic involvement in discussions, testing CGP with real-world projects, and providing invaluable feedback! The implementation of the <code>#[cgp_getter]</code> and <code>#[cgp_auto_getter]</code> macros was primarily motivated by his input, highlighting that the direct use of <code>HasField</code> could be too complex for beginners. Thanks to his suggestions, CGP now offers a more seamless and intuitive experience for declaring and using field accessor traits.</p>
+<p>Thanks also to everyone who contributed feedback to the launch announcement on <a href="https://www.reddit.com/r/rust/comments/1hkzaiu/announcing_contextgeneric_programming_a_new/">Reddit</a> and <a href="https://lobste.rs/s/a5wfid/context_generic_programming">Lobsters</a>! Your insights have been incredibly helpful in shaping the direction of CGP and prioritizing upcoming work. There’s still a long journey ahead before CGP reaches v1.0 and is ready for widespread use, and I appreciate your continued support as we work toward that goal!</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

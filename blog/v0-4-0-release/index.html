@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CGP v0.4.0 is Here: Unlocking Easier Debugging, Extensible Presets, and More! | Context-Generic Programming</title>
+    <meta property="og:title" content="CGP v0.4.0 is Here: Unlocking Easier Debugging, Extensible Presets, and More! | Context-Generic Programming" />
+    <meta property="og:description" content="CGP v0.4.0 is officially released, bringing transformative improvements! Experience dramatically easier debugging, powerful new features, and a smoother developer journey for modular Rust programming.">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="CGP v0.4.0 is Here: Unlocking Easier Debugging, Extensible Presets, and More! | Context-Generic Programming">
+    <meta name="twitter:description" content="CGP v0.4.0 is officially released, bringing transformative improvements! Experience dramatically easier debugging, powerful new features, and a smoother developer journey for modular Rust programming.">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#summary">Summary</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#game-changing-improvement-debugging-is-finally-easy">Game-Changing Improvement: Debugging is Finally Easy!</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#isproviderfor-trait"><small>- IsProviderFor Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#canusecomponent-trait"><small>- CanUseComponent Trait</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#cgp-provider-macro"><small>- #[cgp_provider] Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#update-to-delegate-components"><small>- Update to delegate_components!</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#check-components-macro"><small>- check_components! Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#delegate-and-check-components-macro"><small>- delegate_and_check_components! Macro</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#updated-chapter"><small>- Updated Chapter</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#rework-cgp-type-macro">Rework #[cgp_type] Macro</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#cgp-context-macro">#[cgp_context] Macro</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#improved-getter-macros">Improved Getter Macros</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#improved-cgp-component-macro">Improved #[cgp_component] Macro</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#initial-support-for-datatype-generic-programming">Initial Support for Datatype-Generic Programming</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#presets-and-inheritance-a-new-way-to-extend-component-wirings">Presets and Inheritance: A New Way to Extend Component Wirings</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#component-delegation-as-type-level-lookup-table"><small>- Component Delegation as Type-Level Lookup Table</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#preset-macros"><small>- Preset Macros</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#single-inheritance-with-context-provider"><small>- Single Inheritance with Context Provider</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#comparison-with-oop-inheritance"><small>- Comparison with OOP Inheritance</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#async-trait-update">Async Trait Update</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#blanket-trait-macro">#[blanket_trait] Macro</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#personal-updates">Personal Updates</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#persentation-at-leipzig-rust-meetup"><small>- Persentation at Leipzig Rust Meetup</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#bank-transfer-example"><small>- Bank Transfer Example</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#more-active-development-ahead"><small>- More Active Development Ahead</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-0-release/#attending-rustweek"><small>- Attending RustWeek</small></a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">CGP v0.4.0 is Here: Unlocking Easier Debugging, Extensible Presets, and More!</div>
+<div style="text-align: right;"><i>Posted on 2025-05-09</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><h2 id="summary"><a class="zola-anchor" href="#summary" aria-label="Anchor link for: summary">Summary</a></h2>
+<p>It's been a while since the last update, but the wait is over! I'm thrilled to announce the release of <a href="https://github.com/contextgeneric/cgp/releases/tag/v0.4.0"><code>v0.4.0</code></a> of the <a href="https://docs.rs/cgp/0.4.0/cgp/"><code>cgp</code></a> crate. This version is packed with tons of new features and delivers a dramatically smoother developer experience!</p>
+<p>This post highlights the major updates developed over the past few months, alongside some personal news.</p>
+<h2 id="game-changing-improvement-debugging-is-finally-easy"><a class="zola-anchor" href="#game-changing-improvement-debugging-is-finally-easy" aria-label="Anchor link for: game-changing-improvement-debugging-is-finally-easy">Game-Changing Improvement: Debugging is Finally Easy!</a></h2>
+<p>Have you ever been frustrated by cryptic CGP errors related to unsatisfied dependencies? <a href="/blog/early-preview-announcement/#improve-error-diagnostics">Previously</a>, this was a major barrier to <code>cgp</code>'s wider adoption, as debugging <code>cgp</code> programs was virtually impossible due to Rust hiding the information necessary to fixed the error.</p>
+<p>Crucially, this update changes everything! The most significant improvement in v0.4.0 is that it's now significantly easier to debug <code>cgp</code> errors that arise from unsatisfied dependencies. We've developed new techniques to overcome this challenge and make Rust show all errors that were previously hidden.</p>
+<h3 id="isproviderfor-trait"><a class="zola-anchor" href="#isproviderfor-trait" aria-label="Anchor link for: isproviderfor-trait"><code>IsProviderFor</code> Trait</a></h3>
+<p>In short, the technique works by introducing a new <code>IsProviderFor</code> trait in <a href="https://github.com/contextgeneric/cgp/pull/63">#63</a>, defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>IsProviderFor&lt;Component, Context, Params = ()&gt; {}
+</span></code></pre>
+<p>The <code>IsProviderFor</code> trait itself isn't inherently complex, but it's designed to be implemented by providers with additional constraints hidden within the trait implementation. The trait then acts as a "trait-erased" trait to carry around the constraints that the provider used to implement the original provider trait.</p>
+<p>Users of CGP don't need to understand the details of how <code>IsProviderFor</code> works, only that it's used behind the scenes by <code>cgp</code> to show better error messages.</p>
+<h3 id="canusecomponent-trait"><a class="zola-anchor" href="#canusecomponent-trait" aria-label="Anchor link for: canusecomponent-trait"><code>CanUseComponent</code> Trait</a></h3>
+<p>Along with <code>IsProviderFor</code>, a new <code>CanUseComponent</code> blanket trait is introduced as a shorthand to check that a context's provider has implemented the <code>IsProviderFor</code> trait. It's defined as follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub trait </span><span>CanUseComponent&lt;Component, Params = ()&gt; {}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Component, Params&gt; CanUseComponent&lt;Component, Params&gt; </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasCgpProvider,
+</span><span>    </span><span style="color:#569cd6;">Context::</span><span>CgpProvider: IsProviderFor&lt;Component, Context, Params&gt;,
+</span><span>{
+</span><span>}
+</span></code></pre>
+<p>Rather than being implemented by provider types, <code>CanUseComponent</code> is instead automatically implemented by a context type. This makes it more ergonomic to reason about the implementation of a CGP component on a context.</p>
+<h3 id="cgp-provider-macro"><a class="zola-anchor" href="#cgp-provider-macro" aria-label="Anchor link for: cgp-provider-macro"><code>#[cgp_provider]</code> Macro</a></h3>
+<p>The main change required for the new debugging to work is that users must now annotate CGP provider implementations using the <code>#[cgp_provider]</code> or <code>#[cgp_new_provider]</code> macros. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_new_provider]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; Greeter&lt;Context&gt; </span><span style="color:#569cd6;">for </span><span>GreetHello
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasName,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>greet(context: </span><span style="color:#569cd6;">&amp;</span><span>Context) {
+</span><span>        println!(</span><span style="color:#d69d85;">&quot;Hello, </span><span style="color:#b4cea8;">{}</span><span style="color:#d69d85;">!&quot;</span><span>, context.name());
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The macro then generates the following <code>IsProviderFor</code> implementation, which includes the <code>Context: HasName</code> constraint within it:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; IsProviderFor&lt;GreeterComponent, Context, ()&gt;
+</span><span>    for GreetHello
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasName
+</span><span>{ }
+</span></code></pre>
+<p>The main difference between <code>#[cgp_provider]</code> and <code>#[cgp_new_provider]</code> is that <code>#[cgp_new_provider]</code> also generates the provider struct definition (e.g., <code>struct GreetHello;</code>), allowing even less code to be written by hand.</p>
+<h3 id="update-to-delegate-components"><a class="zola-anchor" href="#update-to-delegate-components" aria-label="Anchor link for: update-to-delegate-components">Update to <code>delegate_components!</code></a></h3>
+<p>In addition to generating <code>DelegateComponent</code> implementations, <code>delegate_components!</code> now also generates <code>IsProviderFor</code> implementations, so that <code>IsProviderFor</code> can remain working across component delegations.</p>
+<p>As an example, the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    PersonComponents {
+</span><span>        GreeterComponent: GreetHello,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>generates the following trait implementations:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>DelegateComponent&lt;GreeterComponent&gt; </span><span style="color:#569cd6;">for </span><span>PersonComponents {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Delegate </span><span>= GreetHello;
+</span><span>}
+</span><span>
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, Params&gt; IsProviderFor&lt;GreeterComponent, Context, Params&gt;
+</span><span>    for PersonComponents
+</span><span style="color:#569cd6;">where
+</span><span>    GreetHello: IsProviderFor&lt;GreeterComponent, Context, Params&gt;,
+</span><span>{
+</span><span>}
+</span></code></pre>
+<h3 id="check-components-macro"><a class="zola-anchor" href="#check-components-macro" aria-label="Anchor link for: check-components-macro"><code>check_components!</code> Macro</a></h3>
+<p>Along with the <code>IsProviderFor</code> trait, <a href="https://github.com/contextgeneric/cgp/pull/78">#78</a> also introduces the <code>check_components!</code> macro to allow users to write compile-time tests to check for the correctness of component wiring for a CGP context. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>check_components! {
+</span><span>    CanUsePerson </span><span style="color:#569cd6;">for</span><span> Person {
+</span><span>        GreeterComponent,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The code above generates a <em>check trait</em> called <code>CanUsePerson</code>, which verifies whether the <code>Person</code> context implements the consumer trait for <code>GreeterComponent</code> (i.e., <code>CanGreet</code>):</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">trait </span><span>CanUsePerson&lt;Component, Params&gt;: CanUseComponent&lt;Component, Params&gt; {}
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>CanUsePerson&lt;GreeterComponent, ()&gt; </span><span style="color:#569cd6;">for </span><span>Person {}
+</span></code></pre>
+<h3 id="delegate-and-check-components-macro"><a class="zola-anchor" href="#delegate-and-check-components-macro" aria-label="Anchor link for: delegate-and-check-components-macro"><code>delegate_and_check_components!</code> Macro</a></h3>
+<p>PR <a href="https://github.com/contextgeneric/cgp/pull/84">#84</a> introduces a new <code>delegate_and_check_components!</code> macro, which combines both <code>delegate_components!</code> and <code>check_components!</code>, allowing both delegation and checks within a single macro call. This is useful for the majority of simple cases, providing immediate feedback on whether the wiring works as intended.</p>
+<p>As an example, given the following code:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_and_check_components! {
+</span><span>    CanUsePerson </span><span style="color:#569cd6;">for</span><span> Person;
+</span><span>    PersonComponents {
+</span><span>        GreeterComponent: GreetHello,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>is equivalent to writing the two separate macro calls:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    PersonComponents {
+</span><span>        GreeterComponent: GreetHello,
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>check_components! {
+</span><span>    CanUsePerson </span><span style="color:#569cd6;">for</span><span> Person {
+</span><span>        GreeterComponent,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>It's worth noting that in more advanced cases, it may still be necessary to call <code>delegate_components!</code> and <code>check_components</code> separately. This applies to cases where the CGP traits contain additional generic parameters, or when the new <em>preset</em> feature (discussed later) is used.</p>
+<h3 id="updated-chapter"><a class="zola-anchor" href="#updated-chapter" aria-label="Anchor link for: updated-chapter">Updated Chapter</a></h3>
+<p>For further details on these debugging breakthroughs, the CGP book has been updated with a <a href="https://patterns.contextgeneric.dev/debugging-support.html">new chapter</a> that explains this improved debugging support in detail.</p>
+<h2 id="rework-cgp-type-macro"><a class="zola-anchor" href="#rework-cgp-type-macro" aria-label="Anchor link for: rework-cgp-type-macro">Rework <code>#[cgp_type]</code> Macro</a></h2>
+<p>The <code>cgp_type!</code> macro has been reworked in <a href="https://github.com/contextgeneric/cgp/pull/68">#68</a> to become an attribute macro. Previously, in v0.3.0, an abstract type was defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>cgp_type!( Name );
+</span></code></pre>
+<p>From v0.4.0 onward, the macro becomes an attribute macro that follows the same style as <code>#[cgp_component]</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_type]
+</span><span style="color:#569cd6;">pub trait </span><span>HasNameType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Name</span><span>;
+</span><span>}
+</span></code></pre>
+<p>Although it is more verbose, the new syntax unlocks the ability to define more advanced abstract types with the same macro, such as adding generic parameters or supertraits on the type trait.</p>
+<p>Aside from that, <code>#[cgp_type]</code> also generates default names that follow a new naming convention. When left empty, the provider trait is now named <code>"{Type}TypeProvider"</code> instead of <code>"Provide{Type}Type"</code>, and the component is named <code>"{Type}TypeProviderComponent"</code> instead of <code>"{Type}TypeComponent"</code>.</p>
+<p>So the example above is a shorthand for writing:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_type {
+</span><span>    name: NameTypeProviderComponent,
+</span><span>    provider: NameTypeProvider,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>HasNameType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Name</span><span>;
+</span><span>}
+</span></code></pre>
+<h2 id="cgp-context-macro"><a class="zola-anchor" href="#cgp-context-macro" aria-label="Anchor link for: cgp-context-macro"><code>#[cgp_context]</code> Macro</a></h2>
+<p>A new <code>#[cgp_context]</code> macro has been introduced in <a href="https://github.com/contextgeneric/cgp/pull/66">#66</a>, and can be applied to context types to simplify the wiring of providers with a context. For example, given the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: String
+</span><span>}
+</span></code></pre>
+<p>The macro automatically generates the context provider struct and the <code>HasCgpProvider</code> implementation, which previously had to be hand-implemented manually:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub struct </span><span>PersonComponents;
+</span><span>
+</span><span style="color:#569cd6;">impl </span><span>HasCgpProvider </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">CgpProvider </span><span>= PersonComponents;
+</span><span>}
+</span></code></pre>
+<p>The <code>HasCgpProvider</code> trait was previously called <code>HasComponents</code> in v0.3.0 and has been renamed in <a href="https://github.com/contextgeneric/cgp/pull/97">#97</a> to better reflect its purpose.</p>
+<p>Although the boilerplate reduction is minimal, the <code>#[cgp_context]</code> macro significantly reduces the aesthetic and psychological barrier to defining CGP contexts, making them almost as trivial as defining plain structs.</p>
+<p>Additionally, <code>#[cgp_context]</code> also brings support for <em>inheritance</em> of a collection of providers in the form of <em>presets</em>, which we will cover in a moment.</p>
+<h2 id="improved-getter-macros"><a class="zola-anchor" href="#improved-getter-macros" aria-label="Anchor link for: improved-getter-macros">Improved Getter Macros</a></h2>
+<p>The getter macros <code>#[cgp_getter]</code> and <code>#[cgp_auto_getter]</code> have been enhanced with several improvements, making them more usable in broader use cases and boosting developer convenience.</p>
+<p>First, with <a href="https://github.com/contextgeneric/cgp/pull/81">#81</a> and <a href="https://github.com/contextgeneric/cgp/pull/87">#87</a>, the macros are now smarter in handling several common special cases, such as the use of <code>&amp;str</code> and <code>Option&lt;&amp;T&gt;</code>. Below are some examples of the new method signatures that are now supported:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#608b4e;">// Can be used with `String` field
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;str</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#608b4e;">// Can be used with `Option&lt;Self::Name&gt;` field
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName: HasNameType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; Option&lt;</span><span style="color:#569cd6;">&amp;Self::</span><span>Name&gt;;
+</span><span>}
+</span><span>
+</span><span style="color:#608b4e;">// Can be used with `Vec&lt;u8&gt;` field
+</span><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasBytes {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>bytes(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;</span><span>[</span><span style="color:#569cd6;">u8</span><span>];
+</span><span>}
+</span></code></pre>
+<p>Additionally, with <a href="https://github.com/contextgeneric/cgp/pull/64">#64</a> and <a href="https://github.com/contextgeneric/cgp/pull/76">#76</a>, the getter macros also support generic parameters and accept a second optional <code>PhantomData</code> argument to help with type inference. For example:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_auto_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasName&lt;App&gt;
+</span><span>where
+</span><span>    App: HasNameType,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>name(</span><span style="color:#569cd6;">&amp;</span><span>self, _tag: PhantomData&lt;App&gt;) -&gt; </span><span style="color:#569cd6;">&amp;App::</span><span>Name;
+</span><span>}
+</span></code></pre>
+<p>In <a href="https://github.com/contextgeneric/cgp/pull/94">#94</a>, we've also added support for using <em>getter combinators</em> to implement more complex getters to access fields that are nested within other structs in a context. For example, the following code allows the getter for <code>listen_port</code> to be implemented via <code>context.config.network.listen_port</code>:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_getter]
+</span><span style="color:#569cd6;">pub trait </span><span>HasListenPort {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>listen_port(</span><span style="color:#569cd6;">&amp;</span><span>self) -&gt; </span><span style="color:#569cd6;">&amp;u16</span><span>;
+</span><span>}
+</span><span>
+</span><span>#[cgp_context(MyContextComponents)]
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>MyContext {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>config: Config,
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>Config {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>network: NetworkConfig,
+</span><span>}
+</span><span>
+</span><span>#[derive(HasField)]
+</span><span style="color:#569cd6;">pub struct </span><span>NetworkConfig {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>listen_port: </span><span style="color:#569cd6;">u16</span><span>,
+</span><span>}
+</span><span>
+</span><span>delegate_components! {
+</span><span>    MyContextComponents {
+</span><span>        ListenPortGetterComponent:
+</span><span>            WithProvider&lt;ChainGetters&lt;Product</span><span style="color:#ff3333;">! </span><span>[
+</span><span>                UseField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(&quot;config&quot;)&gt;,
+</span><span>                UseField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;network&quot;</span><span>)&gt;,
+</span><span>                UseField&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;listen_port&quot;</span><span>)&gt;,
+</span><span>            ]&gt;&gt;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="improved-cgp-component-macro"><a class="zola-anchor" href="#improved-cgp-component-macro" aria-label="Anchor link for: improved-cgp-component-macro">Improved <code>#[cgp_component]</code> Macro</a></h2>
+<p>We've improved the UX for <code>#[cgp_component]</code> to allow the provider name to be specified directly when there are no other parameters passed. For example, we can now write:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(Greeter)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanGreet
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>greet(</span><span style="color:#569cd6;">&amp;</span><span>self);
+</span><span>}
+</span></code></pre>
+<p>instead of the original form:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: Greeter,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanGreet
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>greet(</span><span style="color:#569cd6;">&amp;</span><span>self);
+</span><span>}
+</span></code></pre>
+<p>which in turn is shortened from the fully-expanded form:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    name: GreeterComponent,
+</span><span>    provider: Greeter,
+</span><span>    context: Context,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanGreet
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>greet(</span><span style="color:#569cd6;">&amp;</span><span>self);
+</span><span>}
+</span></code></pre>
+<p>Other than that, <a href="https://github.com/contextgeneric/cgp/pull/95">#95</a> also brings support for using <code>const</code> items inside CGP traits. With that, we can for example define traits such as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(ConstantGetter)]
+</span><span style="color:#569cd6;">pub trait </span><span>HasConstant {
+</span><span>    </span><span style="color:#569cd6;">const </span><span style="color:#b4cea8;">CONSTANT</span><span>: </span><span style="color:#569cd6;">u64</span><span>;
+</span><span>}
+</span></code></pre>
+<h2 id="initial-support-for-datatype-generic-programming"><a class="zola-anchor" href="#initial-support-for-datatype-generic-programming" aria-label="Anchor link for: initial-support-for-datatype-generic-programming">Initial Support for Datatype-Generic Programming</a></h2>
+<p>PR <a href="https://github.com/contextgeneric/cgp/pull/84">#84</a> brings initial support for <a href="https://wiki.haskell.org/Generics">datatype-generic programming</a> to Rust and CGP. A new <code>#[derive(HasFields)]</code> macro has been introduced, together with the relevant traits <code>HasFields</code>, <code>HasFieldsRef</code>, <code>FromFields</code>, <code>ToFields</code>, and <code>ToFieldsRef</code>.</p>
+<p>The introduced constructs make it possible for context-generic providers to access <em>all</em> fields in a context struct or enum without requiring access to the concrete types. This enables context-generic implementations for use cases such as encodings without requiring the concrete context to derive anything other than <code>#[derive(HasFields)]</code>.</p>
+<p>For example, given the following code:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[derive(HasFields)]
+</span><span style="color:#569cd6;">pub struct </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>name: string,
+</span><span>    </span><span style="color:#569cd6;">pub </span><span>age: </span><span style="color:#569cd6;">u8</span><span>,
+</span><span>}
+</span></code></pre>
+<p>The derive macro would generate the following <code>HasField</code> implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl </span><span>HasFields </span><span style="color:#569cd6;">for </span><span>Person {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Fields </span><span>=
+</span><span>        Product</span><span style="color:#569cd6;">! </span><span>[
+</span><span>            Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;name&quot;</span><span>), String&gt;,
+</span><span>            Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;age&quot;</span><span>), </span><span style="color:#569cd6;">u64</span><span>&gt;,
+</span><span>        ];
+</span><span>}
+</span></code></pre>
+<p>The constructs introduced are currently incomplete, and future development is still needed to bring in the full capabilities for datatype-generic programming.</p>
+<p>Additionally, <a href="https://github.com/contextgeneric/cgp/pull/85">#85</a> introduces the use of Greek alphabets to shorten the type representation of field types. For example, given the macro:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Product</span><span style="color:#569cd6;">! </span><span>[
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;name&quot;</span><span>), String&gt;,
+</span><span>    Field&lt;Symbol</span><span style="color:#ff3333;">!</span><span>(</span><span style="color:#d69d85;">&quot;age&quot;</span><span>), </span><span style="color:#569cd6;">u8</span><span>&gt;,
+</span><span>]
+</span></code></pre>
+<p>The original expansion would be shown as follows in the IDE and error messages:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Cons&lt;Field&lt;Char&lt;&#39;n&#39;, Char&lt;&#39;a&#39;, Char&lt;&#39;m&#39;, Char&lt;&#39;e&#39;, Nil&gt;&gt;&gt;&gt;, String&gt;, Cons&lt;Field&lt;Char&lt;&#39;a&#39;, Char&lt;&#39;g&#39;, Char&lt;&#39;e&#39;, Nil&gt;&gt;&gt;, </span><span style="color:#569cd6;">u8</span><span>&gt;, Nil&gt;&gt;
+</span></code></pre>
+<p>But with the new version, it would be shown in a shorter form as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>π&lt;ω&lt;ι&lt;&#39;n&#39;, ι&lt;&#39;a&#39;, ι&lt;&#39;m&#39;, ι&lt;&#39;e&#39;, ε&gt;&gt;&gt;&gt;, String&gt;, π&lt;ω&lt;ι&lt;&#39;a&#39;, ι&lt;&#39;g&#39;, ι&lt;&#39;e&#39;, ε&gt;&gt;&gt;, </span><span style="color:#569cd6;">u8</span><span>&gt;, ε&gt;&gt;
+</span></code></pre>
+<p>Although this may look very confusing at first, hopefully it will become more readable once readers understand how each Greek alphabet is mapped to its full name, offering a more compact representation in IDEs and error messages.</p>
+<h2 id="presets-and-inheritance-a-new-way-to-extend-component-wirings"><a class="zola-anchor" href="#presets-and-inheritance-a-new-way-to-extend-component-wirings" aria-label="Anchor link for: presets-and-inheritance-a-new-way-to-extend-component-wirings">Presets and Inheritance: A New Way to Extend Component Wirings</a></h2>
+<p>Another major feature introduced is a completely overhauled implementation of <em>presets</em>, over a number of major PRs. (<a href="https://github.com/contextgeneric/cgp/pull/70">#70</a>, <a href="https://github.com/contextgeneric/cgp/pull/71">#71</a>, <a href="https://github.com/contextgeneric/cgp/pull/72">#72</a>, <a href="https://github.com/contextgeneric/cgp/pull/91">#91</a>)</p>
+<p>A proper full introduction to presets will require its own dedicated chapters in the CGP book. But until that's written, I'll provide a very high-level walk-through of CGP presets here.</p>
+<h3 id="component-delegation-as-type-level-lookup-table"><a class="zola-anchor" href="#component-delegation-as-type-level-lookup-table" aria-label="Anchor link for: component-delegation-as-type-level-lookup-table">Component Delegation as Type-Level Lookup Table</a></h3>
+<p>Conceptually, we can think of the use of <code>delegate_components!</code> being defining a key-value dictionary at the <em>type-level</em>, with the trait <code>DelegateComponent</code> serving as a type-level lookup function. In CGP, when we apply component wirings through <code>delegate_components!</code>, we are effectively building a type-level lookup table with the component name as the key, and the delegated provider as the value.</p>
+<p>With that in mind, it becomes natural to think about whether it is possible to "merge" two of such tables to form a new table. For example, given one crate containing:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    ComponentsA {
+</span><span>        KeyA: ValueA,
+</span><span>        KeyB: ValueB,
+</span><span>        KeyC: ValueC1,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>and another crate containing:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>delegate_components! {
+</span><span>    ComponentsB {
+</span><span>        KeyC: ValueC2,
+</span><span>        KeyD: ValueD,
+</span><span>        KeyE: ValueE,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>How do we enable the merging of <code>ComponentsA</code> and <code>ComponentsB</code> while also handling conflicting entries? In OOP, this merging operation is commonly known as <em>inheritance</em>.</p>
+<p>Unfortunately, the coherence restriction of Rust prevents us from implementing such a merging operation using generics and blanket implementations directly. Instead, we've developed macro-based approaches to emulate such merging at the <em>syntactic</em> level. The result is the <em>preset</em> system developed in this update, offering a powerful way to manage and compose component wirings.</p>
+<h3 id="preset-macros"><a class="zola-anchor" href="#preset-macros" aria-label="Anchor link for: preset-macros">Preset Macros</a></h3>
+<p>CGP presets are made of extensible collection of key/value mappings, that can be inherited to form new mappings.
+Instead of defining regular structs and build mappings with <code>delegate_components!</code>, presets are constructed as <em>modules</em> using the <code>cgp_preset!</code> macro together with the <code>#[re_export_imports]</code>. For example, the same mappings earlier would be rewritten as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp::re_export_imports]
+</span><span style="color:#569cd6;">mod </span><span>preset {
+</span><span>    </span><span style="color:#569cd6;">use </span><span>crate_a::{KeyA, </span><span style="color:#569cd6;">...</span><span>};
+</span><span>    </span><span style="color:#569cd6;">use </span><span>crate_b::{ValueA, </span><span style="color:#569cd6;">...</span><span>};
+</span><span>
+</span><span>    cgp_preset! {
+</span><span>        PresetA {
+</span><span>            KeyA: ValueA,
+</span><span>            KeyB: ValueB,
+</span><span>            KeyC: ValueC1,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The <code>#[cgp::re_export_imports]</code> macro is used over a surrogate <code>mod preset</code>, which wraps around the inner module to re-export the imports, so that they can be reused during the merging. This is required, because the merging works through macros, which don't have access to the actual type information. Aside from that, the macro re-exports all exports from the inner module, so that we can write regular code as if the <code>mod preset</code> modifier never existed.</p>
+<p>The macro <code>cgp_preset!</code> works similar to <code>delegate_components!</code>, but it defines a new <em>inner module</em> that contains the mapping struct, together with macros and re-exports to support the merging operation.</p>
+<p>Similarly, the second preset would be re-written as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp::re_export_imports]
+</span><span style="color:#569cd6;">mod </span><span>preset {
+</span><span>    </span><span style="color:#569cd6;">use </span><span>crate_c::{KeyC, </span><span style="color:#569cd6;">...</span><span>};
+</span><span>    </span><span style="color:#569cd6;">use </span><span>crate_d::{ValueD, </span><span style="color:#569cd6;">...</span><span>};
+</span><span>
+</span><span>    cgp_preset! {
+</span><span>        PresetB {
+</span><span>            KeyC: ValueC2,
+</span><span>            KeyD: ValueD,
+</span><span>            KeyE: ValueE,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>To merge the two presets, we can define a new <code>PresetC</code> that <em>inherits</em> from both <code>PresetA</code> and <code>PresetB</code>, like follows:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp::re_export_imports]
+</span><span style="color:#569cd6;">mod </span><span>preset {
+</span><span>    </span><span style="color:#569cd6;">use </span><span>preset_a::PresetA;
+</span><span>    </span><span style="color:#569cd6;">use </span><span>preset_b::PresetB;
+</span><span>    </span><span style="color:#569cd6;">use </span><span>crate_f::{KeyF, </span><span style="color:#569cd6;">...</span><span>};
+</span><span>
+</span><span>    cgp_preset! {
+</span><span>        PresetC: PresetA + PresetB {
+</span><span>            </span><span style="color:#ff3333;">override</span><span> KeyC: ValueC2,
+</span><span>            KeyF: ValueF,
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>As we can see, CGP supports <em>multiple inheritance</em> for presets by using macros to "copy" over the entries from the parent preset. To resolve conflicts or override entries from the parent presets, the <code>override</code> keyword can be used to exclude a given mapping from being copied over and instead use the local definition. And since the underlying implementation still uses <code>DelegateComponent</code> to implement the lookup, any non-overridden conflicts would simply result in a trait error due to overlapping instances, thus preventing the diamond inheritance dillema.</p>
+<h3 id="single-inheritance-with-context-provider"><a class="zola-anchor" href="#single-inheritance-with-context-provider" aria-label="Anchor link for: single-inheritance-with-context-provider">Single Inheritance with Context Provider</a></h3>
+<p>CGP also supports single inheritance of presets for use with with CGP contexts. For example, the final <code>PresetC</code> can be used in a context by writing:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_context(MyContextComponents: PresetC)]
+</span><span style="color:#569cd6;">pub struct </span><span>MyContext {
+</span><span>    ...
+</span><span>}
+</span></code></pre>
+<p>The first optional argument to <code>#[cgp_context]</code> is the name of the new provider struct that is used to implement the wirings for the context. It is then followed by an optional <code>: ParentPreset</code> argument, which would inherit all entries from the parent preset.</p>
+<p>Behind the scenes, the single inheritance works through special traits defined in the preset module. As a result, it works with fewer quirks than the macro-based implementation of nested and multiple inheritance between presets. The reason two separate techniques are used is that the trait-based approach can only work with at most one level of inheritance – having a single parent with no further trait-based grandparents.</p>
+<h3 id="comparison-with-oop-inheritance"><a class="zola-anchor" href="#comparison-with-oop-inheritance" aria-label="Anchor link for: comparison-with-oop-inheritance">Comparison with OOP Inheritance</a></h3>
+<p>The preset inheritance works very similarly to how inheritance is typically understood in OOP. However, there are several key differences that distinguish CGP presets from OOP inheritance in Rust.</p>
+<p>First, presets only work as type-level lookup tables, with no ability to directly implement "methods" on the preset itself. Hence, it works more like prototypal inheritance in languages such as JavaScript. Furthermore, the lookup table only exists at the type level, meaning it doesn't exist at runtime and thus introduces no runtime overhead.</p>
+<p>More importantly, CGP and Rust do not support the notion of subtyping. This means that two contexts that "inherit" from the same preset are treated as completely distinct types, and there's no mechanism to "upcast" the values to a common preset "parent" type (which doesn't exist). This means that in contrast to OOP, CGP preset inheritance only exists on the "provider"-side for implementation re-use, but not on the "consumer"-side for polymorphic consumption.</p>
+<h2 id="async-trait-update"><a class="zola-anchor" href="#async-trait-update" aria-label="Anchor link for: async-trait-update"><code>Async</code> Trait Update</a></h2>
+<p>The <code>Async</code> trait was defined to be a trait alias to <code>Send + Sync + 'static</code>, to make it esier for users to define abstract types that can be used within async functions that return <code>impl Future + Send</code>.</p>
+<p>However, practical experience has shown that the <code>'static</code> bound isn't really needed in most cases, and was thus removed in <a href="https://github.com/contextgeneric/cgp/pull/89">#89</a> from the default recommended trait bound. The removal of <code>'static</code> will make it easier to instantiate abstract types with concrete types that do not contain <code>'static</code> lifetimes.</p>
+<p>On the other hand, the default inclusion of <code>Send + Sync</code> is almost a necessary evil given the current state of async Rust. However, this may soon change when Return Type Notation (RTN) gets stabilized in Rust in the near future in <a href="https://github.com/rust-lang/rust/pull/138424">rust#138424</a>. Once that is stabilized, the <code>Async</code> trait itself can entirely be deprecated or removed.</p>
+<h2 id="blanket-trait-macro"><a class="zola-anchor" href="#blanket-trait-macro" aria-label="Anchor link for: blanket-trait-macro"><code>#[blanket_trait]</code> Macro</a></h2>
+<p><a href="https://github.com/contextgeneric/cgp/pull/79">#79</a> and <a href="https://github.com/contextgeneric/cgp/pull/82">#82</a> introduces a new <code>#[blanket_trait]</code> macro, which can be used to define trait aliases that contain empty body and trivial blanket implementations. Developers can use the <code>#[blanket_trait]</code> macro to define trait aliases, as well as abstract type aliases for more advanced cases.</p>
+<p>For example, given the following:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[trait_alias]
+</span><span style="color:#569cd6;">pub trait </span><span>HasAsyncErrorType: Async + HasErrorType&lt;Error: Async&gt; {}
+</span></code></pre>
+<p>automatically generates the following blanket implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">impl</span><span>&lt;Context&gt; HasAsyncErrorType </span><span style="color:#569cd6;">for </span><span>Context
+</span><span style="color:#569cd6;">where
+</span><span>    Context: Async + HasErrorType&lt;Error: Async&gt; {}
+</span></code></pre>
+<h2 id="personal-updates"><a class="zola-anchor" href="#personal-updates" aria-label="Anchor link for: personal-updates">Personal Updates</a></h2>
+<p>Aside from all the feature updates, I also have some personal updates related to the development of CGP.</p>
+<h3 id="persentation-at-leipzig-rust-meetup"><a class="zola-anchor" href="#persentation-at-leipzig-rust-meetup" aria-label="Anchor link for: persentation-at-leipzig-rust-meetup">Persentation at Leipzig Rust Meetup</a></h3>
+<p>I gave a presentation of CGP at the <a href="https://www.meetup.com/rust-modern-systems-programming-in-leipzig/events/303729528/">Leipzig Rust meetup</a> in February. Although there were no video recording, you can check out the <a href="https://github.com/contextgeneric/cgp-presentations/blob/main/2025/cgp-leipzig-2025-02-18.pdf">presentation slides</a> if you are interested.</p>
+<h3 id="bank-transfer-example"><a class="zola-anchor" href="#bank-transfer-example" aria-label="Anchor link for: bank-transfer-example">Bank Transfer Example</a></h3>
+<p>Along with the meetup presentation, an example <a href="https://github.com/contextgeneric/cgp-examples/tree/main/transfer">bank transfer</a> application has been drafted to demonstrate the use of CGP in practical applications. The example code is not yet sufficiently documented, but hopefully it can serve as a sneak preview for readers who would like to see more complex examples of CGP programs.</p>
+<h3 id="more-active-development-ahead"><a class="zola-anchor" href="#more-active-development-ahead" aria-label="Anchor link for: more-active-development-ahead">More Active Development Ahead</a></h3>
+<p>It has been 4 months since our last update. It's been challenging to manage a side project while juggling a full-time job and childcare without support from grandparents. On the bright side, I have managed to get a short 3-month sabbatical from May to July before starting a new job.</p>
+<p>This means you can expect to see much more active development from me during the next 3 months as I push CGP towards wider adoption. If you have suggestions on what should be developed during this time, or how I can make the project more sustainable, please let me know in the comments! Your feedback is invaluable.</p>
+<h3 id="attending-rustweek"><a class="zola-anchor" href="#attending-rustweek" aria-label="Anchor link for: attending-rustweek">Attending RustWeek</a></h3>
+<p>I will be attending <a href="https://rustweek.org/">RustWeek</a> in person next week (May 13-17 2025). Although I did not manage to get a presentation slot, I would love to meet up with Rust developers and discuss how CGP can be used to help solve real world problem in their Rust applications.</p>
+<p>If there's interest, I' woul'd also like to organize <a href="https://rustweek.org/events/hackathon/">Hackathon</a> sessions during the last day to have coding sessions for CGP. Otherwise, I might look around and try to apply CGP on one of the Hackathon projects. If you are interested to attend or suggest any activities, do <a href="https://docs.google.com/spreadsheets/d/1hT_nYY0yjTCBH3exl6BhW-Se3T_0ASPXXENxs-je19I/edit">sign up here</a> or ping me on <a href="https://bsky.app/profile/maybevoid.com">BlueSky</a>.</p>
+<p>Thank you for reading, and stay tuned for more updates on CGP!</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CGP v0.4.1 Release | Context-Generic Programming</title>
+    <meta property="og:title" content="CGP v0.4.1 Release | Context-Generic Programming" />
+    <meta property="og:description" content="Announcing the release of CGP v0.4.1, with new features like the cgp-handler crate, improved preset macros, and more.">
+    <meta property="og:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="twitter:title" content="CGP v0.4.1 Release | Context-Generic Programming">
+    <meta name="twitter:description" content="Announcing the release of CGP v0.4.1, with new features like the cgp-handler crate, improved preset macros, and more.">
+    <meta name="twitter:image" content="https://contextgeneric.dev/cgp-logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+<link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style>
+  :root {
+    /* Primary theme color */
+    --primary-color: #FFF5DA;
+    /* Primary theme text color */
+    /* --primary-text-color: #543631; */
+    --primary-text-color: #000;
+    --primary-text-color-over: #000;
+    --primary-heading-color: #5D0705;
+    /* Primary theme link color */
+    --primary-link-color: #8F1F1D;
+    /* Secondary color: the background body color */
+    --secondary-color: #FCF7E9;
+    --secondary-text-color: #303030;
+    /* Highlight text color of table of content */
+    --toc-highlight-text-color: #8F1F1D;
+    --toc-background-color: white;
+    --shadow-color: #ddd;
+    /* Font used for headers (h1 & h2) */
+    --header-font-family: "Fira Sans", sans-serif;
+    /* Font used for text */
+    --text-font-family: "Fira Sans", sans-serif;
+  }
+</style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/normalize.css">
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/juice.css">
+    
+    <link rel="stylesheet" href="https://www.contextgeneric.dev/carbon.css">
+    
+    <link rel="alternate" type="application/atom+xml" title="Context-Generic Programming Atom Feed" href="/atom.xml">
+</head>
+
+<body>
+    
+<header class="box-shadow">
+    
+
+<a href="https://www.contextgeneric.dev/">
+    <div class="logo">
+        <img src="https://www.contextgeneric.dev/cgp-logo.svg" alt="logo">
+        Context-Generic Programming
+    </div>
+</a>
+
+<nav>
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/overview/">Overview</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/contribute/">Contribute</a>
+    
+    
+    
+    
+    <a class="nav-item subtitle-text" href="https://www.contextgeneric.dev/resources/">Resources</a>
+    
+    
+    
+        
+        <a class="nav-item subtitle-text" href="/blog">Blog</a>
+        
+        <a class="nav-item subtitle-text" href="https://patterns.contextgeneric.dev">Book</a>
+        
+        <a class="nav-item subtitle-text" href="https://github.com/contextgeneric/cgp">GitHub</a>
+        
+    
+</nav>
+
+</header>
+
+
+    <main>
+        
+        
+        
+        
+        
+        <div class="toc">
+            <div class="toc-sticky">
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#overview">Overview</a>
+                </div>
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#new-cgp-handler-crate">New cgp-handler Crate</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#handler"><small>- Handler</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#computer"><small>- Computer</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#producer"><small>- Producer</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#code-parameter"><small>- Code Parameter</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#cgp-preset-macro-improvements">cgp_preset! Macro Improvements</a>
+                </div>
+                
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#support-for-wrapping-preset-provider-in-cgp-preset"><small>- Support for Wrapping Preset::Provider in cgp_preset!</small></a>
+                </div>
+                
+                <div class="toc-item-child">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#automated-usedelegate-derivation-in-cgp-component"><small>- Automated UseDelegate Derivation in #[cgp_component]</small></a>
+                </div>
+                
+                
+                
+                <div class="toc-item">
+                    <a class="subtext" href="https://www.contextgeneric.dev/blog/v0-4-1-release/#other-improvements">Other Improvements</a>
+                </div>
+                
+                
+            </div>
+        </div>
+        
+        
+
+        <div class="content text">
+            <div>
+                
+<div class="heading-text">CGP v0.4.1 Release</div>
+<div style="text-align: right;"><i>Posted on 2025-06-14</i></div>
+<div style="text-align: right;"><i>Authored by Soares Chen</i></div>
+<div><h1 id="overview"><a class="zola-anchor" href="#overview" aria-label="Anchor link for: overview">Overview</a></h1>
+<p>We are excited to announce the release of CGP v0.4.1! This release brings several new features, quality-of-life improvements for macro usages, and a new crate <code>cgp-handler</code>.</p>
+<p>Here are some of the highlights:</p>
+<ul>
+<li><strong>New <code>cgp-handler</code> crate</strong>: Provides abstract interfaces for defining components with common method signatures.</li>
+<li><strong><code>cgp_preset!</code> macro improvement</strong>: Now supports wrapping of <code>Preset::Provider</code>.</li>
+<li><strong><code>#[cgp_component]</code> macro improvement</strong>: Now supports automated derivation of <code>UseDelegate</code>.</li>
+<li><strong>Improved Documentation</strong>: Added inline Rust documentation for common CGP constructs.</li>
+</ul>
+<p>Below we will go through some of the most significant changes in this release.</p>
+<h1 id="new-cgp-handler-crate"><a class="zola-anchor" href="#new-cgp-handler-crate" aria-label="Anchor link for: new-cgp-handler-crate">New <code>cgp-handler</code> Crate</a></h1>
+<p>This release introduces a new <code>cgp-handler</code> crate, which offers abstract interfaces for defining components with common method signatures. This helps in creating reusable and composable handlers for various tasks.</p>
+<p>As a semi-stable and non-essential crate, the <code>cgp-handler</code> crate is re-exported by <code>cgp-extra</code>, and is available from <code>cgp::extra::handler</code>.</p>
+<p>The introduction of <code>cgp-handler</code> is mainly to support the development of <a href="/blog/hypershell-release">Hypershell</a>, which makes heavy use of the <code>Handler</code> component to design and implement its DSL providers.</p>
+<p>The crate introduces three main components: <code>Handler</code>, <code>Computer</code>, and <code>Producer</code>.</p>
+<h2 id="handler"><a class="zola-anchor" href="#handler" aria-label="Anchor link for: handler"><code>Handler</code></a></h2>
+<p>The <code>Handler</code> component provides the most commonly used interface for performing asynchronous operations that may fail:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(Handler)]
+</span><span>#[async_trait]
+</span><span style="color:#569cd6;">pub trait </span><span>CanHandle&lt;Code: Send, Input: Send&gt;: HasAsyncErrorType {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>: Send;
+</span><span>
+</span><span>    async </span><span style="color:#569cd6;">fn </span><span>handle(
+</span><span>        </span><span style="color:#569cd6;">&amp;</span><span>self,
+</span><span>        _tag: PhantomData&lt;Code&gt;,
+</span><span>        input: Input,
+</span><span>    ) -&gt; Result&lt;</span><span style="color:#569cd6;">Self::</span><span>Output, </span><span style="color:#569cd6;">Self::</span><span>Error&gt;;
+</span><span>}
+</span></code></pre>
+<h2 id="computer"><a class="zola-anchor" href="#computer" aria-label="Anchor link for: computer"><code>Computer</code></a></h2>
+<p>The <code>Computer</code> component mirrors a pure function that takes some input, performs some computation, and produces an output.</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(Computer)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanCompute&lt;Code, Input&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>compute(</span><span style="color:#569cd6;">&amp;</span><span>self, _tag: PhantomData&lt;Code&gt;, input: Input) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span></code></pre>
+<h2 id="producer"><a class="zola-anchor" href="#producer" aria-label="Anchor link for: producer"><code>Producer</code></a></h2>
+<p>The <code>Producer</code> component mirrors a global singleton function to produce an output value. It is useful to emulate global values that cannot be constructed through the <code>const</code> context in Rust, such as <code>String</code>.</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component(Producer)]
+</span><span style="color:#569cd6;">pub trait </span><span>CanProduce&lt;Code&gt; {
+</span><span>    </span><span style="color:#569cd6;">type </span><span style="color:#4ec9b0;">Output</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>produce(</span><span style="color:#569cd6;">&amp;</span><span>self, _tag: PhantomData&lt;Code&gt;) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Output;
+</span><span>}
+</span></code></pre>
+<h2 id="code-parameter"><a class="zola-anchor" href="#code-parameter" aria-label="Anchor link for: code-parameter"><code>Code</code> Parameter</a></h2>
+<p>All the traits in <code>cgp-handler</code> contain a phantom <code>Code</code> parameter that can be used for building type-level DSLs such as <a href="https://github.com/contextgeneric/hypershell">Hypershell</a>. They can also be used as type-level identifiers for dispatching, such as in API handlers.</p>
+<h1 id="cgp-preset-macro-improvements"><a class="zola-anchor" href="#cgp-preset-macro-improvements" aria-label="Anchor link for: cgp-preset-macro-improvements"><code>cgp_preset!</code> Macro Improvements</a></h1>
+<p>This release also brings minor improvements to our <code>cgp_preset!</code> macro, supporting the definition of CGP presets for more diverse use cases.</p>
+<h2 id="support-for-wrapping-preset-provider-in-cgp-preset"><a class="zola-anchor" href="#support-for-wrapping-preset-provider-in-cgp-preset" aria-label="Anchor link for: support-for-wrapping-preset-provider-in-cgp-preset">Support for Wrapping <code>Preset::Provider</code> in <code>cgp_preset!</code></a></h2>
+<p>The <code>cgp_preset!</code> macro now allows users to specify a <code>#[wrap_provider]</code> attribute to wrap the <code>Preset::Provider</code> type. This is particularly useful when using CGP presets to define extensible mappings for generic dispatch through the <code>UseDelegate</code> pattern.</p>
+<p>Wrapping the provider makes it easier to extend non-provider mappings across multiple levels of preset inheritance. The wrapped <code>Preset::Provider</code> type will implement the expected provider trait, making it a valid delegation target.</p>
+<h3 id="example"><a class="zola-anchor" href="#example" aria-label="Anchor link for: example">Example</a></h3>
+<p>Given the following preset definition:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>cgp_preset! {
+</span><span>    #[wrap_provider(UseDelegate)]
+</span><span>    MyHandlerPreset {
+</span><span>        String: HandleString,
+</span><span>        </span><span style="color:#569cd6;">u64</span><span>: HandleU64,
+</span><span>        </span><span style="color:#569cd6;">...
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>The macro generates the following implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#569cd6;">pub mod </span><span>MyHandlerPreset {
+</span><span>    </span><span style="color:#569cd6;">...
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">pub type </span><span style="color:#4ec9b0;">Provider </span><span>= UseDelegate&lt;Components&gt;;
+</span><span>
+</span><span>    delegate_components! {
+</span><span>        new Components {
+</span><span>            String: HandleString,
+</span><span>            </span><span style="color:#569cd6;">u64</span><span>: HandleU64,
+</span><span>            </span><span style="color:#569cd6;">...
+</span><span>        }
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#569cd6;">...
+</span><span>}
+</span></code></pre>
+<h2 id="automated-usedelegate-derivation-in-cgp-component"><a class="zola-anchor" href="#automated-usedelegate-derivation-in-cgp-component" aria-label="Anchor link for: automated-usedelegate-derivation-in-cgp-component">Automated <code>UseDelegate</code> Derivation in <code>#[cgp_component]</code></a></h2>
+<p>The <code>#[cgp_component]</code> family of macros now includes a <code>derive_delegate</code> field, which allows for the automated implementation of <code>UseDelegate</code> for CGP components. This reduces boilerplate code that was previously required to be implemented manually.</p>
+<h3 id="example-1"><a class="zola-anchor" href="#example-1" aria-label="Anchor link for: example-1">Example</a></h3>
+<p>The updated <code>ErrorRaiser</code> component can now be defined as:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_component {
+</span><span>    provider: ErrorRaiser,
+</span><span>    derive_delegate: UseDelegate&lt;SourceError&gt;,
+</span><span>}]
+</span><span style="color:#569cd6;">pub trait </span><span>CanRaiseError&lt;SourceError&gt;: HasErrorType {
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>raise_error(error: SourceError) -&gt; </span><span style="color:#569cd6;">Self::</span><span>Error;
+</span><span>}
+</span></code></pre>
+<p>This will automatically derive the <code>UseDelegate</code> implementation:</p>
+<pre data-lang="rust" style="background-color:#1e1e1e;color:#dcdcdc;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[cgp_provider(ErrorRaiserComponent)]
+</span><span style="color:#569cd6;">impl</span><span>&lt;Context, SourceError, Components, Delegate&gt; ErrorRaiser&lt;Context, SourceError&gt;
+</span><span>    for UseDelegate&lt;Components&gt;
+</span><span style="color:#569cd6;">where
+</span><span>    Context: HasErrorType,
+</span><span>    Components: DelegateComponent&lt;SourceError, Delegate = Delegate&gt;,
+</span><span>    Delegate: ErrorRaiser&lt;Context, SourceError&gt;,
+</span><span>{
+</span><span>    </span><span style="color:#569cd6;">fn </span><span>raise_error(e: SourceError) -&gt; </span><span style="color:#569cd6;">Context::</span><span>Error {
+</span><span>        Delegate::raise_error(e)
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h1 id="other-improvements"><a class="zola-anchor" href="#other-improvements" aria-label="Anchor link for: other-improvements">Other Improvements</a></h1>
+<p>This release also includes several other minor improvements and fixes:</p>
+<ul>
+<li><strong>Improved Documentation</strong>: We have added inline Rust documentation for many common CGP constructs, making it easier for developers to understand and use them. This is part of our ongoing effort to improve the developer experience.</li>
+<li><strong>Static <code>Char</code> Formatting</strong>: The <code>Char</code> type can now be formatted statically without requiring <code>self</code>, which allows type-level strings to be formatted without constructing any value.</li>
+<li>Use <code>__Self__</code> instead of <code>T</code> when deriving <code>Preset::IsPreset</code> to avoid identifier conflicts when users use <code>T</code> in their generic parameters.</li>
+<li>Included trait bound identifiers in <code>Preset::components</code> re-export.</li>
+</ul>
+<hr />
+<p>We hope you enjoy the new features and improvements in this release. As always, we welcome feedback and contributions from the community. Check out the project on <a href="https://github.com/contextgeneric/cgp/">GitHub</a> and the full <a href="https://github.com/contextgeneric/cgp/blob/main/CHANGELOG.md">changelog</a> for more details.</p>
+</div>
+
+            </div>
+        </div>
+
+        
+
+    </main>
+
+    
+<footer>
+    <small class="subtext" style="text-align: center;">
+        <a href="https://maybevoid.com">MaybeVoid</a> © 2024
+        <br />
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">
+            CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt="">
+        </a>
+    </small>
+</footer>
+
+</body>
+<script>
+    const scrollHandler = entries => {
+        // Find the first entry which intersecting and ratio > 0.9 to highlight.
+        let entry = entries.find(entry => {
+            return entry.isIntersecting && entry.intersectionRatio > 0.9;
+        });
+        if (!entry) return;
+
+        document.querySelectorAll(".toc a").forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        // let url = new URL(`#${entry.target.id}`);
+        let link = document.querySelector(`.toc a[href$="${decodeURIComponent(`#${entry.target.id}`)}"]`)
+        if (link) {
+            link.classList.add("active");
+            link.scrollIntoView({ behavior: "auto", block: "nearest" });
+        }
+    };
+    // Set -100px root margin to improve highlight experience.
+    const observer = new IntersectionObserver(scrollHandler, { threshold: 1 });
+    let items = document.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    items.forEach(item => observer.observe(item));
+</script>
+
+</html>
